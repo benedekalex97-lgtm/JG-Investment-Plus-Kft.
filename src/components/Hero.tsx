@@ -35,7 +35,11 @@ export default function Hero() {
 
             <h1
               id="hero-cim"
-              className="mt-4 text-[1.75rem] leading-[1.15] font-semibold tracking-tight text-balance text-graphite sm:text-4xl lg:text-[2.75rem]"
+              /*
+                A clamp megakadályozza, hogy a főcím 320 px-en egyetlen szavas
+                sorokra essen szét („Közvetlen" / „kapcsolat").
+              */
+              className="mt-4 text-[clamp(1.375rem,6.9vw,1.75rem)] leading-[1.15] font-semibold tracking-tight text-balance text-graphite sm:text-4xl lg:text-[2.75rem]"
             >
               <span className="jg-reveal jg-reveal-1 block">{firstLine}</span>
               <span className="jg-reveal jg-reveal-2 mt-1 block">

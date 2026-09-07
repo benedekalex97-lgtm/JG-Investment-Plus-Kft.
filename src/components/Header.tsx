@@ -33,7 +33,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-silver/60 bg-paper/95 backdrop-blur-sm">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 py-3 sm:px-6 lg:px-8">
         <a
           href="#top"
           className="flex min-h-11 items-center gap-2 rounded font-semibold tracking-tight text-graphite"
@@ -42,7 +42,7 @@ export default function Header() {
             aria-hidden="true"
             className="inline-block h-6 w-1.5 shrink-0 rounded-full bg-action"
           />
-          <span className="text-base sm:text-lg">{meta.wordmark}</span>
+          <span className="text-[0.9375rem] sm:text-lg">{meta.wordmark}</span>
         </a>
 
         <nav aria-label={nav.menuLabel} className="hidden min-w-0 lg:block">
