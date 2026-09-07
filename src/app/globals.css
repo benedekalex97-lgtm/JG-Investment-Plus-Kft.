@@ -1,0 +1,237 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   JG INVESTMENT PLUS — DESIGN TOKENEK
+   Steel Azure színrendszer (IDEIGLENES, nem végleges branddöntés).
+   Világos dominancia; Deep Graphite csak kontrollált, hangsúlyos szakaszon.
+   ========================================================================== */
+@theme {
+  --color-graphite: #182631;
+  --color-steel: #5b7184;
+  --color-action: #256fd1;
+  --color-azure: #2f80ed;
+  --color-silver: #b7c2ca;
+  --color-ice: #f3f6f8;
+  --color-paper: #ffffff;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+
+  --radius-card: 0.875rem;
+}
+
+/* --------------------------------------------------------------------------
+   KONTRASZT-JEGYZET (WCAG AA, számított arányok)
+   graphite  #182631 fehéren ............ 15.9:1  — főcím, törzsszöveg
+   steel     #5B7184 fehéren .............. 5.1:1  — másodlagos szöveg
+   steel     #5B7184 ice canvason ......... 4.7:1  — másodlagos szöveg
+   action    #256FD1 fehéren .............. 4.9:1  — link, CTA
+   fehér     #FFFFFF action blue-n ....... 4.9:1  — elsődleges CTA felirat
+   silver    #B7C2CA graphite-on ......... 8.5:1  — sötét szakasz másodlagos
+   azure     #2F80ED fehéren .............. 3.9:1  — NEM törzsszöveghez:
+                                                    kizárólag dekoratív és
+                                                    mozgási kiemelés
+   Piros és zöld nem kap kereskedési jelentést; a paletta nincs kiegészítve.
+   -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* A fix header miatti anchor-eltolás. */
+  scroll-padding-top: 5.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-graphite);
+  font-family: var(--font-sans);
+  /* A törzsszöveg alapmérete legalább 16 px. */
+  font-size: 1rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  /* Vízszintes overflow elleni védelem 320 px-től. */
+  overflow-x: hidden;
+  /*
+    Hosszú, összetett magyar szavak (pl. „tőkepiacokhoz”,
+    „Kapcsolatfelvétel”) 200%-os szövegnagyításnál és 320 px-es viewporton
+    túlnyúlnának a szűk rácsoszlopokon; a törés ezt megszünteti.
+  */
+  overflow-wrap: break-word;
+}
+
+/* Egységes, jól látható fókuszállapot. */
+:focus-visible {
+  outline: 3px solid var(--color-action);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   HERO SZÖVEGANIMÁCIÓ
+   Egyszer lefutó reveal. A tartalom alapállapotban IS látható:
+   az animáció csak akkor rejti el kiindulásnál, ha a CSS betöltött, és
+   maga a keyframe hozza vissza. JS nem befolyásolja a láthatóságot.
+   ========================================================================== */
+@keyframes jg-reveal-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.jg-reveal {
+  animation: jg-reveal-up 620ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.jg-reveal-1 { animation-delay: 60ms; }
+.jg-reveal-2 { animation-delay: 190ms; }
+.jg-reveal-3 { animation-delay: 320ms; }
+.jg-reveal-4 { animation-delay: 430ms; }
+
+/* ==========================================================================
+   HERO MOZGÁS
+   Kizárólag transform és opacity — GPU-barát, layout-újraszámítás nélkül.
+   ========================================================================== */
+
+/* A figura enyhe oldalirányú haladása, folyamatos, észrevétlen ciklusban. */
+@keyframes jg-figure-travel {
+  0%   { transform: translate3d(-3.5%, 0, 0); }
+  50%  { transform: translate3d(3.5%, 0, 0); }
+  100% { transform: translate3d(-3.5%, 0, 0); }
+}
+
+/* Futó és ugró mozgás váltakozása: két alacsonyabb lépés, majd egy ív.
+   Nincs célvonal és nincs győzelmi pillanat — a ciklus visszatér a kiindulásra. */
+@keyframes jg-figure-gait {
+  0%   { transform: translate3d(0, 0, 0); }
+  12%  { transform: translate3d(0, -2.2%, 0); }
+  24%  { transform: translate3d(0, 0, 0); }
+  36%  { transform: translate3d(0, -2.2%, 0); }
+  48%  { transform: translate3d(0, 0, 0); }
+  64%  { transform: translate3d(0, -7.5%, 0); }
+  80%  { transform: translate3d(0, 0, 0); }
+  90%  { transform: translate3d(0, -1.6%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* A törzs finom dőlése a lépésritmushoz. */
+@keyframes jg-figure-lean {
+  0%   { transform: rotate(-1.6deg); }
+  50%  { transform: rotate(1.6deg); }
+  100% { transform: rotate(-1.6deg); }
+}
+
+/* Végtagok visszafogott lengése. */
+@keyframes jg-limb-swing-a {
+  0%   { transform: rotate(16deg); }
+  50%  { transform: rotate(-16deg); }
+  100% { transform: rotate(16deg); }
+}
+
+@keyframes jg-limb-swing-b {
+  0%   { transform: rotate(-16deg); }
+  50%  { transform: rotate(16deg); }
+  100% { transform: rotate(-16deg); }
+}
+
+/* Gyertyák: finom emelkedés és süllyedés, visszatéréssel.
+   A pálya nem tart folyamatosan felfelé. */
+@keyframes jg-candle-drift {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(0, -12px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes jg-candle-drift-inv {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(0, 10px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* Enyhe parallax / kamerakövetés érzet a rétegeken. */
+@keyframes jg-parallax-near {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(-1.6%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes jg-parallax-far {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(0.9%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.jg-motion-figure-travel {
+  animation: jg-figure-travel 16s ease-in-out infinite;
+}
+.jg-motion-figure-gait {
+  animation: jg-figure-gait 2.6s ease-in-out infinite;
+}
+.jg-motion-figure-lean {
+  animation: jg-figure-lean 2.6s ease-in-out infinite;
+  transform-origin: 50% 88%;
+}
+.jg-motion-limb-a {
+  animation: jg-limb-swing-a 1.3s ease-in-out infinite;
+}
+.jg-motion-limb-b {
+  animation: jg-limb-swing-b 1.3s ease-in-out infinite;
+}
+.jg-motion-parallax-near {
+  animation: jg-parallax-near 22s ease-in-out infinite;
+}
+.jg-motion-parallax-far {
+  animation: jg-parallax-far 30s ease-in-out infinite;
+}
+.jg-motion-candle {
+  animation: jg-candle-drift 9s ease-in-out infinite;
+}
+.jg-motion-candle-inv {
+  animation: jg-candle-drift-inv 11s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   Minden szöveg azonnal látható; nincs futó, ugró, sodródó vagy parallax
+   mozgás; a Hero statikus, de jelentésében azonos kompozíció marad.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .jg-reveal,
+  .jg-motion-figure-travel,
+  .jg-motion-figure-gait,
+  .jg-motion-figure-lean,
+  .jg-motion-limb-a,
+  .jg-motion-limb-b,
+  .jg-motion-parallax-near,
+  .jg-motion-parallax-far,
+  .jg-motion-candle,
+  .jg-motion-candle-inv {
+    animation: none !important;
+  }
+
+  .jg-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
