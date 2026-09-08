@@ -13,7 +13,7 @@
  * MÓDOSÍTÁSI SZABÁLY: compliance-visszajelzés esetén kizárólag ezt a fájlt
  * kell szerkeszteni. A komponensek nem tartalmaznak beégetett üzleti szöveget.
  *
- * STÁTUSZ: v0.1 vizuális prototípus. Nem MNB-megfelelő, nem jogilag végleges,
+ * STÁTUSZ: v0.2 vizuális rendszer + Hero motion prototípus. Nem MNB-megfelelő, nem jogilag végleges,
  * nem K&H-jóváhagyott, nem publikálásra kész, nem production-ready.
  * Élesítés előtt a K&H Compliance/Kommunikáció írásbeli jóváhagyása szükséges.
  */
@@ -24,7 +24,7 @@ export const meta = {
   wordmark: "JG Investment Plus",
   documentVersion: "Végleges weboldalszövegezés – v1.0",
   prototypeStatus:
-    "v0.1 vizuális prototípus – belső review céljára. Nem publikálásra kész.",
+    "v0.2 vizuális rendszer + Hero motion – belső review céljára. Nem publikálásra kész.",
 } as const;
 
 /** Címkézett elérhetőségi tétel; a href opcionális (pl. a székhely nem link). */
@@ -250,12 +250,12 @@ export const contact: {
   },
 };
 
-/** SOT 5. — Kapcsolati űrlap (v0.1: kizárólag vizuális prototípus) */
+/** SOT 5. — Kapcsolati űrlap (v0.2: továbbra is kizárólag vizuális prototípus) */
 export const contactForm = {
   heading: "Kapcsolati űrlap",
   /** Prototípus-státusz. Az űrlap nem küld adatot. */
   prototypeNotice:
-    "Ez az űrlap a v0.1 vizuális prototípusban még nem aktív: nem küld és nem tárol adatot. Az adatkezelési tájékoztató linkje az élesítés előtti compliance-lépés után kerül be.",
+    "Ez az űrlap a v0.2 vizuális prototípusban még nem aktív: nem küld és nem tárol adatot. Az adatkezelési tájékoztató linkje az élesítés előtti compliance-lépés után kerül be.",
   fields: [
     { id: "nev", label: "Név", type: "text", autoComplete: "name" },
     { id: "email", label: "E-mail-cím", type: "email", autoComplete: "email" },

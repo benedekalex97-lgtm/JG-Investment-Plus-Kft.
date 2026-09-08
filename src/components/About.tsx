@@ -9,11 +9,11 @@ export default function About() {
       heading={about.heading}
       headingId="rolunk-cim"
     >
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-x-10 gap-y-5 md:grid-cols-2">
         {about.paragraphs.map((paragraph) => (
           <p
             key={paragraph.slice(0, 48)}
-            className="text-base leading-relaxed text-graphite"
+            className="text-base leading-relaxed text-text-primary"
           >
             {paragraph}
           </p>

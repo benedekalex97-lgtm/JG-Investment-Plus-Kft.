@@ -20,44 +20,47 @@ export default function Contact() {
       heading={contact.heading}
       headingId="kapcsolat-cim"
       lead={contact.lead}
+      tone="surface"
     >
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
         {/* Elérhetőségek és üzleti órák */}
         <div className="space-y-6">
-          <ul className="rounded-card border border-silver bg-ice p-6">
+          <ul className="rounded-card border border-border bg-canvas p-6">
             {contact.details.map((detail) => (
               <li
                 key={detail.label}
-                className="flex flex-col gap-0.5 border-b border-silver/70 py-3 first:pt-0 last:border-0 last:pb-0 sm:flex-row sm:items-baseline sm:gap-4"
+                className="flex flex-col gap-0.5 border-b border-border py-3 first:pt-0 last:border-0 last:pb-0 sm:flex-row sm:items-baseline sm:gap-4"
               >
-                <span className="text-sm font-semibold text-steel sm:w-40 sm:shrink-0">
+                <span className="text-sm font-medium text-text-secondary sm:w-40 sm:shrink-0">
                   {detail.label}
                 </span>
                 {detail.href ? (
                   <a
                     href={detail.href}
-                    className="inline-flex min-h-11 items-center text-base font-medium text-action underline underline-offset-4 sm:min-h-0"
+                    className="inline-flex min-h-11 items-center text-base font-medium text-accent underline underline-offset-4 sm:min-h-0"
                   >
                     {detail.value}
                   </a>
                 ) : (
-                  <span className="text-base text-graphite">{detail.value}</span>
+                  <span className="text-base text-text-primary">
+                    {detail.value}
+                  </span>
                 )}
               </li>
             ))}
           </ul>
 
-          <div className="rounded-card border border-silver bg-paper p-6">
-            <h3 className="text-lg font-semibold text-graphite">
+          <div className="rounded-card border border-border bg-canvas p-6">
+            <h3 className="text-lg font-medium text-text-primary">
               {contact.businessHours.heading}
             </h3>
             <dl className="mt-4 space-y-3">
               {contact.businessHours.items.map((item) => (
                 <div key={item.market}>
-                  <dt className="text-sm font-semibold text-steel">
+                  <dt className="text-sm font-medium text-text-secondary">
                     {item.market}
                   </dt>
-                  <dd className="text-base leading-relaxed text-graphite">
+                  <dd className="text-base leading-relaxed text-text-primary">
                     {item.value}
                   </dd>
                 </div>
@@ -66,8 +69,8 @@ export default function Contact() {
           </div>
 
           {/* A K&H Értékpapír önálló, vizuálisan elkülönített doboza. */}
-          <div className="rounded-card border-l-4 border-graphite border-y border-r border-y-silver border-r-silver bg-paper p-6">
-            <h3 className="text-lg font-semibold text-graphite">
+          <div className="rounded-card border border-border border-l-[3px] border-l-ink bg-canvas p-6">
+            <h3 className="text-lg font-medium text-text-primary">
               {contact.khSupport.heading}
             </h3>
             <ul className="mt-4 space-y-2">
@@ -76,18 +79,20 @@ export default function Contact() {
                   key={item.label}
                   className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-4"
                 >
-                  <span className="text-sm font-semibold text-steel sm:w-40 sm:shrink-0">
+                  <span className="text-sm font-medium text-text-secondary sm:w-40 sm:shrink-0">
                     {item.label}
                   </span>
                   {item.href ? (
                     <a
                       href={item.href}
-                      className="inline-flex min-h-11 items-center break-all text-base font-medium text-action underline underline-offset-4 sm:min-h-0"
+                      className="inline-flex min-h-11 items-center break-all text-base font-medium text-accent underline underline-offset-4 sm:min-h-0"
                     >
                       {item.value}
                     </a>
                   ) : (
-                    <span className="text-base text-graphite">{item.value}</span>
+                    <span className="text-base text-text-primary">
+                      {item.value}
+                    </span>
                   )}
                 </li>
               ))}
@@ -96,15 +101,15 @@ export default function Contact() {
         </div>
 
         {/* Kapcsolati űrlap — vizuális prototípus */}
-        <div className="rounded-card border border-silver bg-ice p-6">
-          <h3 className="text-lg font-semibold text-graphite">
+        <div className="rounded-card border border-border bg-canvas p-6 shadow-soft">
+          <h3 className="text-lg font-medium text-text-primary">
             {contactForm.heading}
           </h3>
 
           {/* A prototípus státusza láthatóan jelezve, nem csak kommentben. */}
           <p
             role="note"
-            className="mt-3 rounded-lg border border-action/40 bg-paper p-4 text-base leading-relaxed font-medium text-graphite"
+            className="mt-3 rounded-lg border border-border border-l-[3px] border-l-accent bg-surface p-4 text-base leading-relaxed font-medium text-text-primary"
           >
             {contactForm.prototypeNotice}
           </p>
@@ -115,7 +120,7 @@ export default function Contact() {
                 <div key={field.id}>
                   <label
                     htmlFor={field.id}
-                    className="block text-sm font-semibold text-graphite"
+                    className="block text-sm font-medium text-text-primary"
                   >
                     {field.label}
                   </label>
@@ -124,14 +129,14 @@ export default function Contact() {
                     name={field.id}
                     rows={4}
                     autoComplete={field.autoComplete}
-                    className="mt-1.5 w-full rounded-lg border border-silver bg-paper px-3 py-2.5 text-base text-graphite"
+                    className="mt-1.5 w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-base text-text-primary"
                   />
                 </div>
               ) : (
                 <div key={field.id}>
                   <label
                     htmlFor={field.id}
-                    className="block text-sm font-semibold text-graphite"
+                    className="block text-sm font-medium text-text-primary"
                   >
                     {field.label}
                   </label>
@@ -140,7 +145,7 @@ export default function Contact() {
                     name={field.id}
                     type={field.type}
                     autoComplete={field.autoComplete}
-                    className="mt-1.5 h-12 w-full rounded-lg border border-silver bg-paper px-3 text-base text-graphite"
+                    className="mt-1.5 h-12 w-full rounded-lg border border-border bg-surface px-3 text-base text-text-primary"
                   />
                 </div>
               ),
@@ -153,11 +158,11 @@ export default function Contact() {
                 id="adatkezeles"
                 name="adatkezeles"
                 type="checkbox"
-                className="mt-0.5 h-6 w-6 shrink-0 rounded border-silver accent-[#256FD1]"
+                className="mt-0.5 h-6 w-6 shrink-0 rounded border-border accent-[var(--accent)]"
               />
               <label
                 htmlFor="adatkezeles"
-                className="text-base leading-relaxed text-graphite"
+                className="text-base leading-relaxed text-text-primary"
               >
                 {contactForm.consentLabel}
               </label>
@@ -169,13 +174,13 @@ export default function Contact() {
             */}
             <button
               type="button"
-              className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-action px-6 text-base font-semibold text-paper sm:w-auto"
+              className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-md bg-accent px-6 text-base font-medium text-white transition-colors hover:bg-accent-hover sm:w-auto"
             >
               {contactForm.submitLabel}
             </button>
           </div>
 
-          <p className="mt-5 border-t border-silver pt-4 text-base leading-relaxed font-medium text-graphite">
+          <p className="mt-5 border-t border-border pt-4 text-base leading-relaxed font-medium text-text-primary">
             {contactForm.orderNotice}
           </p>
         </div>

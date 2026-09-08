@@ -16,7 +16,7 @@ export default function Home() {
       {/* Skip link: az első fókuszálható elem, csak fókuszban látható. */}
       <a
         href="#fotartalom"
-        className="sr-only rounded-lg bg-graphite text-base font-semibold text-paper focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[100] focus:inline-flex focus:min-h-12 focus:items-center focus:px-5"
+        className="on-dark sr-only rounded-lg bg-ink text-base font-medium text-porcelain focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[100] focus:inline-flex focus:min-h-12 focus:items-center focus:px-5"
       >
         {nav.skipLink}
       </a>

@@ -6,13 +6,16 @@ type SectionProps = {
   heading: string;
   headingId: string;
   lead?: string;
-  tone?: "paper" | "ice";
+  tone?: "canvas" | "surface";
   children: ReactNode;
 };
 
 /**
  * Section — közös szakaszkeret egységes ritmussal és heading-hierarchiával.
  * Minden szakasz h2 szintű címet kap; a szakaszon belüli tételek h3-at.
+ *
+ * Editorial ritmus: bőséges függőleges tér, aubergine eyebrow-label, serif
+ * display cím, a lead szöveg olvasási mértékre (max-w) korlátozva.
  */
 export default function Section({
   id,
@@ -20,31 +23,31 @@ export default function Section({
   heading,
   headingId,
   lead,
-  tone = "paper",
+  tone = "canvas",
   children,
 }: SectionProps) {
   return (
     <section
       id={id}
       aria-labelledby={headingId}
-      className={tone === "ice" ? "bg-ice" : "bg-paper"}
+      className={tone === "surface" ? "bg-surface" : "bg-canvas"}
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-        <p className="text-xs font-bold tracking-widest text-action uppercase">
+      <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <p className="text-xs font-medium tracking-[0.16em] text-accent uppercase">
           {label}
         </p>
         <h2
           id={headingId}
-          className="mt-3 max-w-3xl text-2xl leading-tight font-semibold tracking-tight text-balance text-graphite sm:text-3xl"
+          className="font-display mt-3 max-w-2xl text-[1.75rem] leading-[1.2] text-balance text-text-primary sm:text-[2.25rem]"
         >
           {heading}
         </h2>
         {lead ? (
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-steel">
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-text-secondary">
             {lead}
           </p>
         ) : null}
-        <div className="mt-8 sm:mt-10">{children}</div>
+        <div className="mt-10 sm:mt-12">{children}</div>
       </div>
     </section>
   );

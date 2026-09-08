@@ -10,16 +10,13 @@ export default function WhyJG() {
       headingId="miert-a-jg-cim"
       lead={whyJg.subheading}
     >
-      <ul className="grid gap-4 md:grid-cols-3">
+      <ul className="grid gap-5 md:grid-cols-3">
         {whyJg.pillars.map((pillar) => (
-          <li
-            key={pillar.title}
-            className="rounded-card border border-silver bg-ice p-6"
-          >
-            <h3 className="text-lg font-semibold text-graphite">
+          <li key={pillar.title} className="border-t border-border-strong pt-5">
+            <h3 className="font-display text-lg text-text-primary">
               {pillar.title}
             </h3>
-            <p className="mt-3 text-base leading-relaxed text-steel">
+            <p className="mt-2.5 text-base leading-relaxed text-text-secondary">
               {pillar.body}
             </p>
           </li>
