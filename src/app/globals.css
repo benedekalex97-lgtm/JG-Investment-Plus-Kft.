@@ -1,43 +1,112 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   JG INVESTMENT PLUS — DESIGN TOKENEK
-   Steel Azure színrendszer (IDEIGLENES, nem végleges branddöntés).
-   Világos dominancia; Deep Graphite csak kontrollált, hangsúlyos szakaszon.
+   JG INVESTMENT PLUS — DESIGN TOKENEK v0.2
+   Graphite × Aubergine × Silver — partnerileg jóváhagyott vizuális irány.
+   A Steel Azure (v0.1) rendszer teljes egészében leváltva; ez a fájl az
+   EGYETLEN helye a márkaszíneknek. Komponensek innentől kizárólag ezekre a
+   tokenekre (Tailwind-osztályként vagy var()-ként) hivatkoznak, nyers HEX
+   értéket nem tartalmaznak.
    ========================================================================== */
 @theme {
-  --color-graphite: #182631;
-  --color-steel: #5b7184;
-  --color-action: #256fd1;
-  --color-azure: #2f80ed;
-  --color-silver: #b7c2ca;
-  --color-ice: #f3f6f8;
-  --color-paper: #ffffff;
+  /* ---- Core paletta (a hat jóváhagyott szín) -------------------------- */
+  --color-carbon: #18181b;
+  --color-aubergine: #493447;
+  --color-muted-plum: #755d70;
+  --color-cool-silver: #bec1c7;
+  --color-porcelain: #f4f3f1;
+  --color-ink: #27262a;
 
+  /* Az elsődleges felület a Porcelain fölé emelt tiszta fehér — finom
+     szintkülönbséget ad a kártyáknak a canvashoz képest. */
+  --color-surface: #ffffff;
+
+  /* ---- Szemantikus tokenek, Tailwind-utility-ként is ------------------
+     Ezeket a @theme blokkban (nem külön :root-ban) kell deklarálni, mert
+     csak innen generál a Tailwind v4 valódi bg-/text-/border- osztályokat
+     (pl. bg-canvas, text-text-primary, border-accent). A NÉV a SZEREPET
+     nevesíti, az ÉRTÉK a core palettára mutat vissza — ha a brand-szín
+     változik, csak itt kell módosítani, a komponensek nem tartalmaznak
+     nyers HEX-et. */
+  --color-canvas: var(--color-porcelain);
+  --color-surface-dark: var(--color-carbon);
+
+  --color-text-primary: var(--color-ink);
+  --color-text-secondary: var(--color-muted-plum);
+  --color-text-on-dark: var(--color-porcelain);
+  --color-text-on-dark-secondary: var(--color-cool-silver);
+
+  --color-border: #d1d2d6; /* cool-silver + porcelain, hajszálvonalhoz */
+  --color-border-strong: #b4b7bd; /* cool-silver, sötétített, erős osztóhoz */
+
+  --color-accent: var(--color-aubergine);
+  --color-accent-hover: #3b2c3b; /* aubergine, carbon felé sötétítve, hoverhez */
+
+  /* A jogi/kockázati kiemelések jelzőszíne — ld. a :root blokk jegyzetét. */
+  --color-risk: var(--color-aubergine);
+
+  /* ---- Tipográfia ------------------------------------------------------
+     A tényleges betűcsalád-nevet a layout.tsx (next/font/google) tölti be
+     és állítja be CSS-változóként; itt csak az erős fallback stack él, hogy
+     a build soha ne váljon instabillá egy elérhetetlen fonttól függően. */
+  --font-serif-display:
+    var(--font-newsreader, "Newsreader"), ui-serif, Georgia, "Iowan Old Style",
+    "Palatino Linotype", "URW Palladio L", serif;
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, "Noto Sans", sans-serif;
+    var(--font-inter, "Inter"), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
-  --radius-card: 0.875rem;
+  --radius-card: 1rem;
 }
 
 /* --------------------------------------------------------------------------
-   KONTRASZT-JEGYZET (WCAG AA, számított arányok)
-   graphite  #182631 fehéren ............ 15.9:1  — főcím, törzsszöveg
-   steel     #5B7184 fehéren .............. 5.1:1  — másodlagos szöveg
-   steel     #5B7184 ice canvason ......... 4.7:1  — másodlagos szöveg
-   action    #256FD1 fehéren .............. 4.9:1  — link, CTA
-   fehér     #FFFFFF action blue-n ....... 4.9:1  — elsődleges CTA felirat
-   silver    #B7C2CA graphite-on ......... 8.5:1  — sötét szakasz másodlagos
-   azure     #2F80ED fehéren .............. 3.9:1  — NEM törzsszöveghez:
-                                                    kizárólag dekoratív és
-                                                    mozgási kiemelés
-   Piros és zöld nem kap kereskedési jelentést; a paletta nincs kiegészítve.
+   NEM-TAILWIND SZEMANTIKUS TOKENEK
+   Amit a fenti @theme blokk már definiált (canvas, surface, text-primary,
+   text-secondary, text-on-dark, border, border-strong, accent, accent-hover,
+   risk), azt Tailwind-osztályként (bg-canvas, text-text-primary stb.) ÉS
+   var(--color-...)-ként is el lehet érni. Ez a blokk csak azokat a
+   szemantikus neveket adja hozzá, amik NEM Tailwind-utility-ként, hanem
+   közvetlen var()-ként kellenek (pl. a HeroMotion SVG stop-color-jaihoz,
+   vagy a :focus-visible szabályhoz) — rövidebb, "színprefix nélküli" néven,
+   kényelmi hivatkozásként a @theme tokenekre.
    -------------------------------------------------------------------------- */
-
 :root {
   color-scheme: light;
+
+  --surface-elevated: var(--color-surface);
+
+  /* A fókuszgyűrű alapértelmezetten az accent szín; sötét szakaszokon
+     (.on-dark) felülíródik egy, a sötét háttéren is kontrasztos tónusra —
+     ld. lentebb. Sosem feltételezés: mindkét változat kontrasztja mérve. */
+  --focus: var(--color-accent);
+
+  --shadow-elevated: 0 1px 2px rgba(24, 24, 27, 0.04), 0 12px 32px -12px rgba(24, 24, 27, 0.18);
+  --shadow-soft: 0 1px 2px rgba(24, 24, 27, 0.03), 0 4px 16px -8px rgba(24, 24, 27, 0.12);
 }
+
+/* --------------------------------------------------------------------------
+   KONTRASZT-JEGYZET (WCAG, számított arányok — mérve, nem feltételezve)
+   ink          Porcelainen ............. 13.56:1  AAA — törzsszöveg
+   ink          fehéren ................. 15.03:1  AAA — törzsszöveg
+   muted-plum   Porcelainen ............... 5.33:1  AA  — másodlagos szöveg
+   muted-plum   fehéren ................... 5.91:1  AA  — másodlagos szöveg
+   aubergine    Porcelainen .............. 10.15:1  AAA — link, felirat, accent szöveg
+   aubergine    fehéren .................. 11.26:1  AAA — link, felirat
+   Porcelain    Carbonon ................. 15.98:1  AAA — sötét szakasz törzsszövege
+   Porcelain    Inken .................... 13.56:1  AAA — sötét szakasz törzsszövege
+   Cool Silver  Carbonon ................... 9.82:1  AAA — sötét szakasz másodlagos szöveg
+   Cool Silver  Inken ...................... 8.33:1  AAA — sötét szakasz másodlagos szöveg
+   fehér        Aubergine-en ............. 11.26:1  AAA — elsődleges CTA felirat
+   Cool Silver  fehéren/Porcelainen ....... 1.6–1.8:1  FAIL — SOHA nem szöveg
+                                                        világos alapon; csak
+                                                        keret/dekoráció
+   Aubergine    Carbonon .................... 1.57:1  FAIL — SOHA nem szöveg
+                                                        sötét alapon; csak
+                                                        keskeny jelzővonalként
+   muted-plum   Carbonon .................... 3.00:1  csak nagy/félkövér
+                                                        szöveghez (18px+),
+                                                        törzsszöveghez nem
+   -------------------------------------------------------------------------- */
 
 html {
   scroll-behavior: smooth;
@@ -47,8 +116,8 @@ html {
 }
 
 body {
-  background-color: var(--color-paper);
-  color: var(--color-graphite);
+  background-color: var(--color-canvas);
+  color: var(--color-text-primary);
   font-family: var(--font-sans);
   /* A törzsszöveg alapmérete legalább 16 px. */
   font-size: 1rem;
@@ -64,11 +133,31 @@ body {
   overflow-wrap: break-word;
 }
 
-/* Egységes, jól látható fókuszállapot. */
+/* Editorial display tipográfia — csak a főcímekhez és a kiemelt szekció-
+   címekhez; a törzsszöveg és az UI mindvégig a modern sans marad. */
+.font-display {
+  font-family: var(--font-serif-display);
+  font-feature-settings: "kern" 1, "liga" 1;
+  letter-spacing: -0.01em;
+}
+
+/* Egységes, jól látható fókuszállapot — mérve mindkét kontextusban:
+   aubergine kontrasztja fehéren/Porcelainen 11.26:1 / 10.15:1 (AAA). */
 :focus-visible {
-  outline: 3px solid var(--color-action);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
   border-radius: 4px;
+}
+
+/* Sötét felületeken (Carbon/Ink hátterű szakaszok) az aubergine fókuszgyűrű
+   kontrasztja Carbonon mérve 1.57:1 — FAIL. Ezért ott a fókuszgyűrű a
+   Porcelain tokenre vált, aminek kontrasztja Carbonon/Inken 15.98:1 / 13.56:1
+   (AAA), és mindig marad egy vékony Ink kontúr is a Porcelain gyűrű körül,
+   hogy világos elemeken (pl. gomb) se olvadjon bele a háttérbe. */
+.on-dark :focus-visible,
+.on-dark.focus-visible {
+  outline-color: var(--color-text-on-dark);
+  box-shadow: 0 0 0 1px var(--color-ink);
 }
 
 /* ==========================================================================
@@ -89,141 +178,27 @@ body {
 }
 
 .jg-reveal {
-  animation: jg-reveal-up 620ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation: jg-reveal-up 680ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
   will-change: transform, opacity;
 }
 
 .jg-reveal-1 { animation-delay: 60ms; }
-.jg-reveal-2 { animation-delay: 190ms; }
-.jg-reveal-3 { animation-delay: 320ms; }
-.jg-reveal-4 { animation-delay: 430ms; }
+.jg-reveal-2 { animation-delay: 200ms; }
+.jg-reveal-3 { animation-delay: 340ms; }
+.jg-reveal-4 { animation-delay: 460ms; }
 
 /* ==========================================================================
-   HERO MOZGÁS
-   Kizárólag transform és opacity — GPU-barát, layout-újraszámítás nélkül.
-   ========================================================================== */
-
-/* A figura enyhe oldalirányú haladása, folyamatos, észrevétlen ciklusban. */
-@keyframes jg-figure-travel {
-  0%   { transform: translate3d(-3.5%, 0, 0); }
-  50%  { transform: translate3d(3.5%, 0, 0); }
-  100% { transform: translate3d(-3.5%, 0, 0); }
-}
-
-/* Futó és ugró mozgás váltakozása: két alacsonyabb lépés, majd egy ív.
-   Nincs célvonal és nincs győzelmi pillanat — a ciklus visszatér a kiindulásra. */
-@keyframes jg-figure-gait {
-  0%   { transform: translate3d(0, 0, 0); }
-  12%  { transform: translate3d(0, -2.2%, 0); }
-  24%  { transform: translate3d(0, 0, 0); }
-  36%  { transform: translate3d(0, -2.2%, 0); }
-  48%  { transform: translate3d(0, 0, 0); }
-  64%  { transform: translate3d(0, -7.5%, 0); }
-  80%  { transform: translate3d(0, 0, 0); }
-  90%  { transform: translate3d(0, -1.6%, 0); }
-  100% { transform: translate3d(0, 0, 0); }
-}
-
-/* A törzs finom dőlése a lépésritmushoz. */
-@keyframes jg-figure-lean {
-  0%   { transform: rotate(-1.6deg); }
-  50%  { transform: rotate(1.6deg); }
-  100% { transform: rotate(-1.6deg); }
-}
-
-/* Végtagok visszafogott lengése. */
-@keyframes jg-limb-swing-a {
-  0%   { transform: rotate(16deg); }
-  50%  { transform: rotate(-16deg); }
-  100% { transform: rotate(16deg); }
-}
-
-@keyframes jg-limb-swing-b {
-  0%   { transform: rotate(-16deg); }
-  50%  { transform: rotate(16deg); }
-  100% { transform: rotate(-16deg); }
-}
-
-/* Gyertyák: finom emelkedés és süllyedés, visszatéréssel.
-   A pálya nem tart folyamatosan felfelé. */
-@keyframes jg-candle-drift {
-  0%   { transform: translate3d(0, 0, 0); }
-  50%  { transform: translate3d(0, -12px, 0); }
-  100% { transform: translate3d(0, 0, 0); }
-}
-
-@keyframes jg-candle-drift-inv {
-  0%   { transform: translate3d(0, 0, 0); }
-  50%  { transform: translate3d(0, 10px, 0); }
-  100% { transform: translate3d(0, 0, 0); }
-}
-
-/* Enyhe parallax / kamerakövetés érzet a rétegeken. */
-@keyframes jg-parallax-near {
-  0%   { transform: translate3d(0, 0, 0); }
-  50%  { transform: translate3d(-1.6%, 0, 0); }
-  100% { transform: translate3d(0, 0, 0); }
-}
-
-@keyframes jg-parallax-far {
-  0%   { transform: translate3d(0, 0, 0); }
-  50%  { transform: translate3d(0.9%, 0, 0); }
-  100% { transform: translate3d(0, 0, 0); }
-}
-
-.jg-motion-figure-travel {
-  animation: jg-figure-travel 16s ease-in-out infinite;
-}
-.jg-motion-figure-gait {
-  animation: jg-figure-gait 2.6s ease-in-out infinite;
-}
-.jg-motion-figure-lean {
-  animation: jg-figure-lean 2.6s ease-in-out infinite;
-  transform-origin: 50% 88%;
-}
-.jg-motion-limb-a {
-  animation: jg-limb-swing-a 1.3s ease-in-out infinite;
-}
-.jg-motion-limb-b {
-  animation: jg-limb-swing-b 1.3s ease-in-out infinite;
-}
-.jg-motion-parallax-near {
-  animation: jg-parallax-near 22s ease-in-out infinite;
-}
-.jg-motion-parallax-far {
-  animation: jg-parallax-far 30s ease-in-out infinite;
-}
-.jg-motion-candle {
-  animation: jg-candle-drift 9s ease-in-out infinite;
-}
-.jg-motion-candle-inv {
-  animation: jg-candle-drift-inv 11s ease-in-out infinite;
-}
-
-/* ==========================================================================
-   REDUCED MOTION
-   Minden szöveg azonnal látható; nincs futó, ugró, sodródó vagy parallax
-   mozgás; a Hero statikus, de jelentésében azonos kompozíció marad.
+   REDUCED MOTION — globális, nem-Hero elemekre (a Hero saját JS-orchestrátora
+   külön, matchMedia-alapú ágat fut; ez a blokk a szöveganimációt és minden
+   maradék CSS-alapú átmenetet fedi le).
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
-  .jg-reveal,
-  .jg-motion-figure-travel,
-  .jg-motion-figure-gait,
-  .jg-motion-figure-lean,
-  .jg-motion-limb-a,
-  .jg-motion-limb-b,
-  .jg-motion-parallax-near,
-  .jg-motion-parallax-far,
-  .jg-motion-candle,
-  .jg-motion-candle-inv {
-    animation: none !important;
-  }
-
   .jg-reveal {
+    animation: none !important;
     opacity: 1 !important;
     transform: none !important;
   }
