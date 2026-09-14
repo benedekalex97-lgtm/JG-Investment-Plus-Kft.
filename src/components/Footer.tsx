@@ -52,10 +52,9 @@ export default function Footer() {
                   </a>
                 ) : (
                   /*
-                    Az adatkezelési tájékoztatóhoz a K&H/Patria által átadott
-                    teljes szöveg szükséges. Saját megfogalmazású jogi szöveggel
-                    nem pótoljuk, ezért itt nincs célhivatkozás, és ezt a
-                    prototípus láthatóan jelzi.
+                    Célhivatkozás nélküli lábléc-tétel esetén (pl. jövőbeli,
+                    élesítés előtt pótlandó jogi dokumentum) a prototípus ezt
+                    láthatóan jelzi, saját megfogalmazású szöveggel nem pótolva.
                   */
                   <span className="inline-flex min-h-11 items-center text-base text-cool-silver">
                     {link.label}

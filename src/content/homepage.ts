@@ -388,12 +388,11 @@ export const footer: {
   links: [
     { label: "Impresszum", href: "#impresszum" },
     /**
-     * Az adatkezelési tájékoztató célhivatkozása az élesítés előtt pótlandó:
-     * a SOT 8. szakasza szerint a K&H/Patria által átadott tájékoztató teljes,
-     * tartalmilag változatlan szövegét kell közzétenni. Saját készítésű jogi
-     * szöveggel pótolni tilos, ezért a prototípusban nincs mögötte céloldal.
+     * A K&H/Patria által átadott adatkezelési tájékoztató (adatfeldolgozói)
+     * teljes, tartalmilag változatlan szövege a /adatkezelesi-tajekoztato
+     * oldalon érhető el — ld. src/content/privacy-policy.ts.
      */
-    { label: "Adatkezelési tájékoztató", pending: true },
+    { label: "Adatkezelési tájékoztató", href: "/adatkezelesi-tajekoztato" },
     { label: "Panaszkezelés", href: "#panaszkezeles" },
     {
       label: "K&H Értékpapír dokumentumai",
