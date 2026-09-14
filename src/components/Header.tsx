@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { meta, nav } from "@/content/homepage";
 
@@ -62,12 +63,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-4 sm:px-6 lg:px-8 lg:py-5">
-        <a
-          href="#top"
+        <Link
+          href="/"
           className="flex min-h-11 items-center rounded font-display text-[1.0625rem] text-text-primary sm:text-xl"
         >
           {meta.wordmark}
-        </a>
+        </Link>
 
         <nav aria-label={nav.menuLabel} className="hidden min-w-0 lg:block">
           {/* A lista törhet: 200%-os szövegnagyításnál sem okoz vízszintes overflow-t. */}
@@ -84,12 +85,12 @@ export default function Header() {
             ))}
             <li aria-hidden="true" className="mx-1 h-6 w-px bg-border-strong" />
             <li>
-              <a
-                href="#kapcsolat"
+              <Link
+                href="/#kapcsolat"
                 className="flex min-h-11 items-center rounded-md bg-accent px-5 text-[0.95rem] font-medium text-white transition-colors hover:bg-accent-hover"
               >
                 Kapcsolatfelvétel
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>
@@ -136,13 +137,13 @@ export default function Header() {
                 </li>
               ))}
               <li className="py-3">
-                <a
-                  href="#kapcsolat"
+                <Link
+                  href="/#kapcsolat"
                   onClick={() => setOpen(false)}
                   className="flex min-h-11 items-center justify-center rounded-md bg-accent px-4 text-base font-medium text-white"
                 >
                   Kapcsolatfelvétel
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>

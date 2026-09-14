@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { footer, meta } from "@/content/homepage";
 
 /**
@@ -15,9 +16,12 @@ export default function Footer() {
     <footer className="on-dark bg-carbon">
       <div className="mx-auto w-full max-w-6xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
         <div>
-          <span className="font-display text-lg text-porcelain">
+          <Link
+            href="/"
+            className="inline-flex min-h-11 items-center rounded font-display text-lg text-porcelain"
+          >
             {meta.wordmark}
-          </span>
+          </Link>
           <span
             aria-hidden="true"
             className="mt-2 block h-0.5 w-8 rounded-full bg-aubergine"
@@ -70,7 +74,6 @@ export default function Footer() {
 
         <div className="mt-8 border-t border-white/10 pt-6">
           <p className="text-sm text-cool-silver">{footer.copyright}</p>
-          <p className="mt-2 text-sm text-cool-silver">{meta.prototypeStatus}</p>
         </div>
       </div>
     </footer>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { meta, nav } from "@/content/homepage";
@@ -191,6 +192,15 @@ export default function AdatkezelesiTajekoztatoPage() {
 
           <p className="mt-14 border-t border-border-strong pt-8 text-sm text-text-secondary">
             {privacyPolicy.effectiveDate}
+          </p>
+
+          <p className="mt-8">
+            <Link
+              href="/"
+              className="inline-flex min-h-11 items-center text-base font-medium text-accent underline underline-offset-4"
+            >
+              ← Vissza a főoldalra
+            </Link>
           </p>
         </article>
       </main>

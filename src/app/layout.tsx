@@ -38,12 +38,23 @@ const inter = Inter({
   display: "swap",
 });
 
+/*
+ * Robots — környezetfüggő indexelés.
+ * A VERCEL_ENV-et csak a Vercel-buildek állítják be ("production" |
+ * "preview" | "development"); helyi buildnél és fejlesztésnél undefined,
+ * ezért ott is a nem-indexelhető ág érvényesül. Csak a Vercel Production
+ * környezet (a Vercel-projekt Production Branch-éről, jelenleg "main")
+ * indexelhető; Preview és Development mindig noindex, nofollow.
+ */
+const isProductionEnvironment = process.env.VERCEL_ENV === "production";
+
 export const metadata: Metadata = {
   title: "JG Investment Plus Kft. · A K&H Értékpapír függő ügynöke",
   description:
     "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a JG Investment Plus Kft. nem nyújt befektetési tanácsadást.",
-  // v0.2 prototípus: nem publikálásra kész, ezért nem indexelhető.
-  robots: { index: false, follow: false },
+  robots: isProductionEnvironment
+    ? { index: true, follow: true }
+    : { index: false, follow: false },
 };
 
 export const viewport: Viewport = {

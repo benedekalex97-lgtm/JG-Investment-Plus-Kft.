@@ -23,8 +23,6 @@ export const meta = {
   companyLong: "JG Investment Plus Korlátolt Felelősségű Társaság",
   wordmark: "JG Investment Plus",
   documentVersion: "Végleges weboldalszövegezés – v1.0",
-  prototypeStatus:
-    "v0.2 vizuális rendszer + Hero motion – belső review céljára. Nem publikálásra kész.",
 } as const;
 
 /** Címkézett elérhetőségi tétel; a href opcionális (pl. a székhely nem link). */
@@ -50,12 +48,18 @@ export const nav = {
   closeMenu: "Bezárás",
   openMenuAccessible: "Menü megnyitása",
   closeMenuAccessible: "Menü bezárása",
+  /*
+   * A hrefek abszolút, "/"-gyel kezdődő útvonalak (pl. "/#rolunk"), nem
+   * puszta hash-linkek: így a jelenlegi útvonaltól függetlenül mindig a
+   * főoldal megfelelő szakaszára navigálnak — a /adatkezelesi-tajekoztato
+   * oldalról indítva sem ragadnak be a jelenlegi útvonalon.
+   */
   items: [
-    { label: "Rólunk", href: "#rolunk" },
-    { label: "Szolgáltatások", href: "#szolgaltatasok" },
-    { label: "Hogyan működik?", href: "#hogyan-mukodik" },
-    { label: "Jogi tájékoztató", href: "#jogi-tajekoztato" },
-    { label: "Kapcsolat", href: "#kapcsolat" },
+    { label: "Rólunk", href: "/#rolunk" },
+    { label: "Szolgáltatások", href: "/#szolgaltatasok" },
+    { label: "Hogyan működik?", href: "/#hogyan-mukodik" },
+    { label: "Jogi tájékoztató", href: "/#jogi-tajekoztato" },
+    { label: "Kapcsolat", href: "/#kapcsolat" },
   ],
 } as const;
 
@@ -71,7 +75,7 @@ export const hero = {
   headlineHighlight: "szabályozott keretek között",
   intro:
     "Bemutatjuk a K&H Értékpapír szolgáltatásait és az általa forgalmazott pénzügyi eszközöket, támogatjuk a kapcsolatfelvételt, valamint a hatályos ügynöki hirdetményben meghatározott körben közreműködünk a megbízások fogadásában, továbbításában és végrehajtásában.",
-  primaryCta: { label: "Kapcsolatfelvétel", href: "#kapcsolat" },
+  primaryCta: { label: "Kapcsolatfelvétel", href: "/#kapcsolat" },
   secondaryCta: {
     label: "K&H Értékpapír dokumentumai",
     href: "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok",
@@ -207,6 +211,7 @@ export const contact: {
     items: readonly { readonly market: string; readonly value: string }[];
   };
   khSupport: { heading: string; items: readonly ContactEntry[] };
+  orderNotice: string;
 } = {
   sectionLabel: "Kapcsolat",
   heading: "Lépjen kapcsolatba velünk",
@@ -248,26 +253,9 @@ export const contact: {
       },
     ],
   },
-};
-
-/** SOT 5. — Kapcsolati űrlap (v0.2: továbbra is kizárólag vizuális prototípus) */
-export const contactForm = {
-  heading: "Kapcsolati űrlap",
-  /** Prototípus-státusz. Az űrlap nem küld adatot. */
-  prototypeNotice:
-    "Ez az űrlap a v0.2 vizuális prototípusban még nem aktív: nem küld és nem tárol adatot. Az adatkezelési tájékoztató linkje az élesítés előtti compliance-lépés után kerül be.",
-  fields: [
-    { id: "nev", label: "Név", type: "text", autoComplete: "name" },
-    { id: "email", label: "E-mail-cím", type: "email", autoComplete: "email" },
-    { id: "telefon", label: "Telefonszám", type: "tel", autoComplete: "tel" },
-    { id: "uzenet", label: "Üzenet", type: "textarea", autoComplete: "off" },
-  ],
-  consentLabel:
-    "Elolvastam az Adatkezelési tájékoztatót, és tudomásul veszem, hogy az űrlapon küldött üzenet nem minősül tőzsdei megbízásnak, hivatalos nyilatkozatnak vagy befektetési tanácsadás iránti megbízásnak.",
-  submitLabel: "Üzenet küldése",
   orderNotice:
     "Tőzsdei megbízást kizárólag a K&H Értékpapír és a hatályos ügynöki hirdetmény által meghatározott csatornán és üzleti időben lehet megadni.",
-} as const;
+};
 
 /** SOT 6. Jogi tájékoztató */
 export const legal: {
@@ -386,14 +374,14 @@ export const footer: {
   disclaimerLine:
     "A weboldal általános tájékoztatást tartalmaz; nem minősül személyre szóló befektetési tanácsadásnak, ajánlatnak, befektetési vagy pénzügyi elemzésnek, illetve adó- vagy jogi tanácsadásnak. A tőkepiaci befektetések kockázattal járnak, és tőkevesztést okozhatnak. A múltbeli hozam nem jelent garanciát a jövőbeni teljesítményre.",
   links: [
-    { label: "Impresszum", href: "#impresszum" },
+    { label: "Impresszum", href: "/#impresszum" },
     /**
      * A K&H/Patria által átadott adatkezelési tájékoztató (adatfeldolgozói)
      * teljes, tartalmilag változatlan szövege a /adatkezelesi-tajekoztato
      * oldalon érhető el — ld. src/content/privacy-policy.ts.
      */
     { label: "Adatkezelési tájékoztató", href: "/adatkezelesi-tajekoztato" },
-    { label: "Panaszkezelés", href: "#panaszkezeles" },
+    { label: "Panaszkezelés", href: "/#panaszkezeles" },
     {
       label: "K&H Értékpapír dokumentumai",
       href: "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok",
