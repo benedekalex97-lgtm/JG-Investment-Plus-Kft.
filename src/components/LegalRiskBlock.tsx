@@ -1,7 +1,7 @@
-import { imprint, legal, privacyPending } from "@/content/homepage";
+import { imprint, legal } from "@/content/homepage";
 
 /**
- * LegalRiskBlock — a SOT 6., 7., 8. és 9. szakasza.
+ * LegalRiskBlock — a SOT 6., 7. és 9. szakasza.
  *
  * A jogi és kockázati tartalom végig nyitva, teljes szöveggel jelenik meg:
  * nincs accordion, tooltip vagy modal, és nincs elrejtő vezérlő. A betűméret
@@ -13,11 +13,14 @@ import { imprint, legal, privacyPending } from "@/content/homepage";
  * egyforma bekeretezett doboz egymás alatt), de a jogi TARTALOM — minden
  * cím, bekezdés, felsorolási pont és sorrend — szó szerint változatlan.
  * A strukturált, ellenőrzést igénylő blokkok (kockázati figyelmeztetés,
- * tevékenységi korlátok, panaszkezelés, adatvédelmi feltétel, impresszum)
- * kártyaként emelkednek ki; a folyamatosan olvasandó, elbeszélő szövegek
- * (közvetítői státusz, tevékenység terjedelme, jogi nyilatkozat) egyszerű
- * felső osztóvonallal tagolódnak — ez a váltakozás maga a hierarchia, nem
- * a szöveg rövidítése.
+ * tevékenységi korlátok, panaszkezelés, impresszum) kártyaként emelkednek
+ * ki; a folyamatosan olvasandó, elbeszélő szövegek (közvetítői státusz,
+ * tevékenység terjedelme, jogi nyilatkozat) egyszerű felső osztóvonallal
+ * tagolódnak — ez a váltakozás maga a hierarchia, nem a szöveg rövidítése.
+ *
+ * A korábbi SOT 8. (adatvédelmi "élesítés előtti feltétel" jelzés) innen
+ * eltávolításra került: a teljes adatkezelési tájékoztató elérhető a
+ * /adatkezelesi-tajekoztato oldalon (ld. src/content/privacy-policy.ts).
  */
 export default function LegalRiskBlock() {
   return (
@@ -147,16 +150,6 @@ export default function LegalRiskBlock() {
           </ul>
           <p className="mt-4 text-base leading-relaxed text-text-primary">
             {legal.complaints.closing}
-          </p>
-        </div>
-
-        {/* SOT 8. Adatvédelem — élesítés előtti feltétel, láthatóan jelezve. */}
-        <div className="mt-10 rounded-card border border-border border-l-[3px] border-l-accent bg-surface p-6 shadow-soft">
-          <h3 className="text-xs font-medium tracking-[0.14em] text-accent uppercase">
-            {privacyPending.label}
-          </h3>
-          <p className="mt-2 text-base leading-relaxed font-medium text-text-primary">
-            {privacyPending.body}
           </p>
         </div>
 

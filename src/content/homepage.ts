@@ -401,9 +401,3 @@ export const footer: {
   ],
   copyright: "© 2026 JG Investment Plus Kft. – Minden jog fenntartva.",
 };
-
-/** SOT 8. Adatvédelem — élesítés előtti feltétel, a prototípusban láthatóan jelezve. */
-export const privacyPending = {
-  label: "Élesítés előtti feltétel",
-  body: "Az ügynöki minőségben végzett adatkezeléshez a K&H/Patria által korábban átadott adatkezelési tájékoztató teljes, tartalmilag változatlan szövegét kell közzétenni. Ez a szöveg a prototípus készítésekor nem állt rendelkezésre, ezért saját megfogalmazású jogi szöveggel nem került pótlásra.",
-} as const;
