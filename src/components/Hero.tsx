@@ -1,20 +1,24 @@
-import HeroMotion from "./hero-motion/HeroMotion";
+import HeroVisual from "./hero-visual/HeroVisual";
 import { hero, heroRiskWarning, statusNotice } from "@/content/homepage";
 
 /**
- * Hero — a SOT 1. szakasza, v0.2 vizuális rendszerben.
+ * Hero — a SOT 1. szakasza, v0.3: teljesen statikus.
  *
  * Elrendezés:
  *  - desktopon aszimmetrikus, egyetlen összefüggő kompozíció: bal oldalon a
- *    szöveg és a CTA-k, jobb oldalon a Continuous Market Journey motion
- *    world. A vizuális világ nem kártyaként/widgetként van bekeretezve —
- *    közvetlenül a canvas háttéren, egy nagyon finom atmoszférikus
- *    háttérfénnyel oldva bele a kompozícióba;
- *  - mobilon a dokumentumsorrend adja a sorrendet: szöveg → CTA-k → animáció.
+ *    szöveg és a CTA-k, jobb oldalon a statikus vizuális kompozíció. A
+ *    vizuális elem nem kártyaként/widgetként van bekeretezve — közvetlenül a
+ *    canvas háttéren, egy nagyon finom atmoszférikus háttérfénnyel oldva
+ *    bele a kompozícióba;
+ *  - mobilon a dokumentumsorrend adja a sorrendet: szöveg → CTA-k → statikus
+ *    kompozíció.
  *
- * A szöveganimáció tisztán CSS: a keyframe `both` kitöltéssel zárul, egyszer
- * fut le, és JavaScript nem vesz részt a láthatóságában — a HeroMotion saját
- * JS-orchestrátora ettől függetlenül, külön fut (ld. hero-motion/orchestrator.ts).
+ * v0.2-ben itt egy folyamatosan futó Hero-mozgásrendszer élt (futó/sétáló
+ * figura, emelkedő/süllyedő gyertyák, parallax, kamerakövetés). Ez v0.3-ban
+ * teljes egészében megszűnt — nincs `requestAnimationFrame`-hurok, nincs
+ * scroll-hoz kötött mozgás, és nincs a tartalom láthatóságát késleltető
+ * szöveg-reveal animáció sem: a Hero betöltés után AZONNAL, teljes egészében
+ * látható, minden módban (reduced-motion-tól függetlenül is) statikus.
  */
 export default function Hero() {
   const [firstLine, secondLine] = hero.headlineLines;
@@ -26,9 +30,9 @@ export default function Hero() {
     <section id="top" aria-labelledby="hero-cim" className="bg-canvas">
       <div className="mx-auto w-full max-w-6xl px-5 pt-14 pb-14 sm:px-6 sm:pt-20 lg:px-8 lg:pt-24 lg:pb-20">
         <div className="grid items-center gap-12 lg:grid-cols-[46fr_54fr] lg:gap-8">
-          {/* Szövegoszlop */}
+          {/* Szövegoszlop — azonnal, teljes egészében látható. */}
           <div className="min-w-0">
-            <p className="jg-reveal jg-reveal-1 text-sm font-medium tracking-[0.04em] text-text-secondary sm:text-base">
+            <p className="text-sm font-medium tracking-[0.04em] text-text-secondary sm:text-base">
               {hero.eyebrow}
             </p>
 
@@ -40,8 +44,8 @@ export default function Hero() {
               */
               className="font-display mt-5 text-[clamp(1.625rem,7vw,2rem)] leading-[1.18] text-balance text-text-primary sm:text-[2.75rem] lg:text-[3.25rem]"
             >
-              <span className="jg-reveal jg-reveal-1 block">{firstLine}</span>
-              <span className="jg-reveal jg-reveal-2 mt-1 block">
+              <span className="block">{firstLine}</span>
+              <span className="mt-1 block">
                 {beforeHighlight}
                 {/* Egyetlen, kontrollált Aubergine kiemelés. */}
                 <span className="text-accent">{hero.headlineHighlight}</span>
@@ -49,7 +53,7 @@ export default function Hero() {
               </span>
             </h1>
 
-            <p className="jg-reveal jg-reveal-3 mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-[1.0625rem]">
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-[1.0625rem]">
               {hero.intro}
             </p>
 
@@ -73,9 +77,10 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Motion world — mobilon a szöveg és a CTA-k után következik. */}
+          {/* Statikus vizuális kompozíció — mobilon a szöveg és a CTA-k után
+              következik. */}
           <div className="min-w-0">
-            <HeroMotion />
+            <HeroVisual />
           </div>
         </div>
 

@@ -2,7 +2,7 @@
 
 Ez a repository a JG Investment Plus Kft. weboldalát tartalmazza.
 
-## Jelenlegi állapot: v0.2 vizuális rendszer + Hero motion
+## Jelenlegi állapot: v0.3 statikus Hero
 
 **A prototípus nem publikálásra kész.** Kifejezetten *nem*:
 
@@ -15,9 +15,12 @@ Az élesítéshez a K&H Compliance és Kommunikáció írásbeli jóváhagyása
 szükséges, a tartalmi source of truth 11. szakaszában felsorolt ellenőrzési
 pontokkal együtt.
 
-A v0.2 a partnerileg jóváhagyott Graphite × Aubergine × Silver vizuális
-irányt és a "Continuous Market Journey" Hero-mozgáskoncepciót vezeti be a
-v0.1 (Steel Azure) helyett. A tartalmi source of truth és a compliance-
+A v0.2 vezette be a partnerileg jóváhagyott Graphite × Aubergine × Silver
+vizuális irányt a v0.1 (Steel Azure) helyett. A v0.3-ban a v0.2 Hero
+mozgásrendszere ("Continuous Market Journey" — futó/sétáló figura, mozgó
+gyertyák, parallax, kamerakövetés) teljes egészében megszűnt: a Hero jobb
+oldali vizuális kompozíciója innentől statikus, minden módban azonnal és
+teljes egészében látható. A tartalmi source of truth és a compliance-
 szabályok a v0.1-hez képest változatlanok.
 
 ## Tartalmi source of truth
@@ -93,31 +96,33 @@ fallback stackkel (`src/app/globals.css` `--font-serif-display` /
 `--font-sans`) — ha a betűtöltés a build-környezetben elérhetetlen lenne, a
 megjelenés akkor is stabil marad.
 
-## Hero motion — "Continuous Market Journey"
+## Hero — statikus vizuális kompozíció (v0.3)
 
-Egy absztrakt, arctalan, nemsemleges figura ténylegesen, folyamatosan halad
-egy rétegzett, japán-gyertya alapú környezetben — nem helyben lengeti a
-végtagjait ("futópad-hatás", a v0.1 fő hibája).
+A v0.2-ben itt egy folyamatosan futó mozgásrendszer élt ("Continuous
+Market Journey": futó/sétáló figura, emelkedő/süllyedő gyertyák, parallax,
+kamerakövetés). Ez v0.3-ban teljes egészében megszűnt — nincs
+`requestAnimationFrame`-hurok, nincs `useEffect`, nincs `ref`, nincs
+scroll-hoz kötött mozgás, és nincs a szöveg láthatóságát késleltető
+reveal-animáció sem.
 
-Részletek: `src/components/hero-motion/`
+Részletek: `src/components/hero-visual/HeroVisual.tsx` — tiszta,
+szerver-renderelhető prezentációs komponens (nincs `"use client"`, mert
+nincs benne semmilyen interaktivitás vagy böngésző-API-hívás), fix
+koordinátákkal:
 
-- **`physics.ts`** — DOM-mentes, tiszta mozgásmatematika: a karakter
-  world-koordinátája monoton nő; a támaszláb bokáját minden képkockán egy
-  2-bone IK zárja a talajra lépés world-pontjára (zéró talpcsúszás); a
-  lengő láb szinusz-alapú eljárási mozgás; terep-profil (lépcsőzetes
-  emelkedés/süllyedés); kamera-parallax; a loop varratát egy fix
-  előtér-gyertya takarása és széli elhalványodás rejti el.
-- **`HeroMotion.tsx`** — hierarchikus SVG-rig (pelvis → torso → head;
-  pelvis → thigh → shin → foot) + egyetlen `requestAnimationFrame`-hurok,
-  közvetlen `transform`-attribútum-írással — React-állapot és re-render
-  nélkül a 60fps-es ágon.
+- egy arctalan, nemsemleges figura nyugodt, stabil állásban — a lábak
+  enyhe, természetes eltolása tájékozódást és rendezett jelenlétet sugall,
+  nem futást, sétát vagy ugrást;
+- japán gyertyákra utaló absztrakt, lekerekített oszlopok két statikus
+  mélységi rétegben (távolabbi/világosabb, közelebbi/sötétebb) — mozgás,
+  tengely, szám, ár, százalék vagy piros/zöld szín nélkül;
+- ugyanaz a Smoked Graphite + frosted Aubergine gradiens-nyelv és Cool
+  Silver kontúrfény, amit a korábbi verziók is használtak.
 
-Nincs WebGL, Three.js, React Three Fiber, Canvas vagy nagy 3D-engine.
-
-`prefers-reduced-motion: reduce` esetén a rAF-hurok el sem indul: egy
-tudatosan a mozgó szakasztól távol eső, nyitott jelenetrészletre eső
-statikus póz látszik — teljes, prémium kompozíció, elhalványodás és
-takarás nélkül. A szöveg láthatósága sosem függ JavaScripttől.
+A Hero — és az oldal egésze — a betöltés után AZONNAL, teljes egészében
+látható, minden módban (reduced-motion-tól függetlenül is); a globális
+`prefers-reduced-motion: reduce` támogatás a Heron kívüli dekoratív
+effektekre (smooth scroll, hover/menüátmenetek) vonatkozik.
 
 ## Futtatás
 
@@ -146,15 +151,14 @@ npm run build
 ```
 src/
   app/
-    globals.css              design tokenek (@theme), reveal-animáció, reduced-motion
+    globals.css              design tokenek (@theme), reduced-motion (globális, nem-Hero)
     layout.tsx                next/font/google (Newsreader, Inter)
     page.tsx                  skip link + szakaszok összeállítása
   components/
     Header.tsx                wordmark, navigáció, billentyűzetes mobilmenü + focus trap
     Hero.tsx                  Hero + kötelező státuszközlés + kockázati figyelmeztetés
-    hero-motion/
-      physics.ts               mozgásmatematika (IK, terep, parallax, loop-álcázás)
-      HeroMotion.tsx            SVG-rig + rAF-orchestráció
+    hero-visual/
+      HeroVisual.tsx            statikus SVG-kompozíció (figura + gyertyák)
     RoleClarification.tsx
     About.tsx  Services.tsx  WhyJG.tsx  Process.tsx
     Contact.tsx                elérhetőségek, üzleti órák, űrlap-prototípus

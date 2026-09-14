@@ -66,7 +66,7 @@
    risk), azt Tailwind-osztályként (bg-canvas, text-text-primary stb.) ÉS
    var(--color-...)-ként is el lehet érni. Ez a blokk csak azokat a
    szemantikus neveket adja hozzá, amik NEM Tailwind-utility-ként, hanem
-   közvetlen var()-ként kellenek (pl. a HeroMotion SVG stop-color-jaihoz,
+   közvetlen var()-ként kellenek (pl. a HeroVisual SVG stop-color-jaihoz,
    vagy a :focus-visible szabályhoz) — rövidebb, "színprefix nélküli" néven,
    kényelmi hivatkozásként a @theme tokenekre.
    -------------------------------------------------------------------------- */
@@ -161,46 +161,20 @@ body {
 }
 
 /* ==========================================================================
-   HERO SZÖVEGANIMÁCIÓ
-   Egyszer lefutó reveal. A tartalom alapállapotban IS látható:
-   az animáció csak akkor rejti el kiindulásnál, ha a CSS betöltött, és
-   maga a keyframe hozza vissza. JS nem befolyásolja a láthatóságot.
+   HERO — v0.3: teljesen statikus
+   Nincs Hero-szöveganimáció és nincs Hero-mozgásrendszer (ld. korábban a
+   .jg-reveal-* osztályokat és a hero-motion/ modult — mindkettő eltávolítva).
+   A Hero betöltés után azonnal, teljes egészében látható, minden módban.
    ========================================================================== */
-@keyframes jg-reveal-up {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 14px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-.jg-reveal {
-  animation: jg-reveal-up 680ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
-  will-change: transform, opacity;
-}
-
-.jg-reveal-1 { animation-delay: 60ms; }
-.jg-reveal-2 { animation-delay: 200ms; }
-.jg-reveal-3 { animation-delay: 340ms; }
-.jg-reveal-4 { animation-delay: 460ms; }
 
 /* ==========================================================================
-   REDUCED MOTION — globális, nem-Hero elemekre (a Hero saját JS-orchestrátora
-   külön, matchMedia-alapú ágat fut; ez a blokk a szöveganimációt és minden
-   maradék CSS-alapú átmenetet fedi le).
+   REDUCED MOTION — globális, nem-Hero elemekre (smooth scroll, hover/
+   accordion/menüátmenetek és minden egyéb dekoratív CSS-effekt). A Hero
+   nem igényel itt külön ágat, mert alapból, minden módban statikus.
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-
-  .jg-reveal {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
   }
 
   *,
