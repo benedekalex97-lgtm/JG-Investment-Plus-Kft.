@@ -64,7 +64,20 @@ export default function AdatkezelesiTajekoztatoPage() {
 
       <main id="fotartalom" className="bg-canvas">
         <article className="mx-auto w-full max-w-[800px] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-          <h1 className="font-display text-[2rem] leading-[1.15] text-text-primary sm:text-[2.5rem]">
+          {/*
+            Visszafogott, szöveges "felső" visszalink a H1 előtt — a "/#top"
+            cél determinisztikus: a Hero id="top" elemére navigál, nem a
+            böngésző korábbi görgetési pozíciójára (ami relatív "/" linknél
+            mobilböngészőkben előfordulhatna).
+          */}
+          <Link
+            href="/#top"
+            className="inline-flex min-h-11 items-center text-sm font-medium text-text-secondary underline underline-offset-4 hover:text-text-primary"
+          >
+            ← Vissza a főoldalra
+          </Link>
+
+          <h1 className="font-display mt-6 text-[2rem] leading-[1.15] text-text-primary sm:text-[2.5rem]">
             {privacyPolicy.title}
           </h1>
 
@@ -194,10 +207,14 @@ export default function AdatkezelesiTajekoztatoPage() {
             {privacyPolicy.effectiveDate}
           </p>
 
+          {/*
+            Jól látható záró visszalink, közvetlenül a Footer előtt. A "/#top"
+            cél ugyanazért determinisztikus, mint a fenti felső visszalinké.
+          */}
           <p className="mt-8">
             <Link
-              href="/"
-              className="inline-flex min-h-11 items-center text-base font-medium text-accent underline underline-offset-4"
+              href="/#top"
+              className="inline-flex min-h-12 items-center justify-center rounded-md border border-border-strong bg-transparent px-6 text-base font-medium text-text-primary transition-colors hover:border-ink"
             >
               ← Vissza a főoldalra
             </Link>

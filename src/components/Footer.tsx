@@ -17,7 +17,7 @@ export default function Footer() {
       <div className="mx-auto w-full max-w-6xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
         <div>
           <Link
-            href="/"
+            href="/#top"
             className="inline-flex min-h-11 items-center rounded font-display text-lg text-porcelain"
           >
             {meta.wordmark}
