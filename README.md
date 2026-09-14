@@ -2,7 +2,7 @@
 
 Ez a repository a JG Investment Plus Kft. weboldalát tartalmazza.
 
-## Jelenlegi állapot: v0.3 statikus Hero
+## Jelenlegi állapot: v0.4 tiszta, szövegközpontú Hero
 
 **A prototípus nem publikálásra kész.** Kifejezetten *nem*:
 
@@ -18,10 +18,14 @@ pontokkal együtt.
 A v0.2 vezette be a partnerileg jóváhagyott Graphite × Aubergine × Silver
 vizuális irányt a v0.1 (Steel Azure) helyett. A v0.3-ban a v0.2 Hero
 mozgásrendszere ("Continuous Market Journey" — futó/sétáló figura, mozgó
-gyertyák, parallax, kamerakövetés) teljes egészében megszűnt: a Hero jobb
-oldali vizuális kompozíciója innentől statikus, minden módban azonnal és
-teljes egészében látható. A tartalmi source of truth és a compliance-
-szabályok a v0.1-hez képest változatlanok.
+gyertyák, parallax, kamerakövetés) megszűnt, és egy statikus figura +
+japángyertya-kompozíció váltotta. A v0.4-ben ez a statikus vizuális elem
+is teljes egészében eltávolításra került — szándékosan nincs
+helyettesítő illusztráció, mockup vagy placeholder. A Hero jobb oldali
+vizuális eleme csak egy későbbi, professzionálisan kidolgozott rendszer
+részeként kerül majd vissza; addig a Hero tudatosan tiszta, szövegközpontú
+kompozíció. A tartalmi source of truth és a compliance-szabályok a
+v0.1-hez képest változatlanok.
 
 ## Tartalmi source of truth
 
@@ -96,33 +100,23 @@ fallback stackkel (`src/app/globals.css` `--font-serif-display` /
 `--font-sans`) — ha a betűtöltés a build-környezetben elérhetetlen lenne, a
 megjelenés akkor is stabil marad.
 
-## Hero — statikus vizuális kompozíció (v0.3)
+## Hero — tiszta, szövegközpontú kompozíció (v0.4)
 
-A v0.2-ben itt egy folyamatosan futó mozgásrendszer élt ("Continuous
-Market Journey": futó/sétáló figura, emelkedő/süllyedő gyertyák, parallax,
-kamerakövetés). Ez v0.3-ban teljes egészében megszűnt — nincs
-`requestAnimationFrame`-hurok, nincs `useEffect`, nincs `ref`, nincs
-scroll-hoz kötött mozgás, és nincs a szöveg láthatóságát késleltető
-reveal-animáció sem.
+A v0.1–v0.3 Hero jobb oldalán mindig volt valamilyen vizuális elem (előbb
+mozgó, majd statikus figura + japángyertya-kompozíció). A v0.4-ben ez
+teljes egészében megszűnt — nincs jobb oldali vizuális oszlop, és nincs
+helyettesítő illusztráció, chart, mockup vagy placeholder sem. Az elem
+csak egy későbbi, professzionálisan kidolgozott vizuális rendszer
+részeként kerül majd vissza.
 
-Részletek: `src/components/hero-visual/HeroVisual.tsx` — tiszta,
-szerver-renderelhető prezentációs komponens (nincs `"use client"`, mert
-nincs benne semmilyen interaktivitás vagy böngésző-API-hívás), fix
-koordinátákkal:
-
-- egy arctalan, nemsemleges figura nyugodt, stabil állásban — a lábak
-  enyhe, természetes eltolása tájékozódást és rendezett jelenlétet sugall,
-  nem futást, sétát vagy ugrást;
-- japán gyertyákra utaló absztrakt, lekerekített oszlopok két statikus
-  mélységi rétegben (távolabbi/világosabb, közelebbi/sötétebb) — mozgás,
-  tengely, szám, ár, százalék vagy piros/zöld szín nélkül;
-- ugyanaz a Smoked Graphite + frosted Aubergine gradiens-nyelv és Cool
-  Silver kontúrfény, amit a korábbi verziók is használtak.
+A Hero mostantól egyoszlopos, balra igazított, kontrollált olvasási
+szélességre korlátozott (`max-w-3xl`, ~768px): eyebrow → főcím → bevezető
+→ CTA-k, erős tipográfiai hierarchiával és rendezett whitespace-szel.
 
 A Hero — és az oldal egésze — a betöltés után AZONNAL, teljes egészében
-látható, minden módban (reduced-motion-tól függetlenül is); a globális
-`prefers-reduced-motion: reduce` támogatás a Heron kívüli dekoratív
-effektekre (smooth scroll, hover/menüátmenetek) vonatkozik.
+látható, minden módban; a globális `prefers-reduced-motion: reduce`
+támogatás a dekoratív effektekre (smooth scroll, hover/menüátmenetek)
+vonatkozik.
 
 ## Futtatás
 
@@ -156,9 +150,7 @@ src/
     page.tsx                  skip link + szakaszok összeállítása
   components/
     Header.tsx                wordmark, navigáció, billentyűzetes mobilmenü + focus trap
-    Hero.tsx                  Hero + kötelező státuszközlés + kockázati figyelmeztetés
-    hero-visual/
-      HeroVisual.tsx            statikus SVG-kompozíció (figura + gyertyák)
+    Hero.tsx                  Hero + kötelező státuszközlés + kockázati figyelmeztetés (v0.4: nincs jobb oldali vizuális elem)
     RoleClarification.tsx
     About.tsx  Services.tsx  WhyJG.tsx  Process.tsx
     Contact.tsx                elérhetőségek, üzleti órák, űrlap-prototípus

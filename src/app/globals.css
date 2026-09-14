@@ -66,9 +66,9 @@
    risk), azt Tailwind-osztályként (bg-canvas, text-text-primary stb.) ÉS
    var(--color-...)-ként is el lehet érni. Ez a blokk csak azokat a
    szemantikus neveket adja hozzá, amik NEM Tailwind-utility-ként, hanem
-   közvetlen var()-ként kellenek (pl. a HeroVisual SVG stop-color-jaihoz,
-   vagy a :focus-visible szabályhoz) — rövidebb, "színprefix nélküli" néven,
-   kényelmi hivatkozásként a @theme tokenekre.
+   közvetlen var()-ként kellenek (pl. a :focus-visible szabályhoz) —
+   rövidebb, "színprefix nélküli" néven, kényelmi hivatkozásként a
+   @theme tokenekre.
    -------------------------------------------------------------------------- */
 :root {
   color-scheme: light;
