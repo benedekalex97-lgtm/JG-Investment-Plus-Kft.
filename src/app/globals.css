@@ -57,6 +57,11 @@
   --color-border: #d1d2d6; /* cool-silver + porcelain, hajszálvonalhoz */
   --color-border-strong: #b4b7bd; /* cool-silver, sötétített, erős osztóhoz */
 
+  /* Szakaszváltó tónus — Porcelain, hajszálnyit az Aubergine felé húzva.
+     A szekciók canvas / surface / tint ritmusát adja; önmagában nem színez.
+     Kontraszt: az Ink ezen a tónuson 13.2:1 (AAA). */
+  --color-section-tint: #efedec;
+
   --color-accent: var(--color-aubergine);
   --color-accent-hover: #3b2c3b; /* aubergine, carbon felé sötétítve, hoverhez */
 
@@ -143,6 +148,10 @@
    signal-berry-soft Porcelainen ............. 1.24:1  FAIL — SOHA nem szöveg;
                                                         jelenleg nincs
                                                         használatban
+   ink          section-tint-en ......... 12.88:1  AAA — törzsszöveg
+   muted-plum   section-tint-en ........... 5.06:1  AA  — másodlagos szöveg
+   aubergine    section-tint-en ........... 9.65:1  AAA — felirat, accent szöveg
+   signal-berry section-tint-en ........... 5.89:1  AA  — kiemelés
    -------------------------------------------------------------------------- */
 
 html {
@@ -229,10 +238,17 @@ body {
   --veil-core: 86%; /* közvetlenül a H1 mögött */
   --veil-mid: 62%; /* leírás/CTA belső zónája */
 
+  /* A sok köztes stop a radiális gradiens SÁVOSODÁSÁT (banding) szünteti
+     meg: kevés stoppal a 86% → 0% átmenet látható koncentrikus gyűrűket
+     rajzol a mozgó gyertyák fölé. */
   background-image: radial-gradient(
     ellipse 70% 64% at 50% 40%,
     rgb(244 243 241 / var(--veil-core)) 0%,
+    rgb(244 243 241 / calc(var(--veil-core) - 5%)) 24%,
     rgb(244 243 241 / var(--veil-mid)) 46%,
+    rgb(244 243 241 / calc(var(--veil-mid) * 0.62)) 62%,
+    rgb(244 243 241 / calc(var(--veil-mid) * 0.3)) 78%,
+    rgb(244 243 241 / calc(var(--veil-mid) * 0.1)) 90%,
     rgb(244 243 241 / 0%) 100%
   );
 }
@@ -248,7 +264,10 @@ body {
     background-image: radial-gradient(
       ellipse 96% 82% at 50% 38%,
       rgb(244 243 241 / var(--veil-core)) 0%,
+      rgb(244 243 241 / calc(var(--veil-core) - 5%)) 28%,
       rgb(244 243 241 / var(--veil-mid)) 55%,
+      rgb(244 243 241 / calc(var(--veil-mid) * 0.6)) 70%,
+      rgb(244 243 241 / calc(var(--veil-mid) * 0.25)) 85%,
       rgb(244 243 241 / 0%) 100%
     );
   }

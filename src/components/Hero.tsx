@@ -1,5 +1,5 @@
 import HeroMarketMotion from "@/components/HeroMarketMotion";
-import { hero, heroRiskWarning, statusNotice } from "@/content/homepage";
+import { hero, statusNotice } from "@/content/homepage";
 
 /**
  * Hero — a SOT 1. szakasza, v1.1: középre rendezett, tipográfia-vezérelt copy
@@ -151,36 +151,18 @@ export default function Hero() {
         </div>
 
         {/*
-          KÖTELEZŐ STÁTUSZKÖZLÉS — a stage alatti, visszafogott információs sáv.
-          Szándékosan NEM nagy kártya: egyetlen, teljes szélességű csík, vékony
-          kerettel és keskeny Aubergine jelzővonallal. Nem kap Signal Berry
-          hátteret, és nem versenyez a főcímmel. Mobilon sem rejtett.
+          STÁTUSZKÖZLÉS — a jogi hierarchia ELSŐ, legrövidebb szintje.
+          Vizuálisan MÁSODLAGOS: nincs kártya, nincs domináns keret vagy
+          háttér, nincs all-caps „KÖTELEZŐ STÁTUSZKÖZLÉS" felirat — csak egy
+          hajszálvékony felső osztóvonal. Ugyanakkor mindig látható, mobilon
+          sem rejtett, és a mérete a specifikált minimum FÖLÖTT van:
+          15 px mobilon (0.9375rem), 16 px desktopon. Muted Plum Porcelainen
+          mérve 5.33:1 — WCAG AA teljesül.
         */}
-        <div className="pb-12 sm:pb-14 lg:pb-16">
-          <div className="rounded-lg border border-border border-l-[3px] border-l-accent bg-surface px-4 py-3.5 text-left sm:px-5 sm:py-4">
-            <p className="text-[0.6875rem] font-medium tracking-[0.14em] text-text-secondary uppercase">
-              {statusNotice.label}
-            </p>
-            <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-text-primary sm:text-base">
-              {statusNotice.body}
-            </p>
-          </div>
-
-          {/*
-            KIEMELT KOCKÁZATI FIGYELMEZTETÉS — tartalma változatlan.
-            Mindig látható: nincs accordionban, tooltipben vagy modalban, és
-            nem elrejthető, nem rövidíthető. Betűmérete nem kisebb a környező
-            törzsszövegnél; az Aubergine jelzővonal és a félkövér szöveg adja a
-            nagyobb hangsúlyt.
-          */}
-          <div className="mt-3 rounded-lg border border-border border-l-[3px] border-l-accent bg-surface px-4 py-3.5 text-left sm:px-5 sm:py-4">
-            <p className="text-[0.6875rem] font-semibold tracking-[0.14em] text-accent uppercase">
-              {heroRiskWarning.label}
-            </p>
-            <p className="mt-1.5 text-[0.9375rem] leading-relaxed font-medium text-text-primary sm:text-base">
-              {heroRiskWarning.body}
-            </p>
-          </div>
+        <div className="border-t border-border pb-10 pt-6 sm:pb-12 lg:pb-14">
+          <p className="max-w-4xl text-[0.9375rem] leading-relaxed text-text-secondary sm:text-base">
+            {statusNotice.body}
+          </p>
         </div>
       </div>
     </section>

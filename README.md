@@ -2,7 +2,7 @@
 
 Ez a repository a JG Investment Plus Kft. weboldalát tartalmazza.
 
-## Jelenlegi állapot: v1.1 Hero — japángyertya-animáció + preview-copy
+## Jelenlegi állapot: v1.1 — konverziófókuszú főoldal + rendezett hero-motion
 
 **A prototípus nem publikálásra kész.** Kifejezetten *nem*:
 
@@ -25,23 +25,31 @@ került, és a szekció egy üres, animációra előkészített réteget kapott.
 v0.6 ezt a réteget tölti ki: egy saját fejlesztésű, absztrakt
 japángyertya-háttéranimáció (`HeroMarketMotion`).
 
-A **v1.1** három dolgot változtat, kizárólag a Heróban:
+A **v1.1** a teljes főoldalt érinti:
 
-1. a Hero copy a jóváhagyott hero-referencia (preview) szövegezésére vált —
-   **ez NEM a docx source of truth szövege**, ld. lentebb;
-2. a v0.6 arany kiemelőszíne teljes egészében kikerült; helyette a lila–vörös
-   **Signal Berry** funkcionális accent lépett be;
-3. a Hero egyetlen CTA-ra egyszerűsödött, a kötelező státuszközlés pedig nagy
-   kártya helyett visszafogott információs sávvá vált.
+1. **Konverziós szerkezet.** Az oldal sorrendje: Hero → 01 Rólunk →
+   02 Miben segítünk → 03 Miért a JG → 04 Hogyan működik → CTA-sáv →
+   05 Hivatalos dokumentumok → Kapcsolat → Jogi tájékoztató. Az értékajánlat
+   és a kapcsolatfelvétel megelőzi a részletes jogi blokkot.
+2. **Teljes főoldali szövegcsere** — konverziófókuszú, de a jogállás
+   mindenhol a docx SOT szerinti „függő ügynök".
+3. **Rendezett hero-motion.** A korábbi, gyertyánként független („összevissza")
+   sodródás helyett egyetlen közös *master market path*, rendezett pozíciós
+   sor és szomszédkorrelált fázisok — plusz animált gyertyatest és külön mozgó
+   felső/alsó kanóc.
+4. **Signal Berry** maradt az egyetlen figyelemirányító accent; arany/sárga
+   sehol nincs.
+5. **Háromszintű jogi hierarchia** — semmi nincs elrejtve, de a részletes jogi
+   tartalom nem uralja az oldal első felét.
 
 A karakteres/figurás koncepció **véglegesen kikerült a scope-ból**: a Hero
 animációja kizárólag absztrakt, és nem tartalmaz emberi figurát, sétáló
 karaktert, fotót vagy illusztrált személyt.
 
-A Hero **alatti** összes szakasz — Szereptisztázás, Rólunk, Szolgáltatások,
-Miért a JG, Hogyan működik, Kapcsolat, részletes Jogi tájékoztató,
-Panaszkezelés, Impresszum, footer, valamint a külön oldalon élő Adatkezelési
-tájékoztató — a v1.1-ben **byte-azonosan változatlan** maradt.
+**Változatlan maradt** (DOM-szinten igazolva): az Adatkezelési tájékoztató (a
+teljes oldal pixelre azonos), az Impresszum, a Panaszkezelés, a telefonszámok,
+e-mail-címek, cégadatok, üzleti órák, a K&H ügyfélszolgálati adatok, a footer
+jogi szövege és minden meglévő hivatalos link.
 
 ## Tartalmi source of truth
 
@@ -134,79 +142,107 @@ Rétegek (alulról):
 4. HTML copy és CTA
 5. sticky header (`z-50`)
 
-### Hero preview-copy — JÓVÁHAGYÁSRA VÁR
+### Hero- és főoldali copy — COMPLIANCE-REVIEW CANDIDATE
 
-> **Ez a Hero-szövegezés NEM a docx source of truthból származik.** A v1.1-ben
-> a Hero eyebrow / főcím / bevezető / CTA-felirat mezői és a kötelező
-> státuszközlés törzsszövege a jóváhagyott hero-referencia (preview)
-> szövegezésére cserélődtek, kifejezett megrendelői utasításra.
+> A főoldali copy konverziófókuszú, de **írásbeli K&H Compliance/Kommunikáció
+> jóváhagyás nélkül a verzió NEM nevezhető K&H-approved vagy
+> compliance-approved változatnak.**
 
 | Mező | Érték |
 | --- | --- |
-| eyebrow | `PATRIA FINANCE · K&H ÉRTÉKPAPÍR · KÖZVETÍTŐ` |
+| eyebrow | `JG INVESTMENT PLUS KFT. · A K&H ÉRTÉKPAPÍR FÜGGŐ ÜGYNÖKE` |
 | főcím | `Biztonság. Átláthatóság. Szakmai háttér.` |
 | kiemelt szó | `Átláthatóság.` (Signal Berry) |
-| bevezető | `Tájékoztatás közvetített befektetési szolgáltatásainkról — a K&H Értékpapír partnereként.` |
+| bevezető | `Tájékoztatás a K&H Értékpapírnál elérhető befektetési szolgáltatásokról és pénzügyi eszközökről — személyes kapcsolattartással, érthető folyamatokkal.` |
 | CTA | `KAPCSOLATFELVÉTEL` → `/#kapcsolat` |
 
-**Compliance-szempontból nyitott pontok** — mindhárom K&H Compliance és
-Kommunikáció írásbeli jóváhagyását igényli az élesítés előtt:
+**Elvégzett compliance-korrekciók** (a korábbi preview-copyhoz képest):
 
-1. a bevezető **„a K&H Értékpapír partnereként"** megfogalmazása (a docx SOT
-   szerinti jogállás „függő ügynök", nem „partner");
-2. az eyebrow **„KÖZVETÍTŐ"** megjelölése (ugyanezen okból);
-3. a státuszközlés **„a Magyar Nemzeti Bank nyilvántartásában szereplő
-   társaságként"** fordulata (nyilvántartási állítás, ami a docx SOT-ban nem
-   szerepel).
+- a „**partnereként**" fordulat **visszavonva** — mindenhol „függő ügynök";
+- a „**KÖZVETÍTŐ**" eyebrow-megjelölés **visszavonva**;
+- az **MNB-nyilvántartásra hivatkozó marketingállítás visszavonva** a hero
+  státuszközléséből (az Impresszum tényszerű felügyeleti adata változatlan);
+- „az általa forgalmazott" → „**elérhető**";
+- konkrét hirdetmény-dátum → „**mindenkor hatályos**";
+- a „Feladatunk elsősorban új ügyfelek megszólítása" mondat **törölve**;
+- mindenhol „**K&H Értékpapír (Patria Finance Magyarországi Fióktelepe)**";
+- nincs személyre szóló ajánlás, eredmény-, hozam- vagy tőkebiztonsági ígéret.
 
-Emiatt a v1.1 **nem** tekinthető compliance-approved, K&H-approved vagy
-public-ready változatnak. A preview-copy mezőket a
-`src/content/homepage.ts` `hero` és `statusNotice` konstansai jelölik, saját
-figyelmeztető kommenttel.
+**Nyitott compliance-kérdés:** a főcím „**Biztonság.**" szava — a megrendelő
+döntése alapján egyelőre marad, de külön review-tétel.
 
-A Hero **egyetlen** CTA-t jelenít meg. A korábbi másodlagos
-„K&H Értékpapír dokumentumai" gomb csak a Heróból került ki — ugyanez a
-hivatkozás a **láblécben** (`footer.links`) és a jogi szakaszban változatlanul
-elérhető, és az adatmező sem lett törölve a content modellből.
+A Hero **egyetlen** CTA-t jelenít meg. A „K&H Értékpapír dokumentumai"
+hivatkozás a láblécben és a 05. szakaszban is elérhető.
 
-### Az animáció
+### Jogi tartalom — háromszintű hierarchia
+
+1. **Rövid státuszközlés a Heróban** — vizuálisan másodlagos (nincs kártya,
+   nincs all-caps felirat), de mindig látható; 15 px mobilon, 16 px desktopon,
+   Muted Plum Porcelainen 5.33:1 (AA).
+2. **Egyetlen szereptisztázás a szolgáltatások alatt** („Fontos tudnivaló") —
+   nem ismétlődik kártyánként.
+3. **Részletes Jogi tájékoztató az oldal alján**, accordionban. A panelek
+   alapállapotban összecsukva jelennek meg, de a tartalom **mindig a DOM-ban
+   van** (csak `hidden`), tehát a szerveroldali HTML és a keresőmotorok
+   számára teljes egészében elérhető. Valódi `<button>` vezérlő,
+   `aria-expanded` / `aria-controls` / `role="region"` állapotokkal,
+   billentyűzettel használható.
+
+A **kockázati figyelmeztetés** az accordionon KÍVÜL, alapállapotban láthatóan
+marad — a rövid, kiemelt összefoglaló ÉS a docx SOT teljes kockázati
+bekezdése is. A Panaszkezelés és az Impresszum szintén mindig nyitva van,
+saját horgonnyal. Az all-caps riasztó címek („KÖTELEZŐ STÁTUSZKÖZLÉS",
+„FONTOS KORLÁT", „KIEMELT KOCKÁZATI FIGYELMEZTETÉS") helyett emberi
+megfogalmazású címek állnak. A jogi szakaszban semmi nem kisebb 14 px-nél.
+
+### Az animáció — rendezett market motion
 
 `src/components/HeroMarketMotion.tsx` — saját, **külső függőség nélküli** 2D
 Canvas rajzolás (nincs charting library, nincs animációs library, nincs
 WebGL, nincs Rive).
 
-- **Három mélységi réteg**, eltérő sebességgel (parallax): Cool Silver
-  (nagyon lassú, nagyon alacsony kontraszt) → Muted Plum (lassú, közepes) →
-  Aubergine (kissé gyorsabb, nagyobb és ritkább testek).
-- **Determinisztikus kompozíció**: seedelt álvéletlen (`mulberry32`), így a
-  Hero minden betöltésnél ugyanúgy néz ki, és nincs hydration mismatch.
-- **Seamless loop**: a gyertyák egy, a viewportnál szélesebb világsávon
-  ismétlődnek, az alapvonalat pedig egész frekvenciájú szinuszok összege adja
-  — a wrap határán nincs ugrás, nincs felismerhető loopkezdés.
+**A v1.1 mozgási modellje.** A korábbi verzióban minden gyertya saját,
+független fázisú szinuszon lebegett, és nagy (a Hero magasságának ~30%-át
+kitevő) véletlen függőleges szórást kapott — ettől a mező kaotikusnak hatott.
+A v1.1 ezt három eszközzel szünteti meg:
+
+1. **Master market path** — egyetlen, közös, folytonos görbe (egész
+   frekvenciájú térbeli szinuszok összege, nagyon lassú időbeli
+   fázissodrással). Minden réteg minden gyertyája ennek a görbének a
+   magasságát veszi fel; a rétegek csak amplitúdóban és egy kis fázisban
+   térnek el. A mező így egyetlen, összefüggő piaci sziluettként olvasódik.
+2. **Rendezett pozíciós sor** — egyenletes vízszintes rács (±6% jitter), és
+   minden réteg ugyanabba az irányba (balra) sodródik, 8 / 10,5 / 13,5 px/s
+   sebességgel: érzékelhető parallax, de nem szétszaladó mozgás.
+3. **Szomszédkorreláció** — a gyertyánkénti animációs fázisok az INDEXBŐL
+   származnak, kis lépésközzel (0,42–0,61 rad). A szomszédos gyertyák így
+   közel fázisban vannak: a mozgás végigfutó hullámként halad a soron.
+
+**A gyertyatest és a kanócok külön animálódnak.** A test lassan fel-le mozog
+(8–20 px), a magassága is változik (3–8 px), a felső és az alsó kanóc végpontja
+pedig egymástól részben függetlenül nyúlik és húzódik vissza (5–14 px), mindig
+a test aktuális éléhez kapcsolódva. A ciklusidők 10–22 s. Minden animált érték
+zárt alakú, C∞-sima függvénye az időnek és a gyertya indexének: **nincs
+frame-random, nincs hard step, nincs jitter**. A sarokrádiusz a mindenkori
+animált magassághoz van vágva, ezért a forma sosem válik kapszulává.
+
+- **Determinisztikus kompozíció**: seedelt álvéletlen (`mulberry32`) — nincs
+  hydration mismatch.
+- **Seamless loop**: egész frekvenciájú térbeli komponensek → a világsáv
+  határán nincs ugrás, nincs felismerhető loopkezdés.
 - **Olvashatósági zóna**: a canvas kiméri a Hero copy-blokkjának valódi
-  geometriáját (`[data-hero-copy]`), és e köré egy lágy ellipszisben
-  lecsökkenti a gyertyák opacityjét — a nagyobb vizuális aktivitás a bal/jobb
-  szélre és a felső/alsó perifériára kerül. A `.hero-veil` gradient ezt
-  egészíti ki.
-- **Nincs pénzügyi tartalom**: nincs valós árfolyam, instrumentum, historikus
-  adat, ticker, számadat, kereskedési jelzés vagy hozamábra. **Nincs
-  piros–zöld színpár, és nincs arany vagy sárga** — a gyertya színét kizárólag
-  a rétege adja; az irány (hosszabb felső vagy alsó kanóc) csak formai
-  változatosság, és a Signal Berry kiemelés szándékosan mindkét alakon
-  megjelenik, hogy ne kaphasson „nyereséges"/„vesztes" jelentést.
-- **Kiemelő gyertyák**: desktopon pontosan 3, mobilon pontosan 2, mind
-  ugyanabban a rétegben. Ez tudatos: egy rétegen belül azonos a sodródási
-  sebesség, így a köztük lévő távolság állandó, és **sosem kerülnek
-  közvetlenül egymás mellé**.
-- **Teljesítmény**: `ResizeObserver`, DPR-cap (desktop 2, mobil 1.5),
-  `IntersectionObserver` (képernyőn kívül a loop leáll), `visibilitychange`
-  (háttérfülön leáll), unmountkor teljes cleanup. Mobilon kevesebb gyertya,
-  lassabb mozgás és kisebb rétegkülönbség. Frame-enként nincs React state
-  update — a rajzolás közvetlenül a canvasra megy.
-- **`prefers-reduced-motion: reduce`**: el sem indul a
-  `requestAnimationFrame`-loop; egyetlen statikus, teljes értékű
-  gyertyakompozíció rajzolódik ki (nincs parallax, nincs sodródás, nincs
-  opacity-pulzálás).
+  geometriáját (`[data-hero-copy]`), és e köré lágy ellipszisben csökkenti a
+  gyertyák opacityjét.
+- **Nincs pénzügyi tartalom**: nincs valós árfolyam, instrumentum, ticker,
+  számadat vagy hozamábra; nincs piros–zöld színpár, nincs arany vagy sárga.
+- **Kiemelő gyertyák**: desktopon 3, mobilon 2, mind egyetlen rétegben — így
+  azonos sebességgel sodródnak, a köztük lévő távolság állandó, és sosem
+  kerülnek közvetlenül egymás mellé.
+- **Teljesítmény**: `ResizeObserver`, DPR-cap (desktop 2, mobil 1,5),
+  `IntersectionObserver`, `visibilitychange`, teljes unmount-cleanup, nulla
+  React state update frame-enként.
+- **`prefers-reduced-motion: reduce`**: el sem indul a rAF-loop; statikus,
+  rendezett, teljes értékű kompozíció — sem a test, sem a kanóc nem mozog.
 
 ### Signal Berry
 
@@ -275,11 +311,14 @@ src/
     page.tsx                  skip link + szakaszok összeállítása
   components/
     Header.tsx                wordmark, navigáció, billentyűzetes mobilmenü + focus trap
-    Hero.tsx                  Hero + kötelező státuszközlés + kockázati figyelmeztetés
-    HeroMarketMotion.tsx      absztrakt japángyertya-háttéranimáció (kliens Canvas,
-                              külső dependency nélkül; reduced-motion + pause-kezeléssel)
-    RoleClarification.tsx
-    About.tsx  Services.tsx  WhyJG.tsx  Process.tsx
+    Hero.tsx                  Hero + rövid státuszközlés (jogi hierarchia 1. szint)
+    HeroMarketMotion.tsx      rendezett japángyertya-háttéranimáció (kliens Canvas,
+                              master market path; reduced-motion + pause-kezeléssel)
+    About.tsx  Services.tsx  WhyJG.tsx  Process.tsx    01–04. szakasz
+    CtaBand.tsx               konverziós CTA-sáv (az oldal egyetlen Carbon szakasza)
+    OfficialDocuments.tsx     05. szakasz — hivatalos dokumentumok linklistája
+    LegalAccordion.tsx        kliens accordion (aria-expanded/-controls; a tartalom
+                              összecsukva is a DOM-ban marad)
     Contact.tsx                elérhetőségek, üzleti órák, űrlap-prototípus
     LegalRiskBlock.tsx         jogi tájékoztató, panaszkezelés, impresszum
     Footer.tsx
