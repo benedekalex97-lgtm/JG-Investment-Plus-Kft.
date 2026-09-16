@@ -2,7 +2,7 @@
 
 Ez a repository a JG Investment Plus Kft. weboldalát tartalmazza.
 
-## Jelenlegi állapot: v0.4 tiszta, szövegközpontú Hero
+## Jelenlegi állapot: v0.6 Hero — absztrakt japángyertya-háttéranimáció
 
 **A prototípus nem publikálásra kész.** Kifejezetten *nem*:
 
@@ -20,12 +20,16 @@ vizuális irányt a v0.1 (Steel Azure) helyett. A v0.3-ban a v0.2 Hero
 mozgásrendszere ("Continuous Market Journey" — futó/sétáló figura, mozgó
 gyertyák, parallax, kamerakövetés) megszűnt, és egy statikus figura +
 japángyertya-kompozíció váltotta. A v0.4-ben ez a statikus vizuális elem
-is teljes egészében eltávolításra került — szándékosan nincs
-helyettesítő illusztráció, mockup vagy placeholder. A Hero jobb oldali
-vizuális eleme csak egy későbbi, professzionálisan kidolgozott rendszer
-részeként kerül majd vissza; addig a Hero tudatosan tiszta, szövegközpontú
-kompozíció. A tartalmi source of truth és a compliance-szabályok a
-v0.1-hez képest változatlanok.
+is teljes egészében eltávolításra került. A v0.5-ben a Hero copy középre
+került, és a szekció egy üres, animációra előkészített réteget kapott. A
+v0.6 ezt a réteget tölti ki: egy saját fejlesztésű, absztrakt
+japángyertya-háttéranimáció (`HeroMarketMotion`).
+
+A karakteres/figurás koncepció **véglegesen kikerült a scope-ból**: a Hero
+animációja kizárólag absztrakt, és nem tartalmaz emberi figurát, sétáló
+karaktert, fotót vagy illusztrált személyt. A tartalmi source of truth és a
+compliance-szabályok a v0.1-hez képest változatlanok; a v0.6 egyetlen
+szövegváltozást sem tartalmaz.
 
 ## Tartalmi source of truth
 
@@ -100,23 +104,73 @@ fallback stackkel (`src/app/globals.css` `--font-serif-display` /
 `--font-sans`) — ha a betűtöltés a build-környezetben elérhetetlen lenne, a
 megjelenés akkor is stabil marad.
 
-## Hero — tiszta, szövegközpontú kompozíció (v0.4)
+## Hero — absztrakt japángyertya-háttéranimáció (v0.6)
 
-A v0.1–v0.3 Hero jobb oldalán mindig volt valamilyen vizuális elem (előbb
-mozgó, majd statikus figura + japángyertya-kompozíció). A v0.4-ben ez
-teljes egészében megszűnt — nincs jobb oldali vizuális oszlop, és nincs
-helyettesítő illusztráció, chart, mockup vagy placeholder sem. Az elem
-csak egy későbbi, professzionálisan kidolgozott vizuális rendszer
-részeként kerül majd vissza.
+A Hero középre rendezett, egyoszlopos szövegkompozíció maradt (eyebrow →
+főcím → bevezető → CTA-k), alatta külön sávban a kötelező státuszközléssel és
+a kiemelt kockázati figyelmeztetéssel. A v0.6 ehhez egy teljes Hero-felületet
+kitöltő háttéranimációt ad.
 
-A Hero mostantól egyoszlopos, balra igazított, kontrollált olvasási
-szélességre korlátozott (`max-w-3xl`, ~768px): eyebrow → főcím → bevezető
-→ CTA-k, erős tipográfiai hierarchiával és rendezett whitespace-szel.
+Rétegek (alulról):
+
+1. Porcelain háttér
+2. `HeroMarketMotion` canvas — `aria-hidden`, `pointer-events: none`
+3. `.hero-veil` Porcelain kontrasztfátyol
+4. HTML copy és CTA-k
+5. sticky header (`z-50`)
+
+### Az animáció
+
+`src/components/HeroMarketMotion.tsx` — saját, **külső függőség nélküli** 2D
+Canvas rajzolás (nincs charting library, nincs animációs library, nincs
+WebGL, nincs Rive).
+
+- **Három mélységi réteg**, eltérő sebességgel (parallax): Cool Silver
+  (nagyon lassú, nagyon alacsony kontraszt) → Muted Plum (lassú, közepes) →
+  Aubergine (kissé gyorsabb, nagyobb és ritkább testek).
+- **Determinisztikus kompozíció**: seedelt álvéletlen (`mulberry32`), így a
+  Hero minden betöltésnél ugyanúgy néz ki, és nincs hydration mismatch.
+- **Seamless loop**: a gyertyák egy, a viewportnál szélesebb világsávon
+  ismétlődnek, az alapvonalat pedig egész frekvenciájú szinuszok összege adja
+  — a wrap határán nincs ugrás, nincs felismerhető loopkezdés.
+- **Olvashatósági zóna**: a canvas kiméri a Hero copy-blokkjának valódi
+  geometriáját (`[data-hero-copy]`), és e köré egy lágy ellipszisben
+  lecsökkenti a gyertyák opacityjét — a nagyobb vizuális aktivitás a bal/jobb
+  szélre és a felső/alsó perifériára kerül. A `.hero-veil` gradient ezt
+  egészíti ki.
+- **Nincs pénzügyi tartalom**: nincs valós árfolyam, instrumentum, historikus
+  adat, kereskedési jelzés vagy hozamábra. **Nincs piros–zöld színpár** — a
+  gyertya színét kizárólag a rétege adja; az irány (hosszabb felső vagy alsó
+  kanóc) csak formai változatosság, és a Signal Amber kiemelés szándékosan
+  mindkét alakon megjelenik, hogy ne kaphasson „nyereséges"/„vesztes"
+  jelentést.
+- **Teljesítmény**: `ResizeObserver`, DPR-cap (desktop 2, mobil 1.5),
+  `IntersectionObserver` (képernyőn kívül a loop leáll), `visibilitychange`
+  (háttérfülön leáll), unmountkor teljes cleanup. Mobilon kevesebb gyertya,
+  lassabb mozgás és kisebb rétegkülönbség. Frame-enként nincs React state
+  update — a rajzolás közvetlenül a canvasra megy.
+- **`prefers-reduced-motion: reduce`**: el sem indul a
+  `requestAnimationFrame`-loop; egyetlen statikus, teljes értékű
+  gyertyakompozíció rajzolódik ki (nincs parallax, nincs sodródás, nincs
+  opacity-pulzálás).
+
+### Signal Amber
+
+A v0.6 egyetlen új színt vezet be — a **Signal Amber** funkcionális
+figyelemfelkeltő jelzést (`#C79A3B`, dark `#9A7225`, soft `#F1E5C8`). Ez
+**nem brandszín**, és a teljes oldalon legfeljebb ~3–5%-os vizuális arányban
+jelenhet meg. Jelenleg három helyen él, mind a Heróban:
+
+1. a főcím „Átlátható" szava (Signal Amber **Dark**, 3.94:1 Porcelainen — AA
+   nagy szöveghez; a világosabb alapárnyalat szövegre sosem használható),
+2. az elsődleges CTA nagyon visszafogott alsó jelzővonala (a gomb
+   töltőszíne változatlanul Aubergine; nincs glow),
+3. a háttéranimáció néhány (desktopon 3, mobilon 2) fókuszgyertyája.
+
+A domináns színek továbbra is a Porcelain / Ink / Aubergine.
 
 A Hero — és az oldal egésze — a betöltés után AZONNAL, teljes egészében
-látható, minden módban; a globális `prefers-reduced-motion: reduce`
-támogatás a dekoratív effektekre (smooth scroll, hover/menüátmenetek)
-vonatkozik.
+látható, minden módban; a szöveg megjelenése soha nem függ az animációtól.
 
 ## Futtatás
 
@@ -145,12 +199,15 @@ npm run build
 ```
 src/
   app/
-    globals.css              design tokenek (@theme), reduced-motion (globális, nem-Hero)
+    globals.css              design tokenek (@theme, Signal Amberrel), .hero-veil,
+                              .hero-cta-primary, reduced-motion (globális CSS-effektek)
     layout.tsx                next/font/google (Newsreader, Inter)
     page.tsx                  skip link + szakaszok összeállítása
   components/
     Header.tsx                wordmark, navigáció, billentyűzetes mobilmenü + focus trap
-    Hero.tsx                  Hero + kötelező státuszközlés + kockázati figyelmeztetés (v0.4: nincs jobb oldali vizuális elem)
+    Hero.tsx                  Hero + kötelező státuszközlés + kockázati figyelmeztetés
+    HeroMarketMotion.tsx      absztrakt japángyertya-háttéranimáció (kliens Canvas,
+                              külső dependency nélkül; reduced-motion + pause-kezeléssel)
     RoleClarification.tsx
     About.tsx  Services.tsx  WhyJG.tsx  Process.tsx
     Contact.tsx                elérhetőségek, üzleti órák, űrlap-prototípus

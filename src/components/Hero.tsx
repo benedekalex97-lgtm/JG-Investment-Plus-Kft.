@@ -1,21 +1,24 @@
+import HeroMarketMotion from "@/components/HeroMarketMotion";
 import { hero, heroRiskWarning, statusNotice } from "@/content/homepage";
 
 /**
- * Hero — a SOT 1. szakasza, v0.5: középre rendezett, animációra előkészített
- * kompozíció.
+ * Hero — a SOT 1. szakasza, v0.6: középre rendezett copy absztrakt,
+ * japángyertya-alapú háttéranimációval.
  *
  * v0.1–v0.3-ban itt egy jobb oldali vizuális elem élt (előbb mozgó, majd
  * statikus figura + japángyertya-kompozíció), v0.4-ben pedig egy balra
- * igazított, egyoszlopos szövegblokk. v0.5-ben a copy vízszintesen és
- * (nagyjából, 2–4vh-val a geometriai közép fölé tolva) függőlegesen is
- * középre kerül, és a Hero négy rétegre tagolódik alulról:
+ * igazított, egyoszlopos szövegblokk. v0.5-ben a copy középre került, és a
+ * Hero egy üres, animációra előkészített réteget kapott. v0.6-ban ez a réteg
+ * megtelik: a HeroMarketMotion canvas-komponens lassú, atmoszferikus piaci
+ * mozgást rajzol a Hero teljes hátterébe — figura és karakter NÉLKÜL. A Hero
+ * négy rétegre tagolódik alulról:
  *
  *   1) Porcelain háttér (teljes Hero-szélesség)
- *   2) üres animation-mount — pointer-events: none, aria-hidden, jelenleg
- *      tartalom nélkül; KÉSŐBBI Rive-/canvas-/SVG-animáció fogadására
- *      készül elő, ebben a körben nem kap semmilyen mozgást vagy figurát
+ *   2) animation-mount — pointer-events: none, aria-hidden; ebben él a
+ *      HeroMarketMotion canvas (absztrakt japángyertya-mozgás; nincs figura,
+ *      nincs árfolyamadat, nincs piros–zöld színpár)
  *   3) .hero-veil kontrasztfátyol (ld. globals.css) — lágy, szél nélküli
- *      Porcelain gradient a copy és a jövőbeli animáció között
+ *      Porcelain gradient a copy és az animáció között
  *   4) a valódi HTML copy és a CTA-k, illetve alattuk, már a középre
  *      rendezett "stage"-en kívül, külön sávban a kötelező státuszközlés és
  *      kockázati figyelmeztetés
@@ -31,6 +34,20 @@ import { hero, heroRiskWarning, statusNotice } from "@/content/homepage";
 export default function Hero() {
   const [firstLine, secondLine] = hero.headlineLines;
 
+  /*
+    A főcím SZÖVEGE változatlan; a markup kizárólag azért bomlik három
+    részre, hogy a hero.headlineHighlight által megjelölt szó (jelenleg:
+    „Átlátható") önálló, visszafogott Signal Amber kiemelést kaphasson. Ha a
+    szó nem szerepel a sorban, a sor egyben, kiemelés nélkül jelenik meg —
+    a szöveg soha nem veszhet el.
+  */
+  const highlightStart = secondLine.indexOf(hero.headlineHighlight);
+  const hasHighlight = highlightStart !== -1;
+  const beforeHighlight = hasHighlight ? secondLine.slice(0, highlightStart) : secondLine;
+  const afterHighlight = hasHighlight
+    ? secondLine.slice(highlightStart + hero.headlineHighlight.length)
+    : "";
+
   return (
     <section
       id="top"
@@ -41,23 +58,35 @@ export default function Hero() {
       <div aria-hidden="true" className="absolute inset-0 bg-canvas" />
 
       {/*
-        Réteg 2: animation-mount. Szándékosan üres — nincs figura, nincs
-        Canvas/SVG/WebGL-tartalom és nincs mozgás ebben a körben. A CTA-k
-        fölé sosem kerülhet (pointer-events: none), és screen readerek
-        számára nem létezik (aria-hidden).
+        Réteg 2: animation-mount — az absztrakt japángyertya-animáció canvasa.
+        Tisztán dekoratív: a CTA-k fölé sosem kerülhet (pointer-events: none),
+        nincs a billentyűzetes fókuszsorrendben, és screen readerek számára
+        nem létezik (aria-hidden). Szerveroldalon üres canvasként renderel,
+        ezért nem okoz hydration mismatchet és nem mozdítja el a layoutot.
       */}
       <div
         aria-hidden="true"
         data-hero-animation-mount=""
         className="pointer-events-none absolute inset-0"
-      />
+      >
+        <HeroMarketMotion />
+      </div>
 
       {/* Réteg 3: kontrasztfátyol — ld. .hero-veil a globals.css-ben. */}
       <div aria-hidden="true" className="hero-veil pointer-events-none absolute inset-0" />
 
       {/* Réteg 4: valódi HTML copy, CTA-k, majd a stage alatti státusz/kockázati sáv. */}
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col px-5 sm:px-6 lg:px-8">
-        <div className="flex min-h-[68svh] flex-col items-center justify-center pt-10 pb-16 text-center sm:min-h-[72svh] sm:pt-12 sm:pb-20 lg:min-h-[76vh] lg:pt-16 lg:pb-24">
+        {/*
+          data-hero-copy: ez a doboz jelöli ki a Hero olvasási zónáját. A
+          HeroMarketMotion ennek a VALÓDI, kimért geometriájának megfelelően
+          halványítja le a gyertyákat — így a readability-zóna minden
+          viewporton pontosan a szöveget követi, nem egy találgatott arányt.
+        */}
+        <div
+          data-hero-copy=""
+          className="flex min-h-[68svh] flex-col items-center justify-center pt-10 pb-16 text-center sm:min-h-[72svh] sm:pt-12 sm:pb-20 lg:min-h-[76vh] lg:pt-16 lg:pb-24"
+        >
           <p className="text-sm font-medium tracking-[0.04em] text-text-secondary sm:text-base lg:text-lg">
             {hero.eyebrow}
           </p>
@@ -70,7 +99,11 @@ export default function Hero() {
               {firstLine}
             </span>
             <span className="mx-auto mt-2 block max-w-[24ch] text-balance text-accent">
-              {secondLine}
+              {beforeHighlight}
+              {hasHighlight ? (
+                <span className="text-signal-amber-dark">{hero.headlineHighlight}</span>
+              ) : null}
+              {afterHighlight}
             </span>
           </h1>
 
@@ -82,7 +115,7 @@ export default function Hero() {
           <div className="mt-9 flex w-full max-w-md flex-col items-stretch gap-4 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
             <a
               href={hero.primaryCta.href}
-              className="inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-6 text-center text-base font-medium text-porcelain transition-colors hover:bg-accent-hover"
+              className="hero-cta-primary inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-6 text-center text-base font-medium text-porcelain hover:bg-accent-hover"
             >
               {hero.primaryCta.label}
             </a>

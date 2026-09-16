@@ -17,6 +17,17 @@
   --color-porcelain: #f4f3f1;
   --color-ink: #27262a;
 
+  /* ---- Funkcionális figyelemfelkeltő szín (v0.6) ----------------------
+     A Signal Amber NEM brandszín és NEM másodlagos brandszín: kizárólag
+     kontrollált figyelemfelkeltő jelzés, a teljes oldalon legfeljebb
+     ~3–5%-os vizuális arányban. Jelenleg csak a Heróban él (a főcím
+     „Átlátható” szava, az elsődleges CTA visszafogott alsó jelzővonala és
+     a háttéranimáció néhány fókuszgyertyája). A dominancia továbbra is a
+     Porcelain / Ink / Aubergine hármasé. */
+  --color-signal-amber: #c79a3b;
+  --color-signal-amber-dark: #9a7225;
+  --color-signal-amber-soft: #f1e5c8;
+
   /* Az elsődleges felület a Porcelain fölé emelt tiszta fehér — finom
      szintkülönbséget ad a kártyáknak a canvashoz képest. */
   --color-surface: #ffffff;
@@ -106,6 +117,14 @@
    muted-plum   Carbonon .................... 3.00:1  csak nagy/félkövér
                                                         szöveghez (18px+),
                                                         törzsszöveghez nem
+   signal-amber-dark Porcelainen ............. 3.94:1  AA (nagy szöveg) — CSAK
+                                                        a Hero H1 méretében
+                                                        (≥40 px) használt
+                                                        kiemelésre
+   signal-amber Porcelainen .................. 2.33:1  FAIL — SOHA nem szöveg;
+                                                        kizárólag dekoratív
+                                                        jelzés (canvas-gyertya,
+                                                        CTA-jelzővonal)
    -------------------------------------------------------------------------- */
 
 html {
@@ -161,42 +180,39 @@ body {
 }
 
 /* ==========================================================================
-   HERO — v0.5: középre rendezett copy, animációra előkészített rétegrendszer
-   Nincs Hero-szöveganimáció és nincs Hero-mozgásrendszer (ld. korábban a
-   .jg-reveal-* osztályokat és a hero-motion/ modult — mindkettő eltávolítva
-   még v0.3-ban). A Hero betöltés után azonnal, teljes egészében látható,
-   minden módban.
+   HERO — v0.6: középre rendezett copy + absztrakt japángyertya-háttéranimáció
+   A Hero öt rétegre tagolódik (alulról):
+     1) Porcelain háttér
+     2) animált canvas (HeroMarketMotion) — dekoratív, aria-hidden,
+        pointer-events: none
+     3) ez a .hero-veil kontrasztfátyol
+     4) a valódi HTML copy és a CTA-k
+     5) a sticky header (z-50, a Heron kívül)
 
-   v0.5-ben a Hero négy rétegre tagolódik (alulról): 1) Porcelain háttér,
-   2) üres animation-mount (pointer-events: none, aria-hidden, jelenleg
-   tartalom nélkül — később Rive vagy más könnyű mozgás fogadására), 3) ez a
-   .hero-veil kontrasztfátyol, 4) a valódi HTML copy és a CTA-k. A rétegek 1–3
-   teljes Hero-szélességűek (a Hero szekció szélén túlnyúlnak a copy max-width
-   oszlopán); a copy réteg a szokásos, olvasásra korlátozott oszlopban él.
+   Az 1–3. réteg teljes Hero-szélességű; a copy a szokásos, olvasásra
+   korlátozott oszlopban él. A Hero és az oldal egésze a betöltés után
+   AZONNAL, teljes egészében látható — a canvas csak háttér, a szöveg sosem
+   függ tőle (nincs reveal, nincs elrejtő kiindulóállapot).
    ========================================================================== */
 
 /*
-  .hero-veil — lágy, szél nélküli Porcelain kontrasztréteg a copy és a
-  (jelenleg üres) animation-mount között. Radiális, a H1 mögött legerősebb,
-  a Hero szélei felé fokozatosan teljesen átlátszóvá válik. Nincs kártya,
-  keret, blur vagy mix-blend-mode — csak egy háttérszínű gradient.
+  .hero-veil — lágy, szél nélküli Porcelain kontrasztréteg a copy és a mozgó
+  canvas között. Radiális, a H1 mögött legerősebb, a Hero szélei felé
+  fokozatosan teljesen átlátszóvá válik. Nincs kártya, keret, blur vagy
+  mix-blend-mode — csak egy háttérszínű gradient.
 
-  A --veil-core/--veil-mid értékek a JELENLEGI, statikus fátyol intenzitását
-  vezérlik. A --veil-anim-* változók egy KÉSŐBBI mozgásréteg tervezett
-  intenzitás-céljait dokumentálják — nincs mozgás, ezeket ma semmi nem
-  használja fel.
+  v0.6-ban a fátyol a v0.5-höz képest MÉRSÉKELTEBB: a canvas maga is
+  lecsökkenti a gyertyák opacityjét a copy mögötti zónában (ld.
+  readabilityFactor a HeroMarketMotion.tsx-ben), így a fátyolnak már nem kell
+  egymaga elvégeznie a teljes takarást — a két mechanizmus együtt adja a
+  végleges olvashatóságot, miközben a mozgás a Hero peremén látható marad.
 */
 .hero-veil {
-  --veil-core: 92%; /* közvetlenül a H1 mögött — cél: 88–94% */
-  --veil-mid: 80%; /* leírás/CTA belső zónája — cél: 72–86% */
-
-  /* Dokumentáció a jövőbeli animációs rétegnek — ma nincs mozgás. */
-  --veil-anim-far: 30%; /* a copytól távol — cél: 25–38% */
-  --veil-anim-core: 11%; /* közvetlenül a H1 mögött — cél: 8–14% */
-  --veil-anim-mid: 13%; /* leírás/CTA mögött — cél: legfeljebb 10–16% */
+  --veil-core: 86%; /* közvetlenül a H1 mögött */
+  --veil-mid: 62%; /* leírás/CTA belső zónája */
 
   background-image: radial-gradient(
-    ellipse 68% 62% at 50% 40%,
+    ellipse 70% 64% at 50% 40%,
     rgb(244 243 241 / var(--veil-core)) 0%,
     rgb(244 243 241 / var(--veil-mid)) 46%,
     rgb(244 243 241 / 0%) 100%
@@ -208,8 +224,11 @@ body {
    felé, mert a copy-oszlop arányaiban kisebb részét foglalja a Hero-nak. */
 @media (max-width: 640px) {
   .hero-veil {
+    --veil-core: 89%;
+    --veil-mid: 67%;
+
     background-image: radial-gradient(
-      ellipse 92% 80% at 50% 38%,
+      ellipse 96% 82% at 50% 38%,
       rgb(244 243 241 / var(--veil-core)) 0%,
       rgb(244 243 241 / var(--veil-mid)) 55%,
       rgb(244 243 241 / 0%) 100%
@@ -217,10 +236,33 @@ body {
   }
 }
 
+/*
+  Elsődleges Hero-CTA — a gomb TÖLTŐSZÍNE változatlanul Aubergine marad.
+  A Signal Amber itt kizárólag egy nagyon visszafogott alsó jelzővonalként
+  jelenik meg (nincs glow, nincs színes háttér, nincs amber felirat), ami
+  hoverkor kissé megerősödik. Dekoratív: a gomb olvashatóságát a fehér
+  felirat Aubergine-en mért 11.26:1 kontrasztja adja, nem ez a vonal.
+  Ha a böngésző nem ismeri a color-mix()-et, a box-shadow egyszerűen
+  elmarad — a gomb minden állapotban teljes értékű marad.
+*/
+.hero-cta-primary {
+  box-shadow: inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-amber) 50%, transparent);
+  transition:
+    background-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.hero-cta-primary:hover {
+  box-shadow: inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-amber) 88%, transparent);
+}
+
 /* ==========================================================================
-   REDUCED MOTION — globális, nem-Hero elemekre (smooth scroll, hover/
-   accordion/menüátmenetek és minden egyéb dekoratív CSS-effekt). A Hero
-   nem igényel itt külön ágat, mert alapból, minden módban statikus.
+   REDUCED MOTION — globális, dekoratív CSS-effektekre (smooth scroll, hover/
+   accordion/menüátmenetek). A Hero háttéranimációja NEM CSS-alapú, ezért itt
+   nem kapcsolható ki: a HeroMarketMotion komponens maga figyeli a
+   prefers-reduced-motion médiaquery-t, és reduce esetén el sem indítja a
+   requestAnimationFrame-loopot — egyetlen statikus gyertyakompozíciót rajzol
+   ki (nincs parallax, nincs sodródás, nincs opacity-pulzálás).
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html {

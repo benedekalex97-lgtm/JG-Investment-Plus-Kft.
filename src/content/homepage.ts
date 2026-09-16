@@ -71,8 +71,14 @@ export const hero = {
     "Közvetlen kapcsolat a tőkepiacokhoz.",
     "Átlátható, szabályozott keretek között.",
   ],
-  /** Kontrollált kiemelés: a második sor ezen kifejezése kap Action Blue színt. */
-  headlineHighlight: "szabályozott keretek között",
+  /**
+   * Kontrollált tipográfiai kiemelés — NEM tartalmi mező: a főcím szövege
+   * változatlan, ez csak megjelöli, melyik SZÓ kapja a Hero-ban a visszafogott
+   * Signal Amber színt. A szónak szó szerint szerepelnie kell a
+   * headlineLines egyik sorában; ha nem található, a főcím kiemelés nélkül,
+   * teljes egészében megjelenik.
+   */
+  headlineHighlight: "Átlátható",
   intro:
     "Bemutatjuk a K&H Értékpapír szolgáltatásait és az általa forgalmazott pénzügyi eszközöket, támogatjuk a kapcsolatfelvételt, valamint a hatályos ügynöki hirdetményben meghatározott körben közreműködünk a megbízások fogadásában, továbbításában és végrehajtásában.",
   primaryCta: { label: "Kapcsolatfelvétel", href: "/#kapcsolat" },
