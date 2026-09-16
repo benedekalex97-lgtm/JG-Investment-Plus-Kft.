@@ -60,12 +60,19 @@ export default function Header() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
+  /*
+    v1.3: a header VÉGIG sötét (Deep) felületen áll, nem csak a Hero fölött.
+    Ez tudatos: így nincs scroll-függő állapotváltás (nincs villanás, nincs
+    layout shift, nincs blur/glassmorphism), a sticky állapot pedig ugyanolyan
+    olvasható és prémium marad, mint a Hero fölött.
+    Porcelain szöveg Deep alapon 16.07:1 (AAA).
+  */
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur-sm">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-4 sm:px-6 lg:px-8 lg:py-5">
+    <header className="on-dark sticky top-0 z-50 border-b border-white/10 bg-surface-deep">
+      <div className="mx-auto flex h-[72px] w-full max-w-[1280px] items-center justify-between gap-x-8 px-5 sm:px-6 lg:h-20 lg:px-8">
         <Link
           href="/#top"
-          className="flex min-h-11 items-center rounded font-display text-[1.0625rem] text-text-primary sm:text-xl"
+          className="flex min-h-11 shrink-0 items-center rounded font-display text-lg leading-none whitespace-nowrap text-porcelain sm:text-xl lg:text-[1.375rem]"
         >
           {meta.wordmark}
         </Link>
@@ -77,17 +84,22 @@ export default function Header() {
               <li key={item.href}>
                 <a
                   href={item.href}
-                  className="flex min-h-11 items-center rounded px-3.5 text-[0.95rem] text-text-secondary transition-colors hover:text-text-primary"
+                  className="group relative flex min-h-11 items-center rounded px-3 text-[0.9375rem] text-cool-silver transition-colors hover:text-porcelain"
                 >
                   {item.label}
+                  {/* Hover-jelölés: hajszálvékony Berry vonal, nem aláhúzás. */}
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-3 bottom-2 h-px origin-left scale-x-0 bg-signal-berry-light transition-transform duration-200 group-hover:scale-x-100"
+                  />
                 </a>
               </li>
             ))}
-            <li aria-hidden="true" className="mx-1 h-6 w-px bg-border-strong" />
+            <li aria-hidden="true" className="mx-2 h-5 w-px bg-white/15" />
             <li>
               <Link
                 href="/#kapcsolat"
-                className="flex min-h-11 items-center rounded-md bg-accent px-5 text-[0.95rem] font-medium text-white transition-colors hover:bg-accent-hover"
+                className="flex min-h-11 items-center rounded-md bg-porcelain px-5 text-[0.9375rem] font-semibold text-ink transition-colors hover:bg-white"
               >
                 Kapcsolatfelvétel
               </Link>
@@ -102,15 +114,15 @@ export default function Header() {
           aria-expanded={open}
           aria-controls={panelId}
           aria-label={open ? nav.closeMenuAccessible : nav.openMenuAccessible}
-          className="flex h-11 min-w-11 items-center justify-center gap-2 rounded-md border border-border px-3 text-sm font-medium text-text-primary lg:hidden"
+          className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-md border border-white/20 px-3 text-sm font-medium text-porcelain lg:hidden"
         >
           <span
             aria-hidden="true"
             className="flex h-3.5 w-5 flex-col justify-between"
           >
-            <span className="block h-px w-full bg-text-primary" />
-            <span className="block h-px w-full bg-text-primary" />
-            <span className="block h-px w-full bg-text-primary" />
+            <span className="block h-px w-full bg-porcelain" />
+            <span className="block h-px w-full bg-porcelain" />
+            <span className="block h-px w-full bg-porcelain" />
           </span>
           {open ? nav.closeMenu : nav.openMenu}
         </button>
@@ -121,16 +133,16 @@ export default function Header() {
         <div
           ref={panelRef}
           id={panelId}
-          className="border-t border-border bg-surface lg:hidden"
+          className="border-t border-white/10 bg-surface-deep lg:hidden"
         >
           <nav aria-label={nav.menuLabel}>
-            <ul className="mx-auto w-full max-w-6xl px-5 py-2 sm:px-6">
+            <ul className="mx-auto w-full max-w-[1280px] px-5 py-2 sm:px-6">
               {nav.items.map((item) => (
                 <li key={item.href}>
                   <a
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="flex min-h-11 items-center border-b border-border text-base text-text-primary"
+                    className="flex min-h-12 items-center border-b border-white/10 text-base text-porcelain"
                   >
                     {item.label}
                   </a>
@@ -140,7 +152,7 @@ export default function Header() {
                 <Link
                   href="/#kapcsolat"
                   onClick={() => setOpen(false)}
-                  className="flex min-h-11 items-center justify-center rounded-md bg-accent px-4 text-base font-medium text-white"
+                  className="flex min-h-12 items-center justify-center rounded-md bg-porcelain px-4 text-base font-semibold text-ink"
                 >
                   Kapcsolatfelvétel
                 </Link>

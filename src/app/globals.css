@@ -29,6 +29,17 @@
 
      A v0.6 arany kiemelőrendszere TELJES EGÉSZÉBEN leváltva: sem a heróban,
      sem a dokumentációban nem maradt arany, sárga vagy mustár árnyalat. */
+  /* Mély, Aubergine-be hajló sötét felület — a Hero, a „Miért minket?" és a
+     Kapcsolat szakasz alapja. Nem tiszta fekete: a Carbonhoz képest egy
+     hajszálnyi lila tónus adja a márkakaraktert.
+     Porcelain rajta 16.07:1, Cool Silver 9.88:1 (mindkettő AAA). */
+  --color-surface-deep: #1b161c;
+
+  /* A Signal Berry SÖTÉT alapon olvasható változata. A #8E3F67 Carbonon
+     csak 2.58:1 lenne (FAIL), ezért sötét felületen kizárólag ez használható
+     szövegre: Deep-en mérve 5.82:1 (AA törzsszöveg). */
+  --color-signal-berry-light: #c27fa3;
+
   --color-signal-berry: #8e3f67;
   --color-signal-berry-dark: #6f2d50;
   /* Jelenleg nincs felhasználva — a tokenrendszer teljessége miatt definiált,
@@ -148,6 +159,14 @@
    signal-berry-soft Porcelainen ............. 1.24:1  FAIL — SOHA nem szöveg;
                                                         jelenleg nincs
                                                         használatban
+   Porcelain    surface-deep-en ......... 16.07:1  AAA — sötét szakasz törzsszöveg
+   Cool Silver  surface-deep-en ........... 9.88:1  AAA — sötét szakasz másodlagos
+   signal-berry-light surface-deep-en ..... 5.82:1  AA  — sötét szakasz kiemelés
+   signal-berry-soft surface-deep-en ..... 12.93:1  AAA — sötét szakasz kiemelés
+   signal-berry surface-deep-en ............ 2.59:1  FAIL — sötét alapon SOHA
+                                                        nem szöveg; ott a
+                                                        -light változat való
+   Carbon       signal-berry-soft-on .... 12.85:1  AAA — világos CTA felirata
    ink          section-tint-en ......... 12.88:1  AAA — törzsszöveg
    muted-plum   section-tint-en ........... 5.06:1  AA  — másodlagos szöveg
    aubergine    section-tint-en ........... 9.65:1  AAA — felirat, accent szöveg
@@ -223,85 +242,138 @@ body {
    ========================================================================== */
 
 /*
-  .hero-veil — lágy, szél nélküli Porcelain kontrasztréteg a copy és a mozgó
-  canvas között. Radiális, a H1 mögött legerősebb, a Hero szélei felé
-  fokozatosan teljesen átlátszóvá válik. Nincs kártya, keret, blur vagy
-  mix-blend-mode — csak egy háttérszínű gradient.
+  .hero-veil — SÖTÉT kontrasztvédő réteg a copy és a mozgó canvas között.
 
-  A fátyol szándékosan mérsékelt: a canvas maga is
-  lecsökkenti a gyertyák opacityjét a copy mögötti zónában (ld.
-  readabilityFactor a HeroMarketMotion.tsx-ben), így a fátyolnak már nem kell
-  egymaga elvégeznie a teljes takarást — a két mechanizmus együtt adja a
-  végleges olvashatóságot, miközben a mozgás a Hero peremén látható marad.
+  A v1.2-ig ez egy Porcelain (világos) fátyol volt, mert a Hero világos
+  alapon állt. A v1.3-ban a Hero mély, sötét felületre került, ezért a fátyol
+  is megfordult: most a Deep felület sűrűsödik be a copy mögött, és a Hero
+  pereme felé oldódik fel. Így a szöveg mögött nő a kontraszt, a gyertyák
+  viszont a széleken és a perifériákon TOVÁBBRA IS jól láthatók — a korábbi
+  „kifehéredett" hatás megszűnik.
+
+  A sok köztes stop a radiális gradiens sávosodását (banding) szünteti meg.
 */
 .hero-veil {
-  --veil-core: 86%; /* közvetlenül a H1 mögött */
-  --veil-mid: 62%; /* leírás/CTA belső zónája */
+  --veil-core: 88%; /* közvetlenül a H1 mögött */
+  --veil-mid: 64%; /* leírás/CTA belső zónája */
 
-  /* A sok köztes stop a radiális gradiens SÁVOSODÁSÁT (banding) szünteti
-     meg: kevés stoppal a 86% → 0% átmenet látható koncentrikus gyűrűket
-     rajzol a mozgó gyertyák fölé. */
   background-image: radial-gradient(
-    ellipse 70% 64% at 50% 40%,
-    rgb(244 243 241 / var(--veil-core)) 0%,
-    rgb(244 243 241 / calc(var(--veil-core) - 5%)) 24%,
-    rgb(244 243 241 / var(--veil-mid)) 46%,
-    rgb(244 243 241 / calc(var(--veil-mid) * 0.62)) 62%,
-    rgb(244 243 241 / calc(var(--veil-mid) * 0.3)) 78%,
-    rgb(244 243 241 / calc(var(--veil-mid) * 0.1)) 90%,
-    rgb(244 243 241 / 0%) 100%
+    ellipse 72% 66% at 50% 42%,
+    rgb(27 22 28 / var(--veil-core)) 0%,
+    rgb(27 22 28 / calc(var(--veil-core) - 6%)) 24%,
+    rgb(27 22 28 / var(--veil-mid)) 46%,
+    rgb(27 22 28 / calc(var(--veil-mid) * 0.6)) 62%,
+    rgb(27 22 28 / calc(var(--veil-mid) * 0.28)) 78%,
+    rgb(27 22 28 / calc(var(--veil-mid) * 0.09)) 90%,
+    rgb(27 22 28 / 0%) 100%
   );
 }
 
-/* Mobilon szélesebb és erősebb, hogy a rövidebb sortörésű copy mögött is
-   végig egyenletes maradjon a kontraszt; desktopon jobban kinyílhat a szélek
-   felé, mert a copy-oszlop arányaiban kisebb részét foglalja a Hero-nak. */
 @media (max-width: 640px) {
   .hero-veil {
-    --veil-core: 89%;
-    --veil-mid: 67%;
+    --veil-core: 90%;
+    --veil-mid: 70%;
 
     background-image: radial-gradient(
-      ellipse 96% 82% at 50% 38%,
-      rgb(244 243 241 / var(--veil-core)) 0%,
-      rgb(244 243 241 / calc(var(--veil-core) - 5%)) 28%,
-      rgb(244 243 241 / var(--veil-mid)) 55%,
-      rgb(244 243 241 / calc(var(--veil-mid) * 0.6)) 70%,
-      rgb(244 243 241 / calc(var(--veil-mid) * 0.25)) 85%,
-      rgb(244 243 241 / 0%) 100%
+      ellipse 98% 84% at 50% 40%,
+      rgb(27 22 28 / var(--veil-core)) 0%,
+      rgb(27 22 28 / calc(var(--veil-core) - 6%)) 28%,
+      rgb(27 22 28 / var(--veil-mid)) 55%,
+      rgb(27 22 28 / calc(var(--veil-mid) * 0.58)) 72%,
+      rgb(27 22 28 / calc(var(--veil-mid) * 0.22)) 86%,
+      rgb(27 22 28 / 0%) 100%
     );
   }
 }
 
 /*
-  Elsődleges Hero-CTA — a gomb TÖLTŐSZÍNE változatlanul Aubergine marad, a
-  felirata Porcelain. A Signal Berry itt kizárólag két, szigorúan kontrollált
-  szerepben jelenik meg:
+  .hero-grid — nagyon visszafogott tőkepiaci rácsháló a Hero alján.
+  Tisztán dekoratív (aria-hidden), két ismétlődő lineáris gradiens; a felső
+  kétharmadban maszkkal teljesen elhalványul, hogy a copy körül semmi ne
+  zavarjon. Nincs arany, nincs neon, nincs glow.
+*/
+.hero-grid {
+  background-image:
+    repeating-linear-gradient(to right, rgb(190 193 199 / 6%) 0 1px, transparent 1px 88px),
+    repeating-linear-gradient(to bottom, rgb(190 193 199 / 5%) 0 1px, transparent 1px 88px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 46%, black 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, transparent 46%, black 100%);
+}
 
-    1) egy 2 px-es, tisztán dekoratív alsó jelzővonal (inset box-shadow), ami
-       hoverkor kissé megerősödik — nincs glow, nincs színes gombháttér, nincs
-       gradient, nincs pulzálás, nincs színes árnyék;
-    2) a fókuszgyűrű színe (--focus felülírása). A gyűrű outline-offsettel a
-       Porcelain háttérre esik, ahol a Signal Berry kontrasztja mérve 6.19:1 —
-       bőven a fókuszjelöléshez elvárt 3:1 fölött. (A Berry az Aubergine gomb
-       FELÜLETÉN 1.64:1 lenne, ezért ott soha nem jelenik meg keretként vagy
-       szövegként.)
+/*
+  .hero-vignette — lágy Aubergine mélység a Hero sarkaiban. Szél nélküli,
+  nagyon alacsony intenzitású; a felület így nem hat laposnak.
+*/
+.hero-vignette {
+  background-image:
+    radial-gradient(ellipse 60% 70% at 8% 12%, rgb(73 52 71 / 46%) 0%, transparent 62%),
+    radial-gradient(ellipse 58% 68% at 94% 86%, rgb(73 52 71 / 38%) 0%, transparent 60%);
+}
 
-  A gomb olvashatóságát végig a Porcelain felirat Aubergine-en mért 11.26:1
-  kontrasztja adja, nem a jelzővonal. Ha a böngésző nem ismeri a color-mix()-et,
-  a box-shadow egyszerűen elmarad — a gomb minden állapotban teljes értékű.
+/*
+  Elsődleges Hero-CTA — a v1.3-ban a Hero sötét alapra került, ezért a CTA
+  megfordult: VILÁGOS (Berry Soft) felület, Carbon felirattal. Mért kontraszt
+  12.85:1 (AAA). Ez a legerősebb konverziós pont az oldalon.
+
+  A Signal Berry itt két kontrollált szerepben marad:
+    1) egy 2 px-es alsó jelzővonal (inset box-shadow), hoverkor erősödik;
+    2) a fókuszgyűrű színe — sötét alapon a -light változat, mert a sötét
+       Berry ott csak 2.59:1 lenne.
+  Nincs glow, gradient, pulzálás vagy színes árnyék.
 */
 .hero-cta-primary {
-  --focus: var(--color-signal-berry);
+  --focus: var(--color-signal-berry-light);
 
-  box-shadow: inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-berry) 62%, transparent);
+  box-shadow: inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-berry) 55%, transparent);
   transition:
     background-color 200ms ease,
-    box-shadow 200ms ease;
+    box-shadow 200ms ease,
+    transform 200ms ease;
 }
 
 .hero-cta-primary:hover {
   box-shadow: inset 0 -2px 0 0 var(--color-signal-berry);
+}
+
+/*
+  .link-arrow — a listasorok nyila hoverkor/fókuszkor finoman jobbra mozdul.
+  Kizárólag transzformáció, nincs elrendezés-változás, tehát nincs layout
+  shift és nincs reflow.
+*/
+.link-arrow {
+  transition: transform 200ms ease;
+}
+
+.group:hover .link-arrow,
+.group:focus-visible .link-arrow {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   MIKROINTERAKCIÓK — szekció-belépő animáció
+   A .jg-reveal elemek 14 px-rel lejjebbről, átlátszóból úsznak be, amikor
+   először a viewportba érnek (IntersectionObserver, ld. Reveal.tsx). A
+   stagger késleltetést a --reveal-delay inline változó adja.
+
+   FONTOS: az alapállapot NEM rejti el a tartalmat véglegesen — ha a
+   JavaScript bármiért nem futna le, a .no-js-safe szabály (és a
+   reduced-motion ág) azonnal láthatóvá teszi. A szöveg sosem függ a
+   scripttől.
+   ========================================================================== */
+.jg-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 620ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 620ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.jg-reveal[data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
 }
 
 /* ==========================================================================
@@ -315,6 +387,20 @@ body {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  /* Minden dekoratív belépőanimáció kikapcsolva: a tartalom azonnal,
+     elmozdulás és áttűnés nélkül látható. */
+  .jg-reveal,
+  .jg-reveal[data-revealed="true"] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .link-arrow,
+  .group:hover .link-arrow {
+    transform: none !important;
   }
 
   *,

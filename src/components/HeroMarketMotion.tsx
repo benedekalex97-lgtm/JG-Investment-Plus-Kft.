@@ -58,10 +58,32 @@ import { useEffect, useRef } from "react";
    ------------------------------------------------------------------------- */
 type Rgb = readonly [number, number, number];
 
+/*
+  v1.3 — SÖTÉT ALAPRA HANGOLT RAJZOLÁSI SZÍNEK.
+
+  A Hero a v1.2-ig világos (Porcelain) felületen állt, ezért a gyertyák a
+  brandszínek SÖTÉT változatait használták. A v1.3-ban a Hero mély, sötét
+  felületre került: ott a sötét tónusok beleolvadnának a háttérbe, ezért a
+  középső és a fókuszréteg a saját hue-ját megtartva VILÁGOSÍTOTT változatra
+  vált. A hue-identitás megmarad (silver → plum → aubergine), csak a
+  világosság fordul meg, hogy a gyertyák valóban láthatók legyenek.
+
+  Mért kontrasztok a Deep (#1B161C) alapon, teljes alfánál:
+    Cool Silver #BEC1C7 ......... 9.88:1
+    Muted Plum light #9C8598 .... 5.28:1
+    Aubergine light #C0A8BC ..... 8.12:1
+    Signal Berry light #C27FA3 .. 5.82:1
+  A tényleges megjelenést ezen felül a rétegalfa és az olvashatósági zóna
+  csillapítja — a számok a felső korlátot mutatják.
+
+  A MOZGÁSI MODELL (master market path, rendezett sor, szomszédkorreláció,
+  test- és kanócanimáció) VÁLTOZATLAN: ez a kör kizárólag a rajzolási
+  kontrasztot hangolta át.
+*/
 const COOL_SILVER: Rgb = [190, 193, 199]; // #BEC1C7 — háttérréteg
-const MUTED_PLUM: Rgb = [117, 93, 112]; //  #755D70 — középső réteg
-const AUBERGINE: Rgb = [73, 52, 71]; //     #493447 — fókuszréteg
-const SIGNAL_BERRY: Rgb = [142, 63, 103]; // #8E3F67 — ritka kiemelés
+const MUTED_PLUM_LIGHT: Rgb = [156, 133, 152]; // #9C8598 — középső réteg
+const AUBERGINE_LIGHT: Rgb = [192, 168, 188]; // #C0A8BC — fókuszréteg
+const SIGNAL_BERRY_LIGHT: Rgb = [194, 127, 163]; // #C27FA3 — ritka kiemelés
 
 const TAU = Math.PI * 2;
 
@@ -200,7 +222,7 @@ const DESKTOP_LAYERS: readonly LayerSpec[] = [
   {
     // Háttérréteg — Cool Silver, visszafogott, a leglassabb.
     color: COOL_SILVER,
-    alpha: 0.58,
+    alpha: 0.16,
     speed: 8,
     count: 30,
     widthRange: [6, 11],
@@ -215,8 +237,8 @@ const DESKTOP_LAYERS: readonly LayerSpec[] = [
   },
   {
     // Középső réteg — Muted Plum, jól érzékelhető.
-    color: MUTED_PLUM,
-    alpha: 0.3,
+    color: MUTED_PLUM_LIGHT,
+    alpha: 0.26,
     speed: 10.5,
     count: 20,
     widthRange: [11, 17],
@@ -231,8 +253,8 @@ const DESKTOP_LAYERS: readonly LayerSpec[] = [
   },
   {
     // Fókuszréteg — Aubergine, határozottabb, nagyobb testek.
-    color: AUBERGINE,
-    alpha: 0.27,
+    color: AUBERGINE_LIGHT,
+    alpha: 0.34,
     speed: 13.5,
     count: 11,
     widthRange: [17, 27],
@@ -253,7 +275,7 @@ const DESKTOP_LAYERS: readonly LayerSpec[] = [
 const MOBILE_LAYERS: readonly LayerSpec[] = [
   {
     color: COOL_SILVER,
-    alpha: 0.6,
+    alpha: 0.18,
     speed: 6,
     count: 16,
     widthRange: [5, 9],
@@ -267,8 +289,8 @@ const MOBILE_LAYERS: readonly LayerSpec[] = [
     accentIndices: [],
   },
   {
-    color: MUTED_PLUM,
-    alpha: 0.3,
+    color: MUTED_PLUM_LIGHT,
+    alpha: 0.28,
     speed: 7.9,
     count: 11,
     widthRange: [8, 13],
@@ -282,8 +304,8 @@ const MOBILE_LAYERS: readonly LayerSpec[] = [
     accentIndices: [],
   },
   {
-    color: AUBERGINE,
-    alpha: 0.27,
+    color: AUBERGINE_LIGHT,
+    alpha: 0.36,
     speed: 10,
     count: 7,
     widthRange: [13, 20],
@@ -561,10 +583,10 @@ function drawScene(ctx: CanvasRenderingContext2D, scene: Scene, elapsed: number)
         1,
       );
 
-      const color = candle.accent ? SIGNAL_BERRY : layer.color;
+      const color = candle.accent ? SIGNAL_BERRY_LIGHT : layer.color;
       // A Signal Berry lényegesen sötétebb a rétegszíneknél, ezért kisebb
       // alfát kap — határozott fókuszpont marad, de nem domináns folt.
-      const bodyAlpha = (candle.accent ? 0.52 : layer.alpha) * factor * edgeFade;
+      const bodyAlpha = (candle.accent ? 0.62 : layer.alpha) * factor * edgeFade;
       if (bodyAlpha <= 0.004) continue;
 
       /* --- RAJZOLÁS ------------------------------------------------------ */

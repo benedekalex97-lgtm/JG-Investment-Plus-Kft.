@@ -2,8 +2,8 @@ import HeroMarketMotion from "@/components/HeroMarketMotion";
 import { hero, statusNotice } from "@/content/homepage";
 
 /**
- * Hero — a SOT 1. szakasza, v1.1: középre rendezett, tipográfia-vezérelt copy
- * absztrakt japángyertya-háttéranimációval.
+ * Hero — v1.3: MÉLY, SÖTÉT felületen álló, tipográfia-vezérelt copy absztrakt
+ * japángyertya-háttéranimációval. Az oldal legerősebb vizuális eleme.
  *
  * Előzmények: v0.1–v0.3-ban itt egy jobb oldali vizuális elem élt (előbb mozgó,
  * majd statikus figura + japángyertya-kompozíció), v0.4-ben egy balra igazított
@@ -60,7 +60,9 @@ function HeadlineLine({ line }: { line: string }) {
   return (
     <span className="block">
       {before}
-      {highlighted ? <span className="text-signal-berry">{highlighted}</span> : null}
+      {highlighted ? (
+        <span className="text-signal-berry-light">{highlighted}</span>
+      ) : null}
       {after}
     </span>
   );
@@ -70,17 +72,30 @@ export default function Hero() {
   const [firstLine, secondLine] = hero.headlineLines;
 
   return (
+    /*
+      A Hero mély, sötét felületen áll (.on-dark → a fókuszgyűrű Porcelainre
+      vált, ld. globals.css). Rétegek alulról:
+        1) Deep alapfelület
+        2) hero-vignette — lágy Aubergine mélység a sarkokban
+        3) hero-grid — nagyon halvány tőkepiaci rácsháló, maszkolva
+        4) HeroMarketMotion canvas — a mozgó gyertyák
+        5) hero-veil — SÖTÉT kontrasztvédő overlay a copy mögött
+        6) a copy és a CTA
+      Az 1–5. réteg mind dekoratív: aria-hidden és pointer-events: none.
+    */
     <section
       id="top"
       aria-labelledby="hero-cim"
-      className="relative overflow-hidden bg-canvas"
+      className="on-dark relative overflow-hidden bg-surface-deep"
     >
-      {/* Réteg 1: Porcelain háttér — teljes Hero-szélesség. */}
-      <div aria-hidden="true" className="absolute inset-0 bg-canvas" />
+      {/* Réteg 1–3: statikus mélység. */}
+      <div aria-hidden="true" className="absolute inset-0 bg-surface-deep" />
+      <div aria-hidden="true" className="hero-vignette pointer-events-none absolute inset-0" />
+      <div aria-hidden="true" className="hero-grid pointer-events-none absolute inset-0" />
 
       {/*
-        Réteg 2: animation-mount — az absztrakt japángyertya-animáció canvasa.
-        Tisztán dekoratív: a CTA-k fölé sosem kerülhet (pointer-events: none),
+        Réteg 4: animation-mount — az absztrakt japángyertya-animáció canvasa.
+        Tisztán dekoratív: a CTA fölé sosem kerülhet (pointer-events: none),
         nincs a billentyűzetes fókuszsorrendben, és screen readerek számára
         nem létezik (aria-hidden). Szerveroldalon üres canvasként renderel,
         ezért nem okoz hydration mismatchet és nem mozdítja el a layoutot.
@@ -93,11 +108,11 @@ export default function Hero() {
         <HeroMarketMotion />
       </div>
 
-      {/* Réteg 3: kontrasztfátyol — ld. .hero-veil a globals.css-ben. */}
+      {/* Réteg 5: sötét kontrasztvédő overlay — ld. .hero-veil a globals.css-ben. */}
       <div aria-hidden="true" className="hero-veil pointer-events-none absolute inset-0" />
 
-      {/* Réteg 4: valódi HTML copy, CTA-k, majd a stage alatti státusz/kockázati sáv. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col px-5 sm:px-6 lg:px-8">
+      {/* Réteg 6: valódi HTML copy és CTA. */}
+      <div className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-col px-5 sm:px-6 lg:px-8">
         {/*
           data-hero-copy: ez a doboz jelöli ki a Hero olvasási zónáját. A
           HeroMarketMotion ennek a VALÓDI, kimért geometriájának megfelelően
@@ -106,44 +121,46 @@ export default function Hero() {
         */}
         <div
           data-hero-copy=""
-          className="flex min-h-[64svh] flex-col items-center justify-center pt-10 pb-14 text-center sm:min-h-[68svh] sm:pt-12 sm:pb-16 lg:min-h-[72vh] lg:pt-16 lg:pb-20"
+          className="flex min-h-[600px] flex-col items-center justify-center pt-16 pb-14 text-center sm:min-h-[680px] sm:pt-20 sm:pb-16 lg:min-h-[760px] lg:pt-24 lg:pb-20"
         >
-          {/*
-            Eyebrow — a forrásszöveg már nagybetűs; a tipográfiai karaktert a
-            széles betűköz és a kis méret adja, nem egy uppercase transzformáció.
-          */}
-          <p className="text-[0.6875rem] font-semibold tracking-[0.2em] text-text-secondary sm:text-xs lg:text-sm">
+          <p className="text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:text-[0.8125rem]">
             {hero.eyebrow}
           </p>
 
           {/*
-            Főcím — a két sor együtt: „Biztonság. Átláthatóság. Szakmai háttér.”
-            A sorok Ink színűek; EGYETLEN szó, a hero.headlineHighlight
-            („Átláthatóság.") kap Signal Berry kiemelést. Nincs gradient, nincs
-            glow, nincs text-shadow, nincs animált betűszín.
+            Főcím — a két sor együtt: „Biztonság. Átláthatóság. Szakmai háttér."
+            Porcelain alapszín; EGYETLEN szó, a hero.headlineHighlight
+            („Átláthatóság.") kap Signal Berry kiemelést, sötét alapon a
+            -light változattal (5.82:1, AA). Nincs gradient, glow vagy
+            text-shadow.
           */}
           <h1
             id="hero-cim"
-            className="font-display mx-auto mt-6 max-w-[15ch] text-[clamp(2.75rem,12vw,3.25rem)] leading-[1.03] font-medium text-balance text-ink sm:mt-7 sm:max-w-[16ch] md:text-[clamp(3.5rem,6.6vw,4.5rem)] lg:max-w-[18ch] lg:text-[clamp(4rem,5.8vw,5.5rem)]"
+            className="font-display mx-auto mt-7 max-w-[15ch] text-[clamp(2.75rem,12vw,3.5rem)] leading-[1.04] font-medium [overflow-wrap:normal] hyphens-none text-balance text-porcelain sm:mt-8 sm:max-w-[16ch] md:text-[clamp(3.75rem,7vw,5rem)] lg:max-w-[19ch] lg:text-[clamp(4.5rem,6vw,5.75rem)]"
           >
             <HeadlineLine line={firstLine} />
             <HeadlineLine line={secondLine} />
           </h1>
 
-          <p className="mx-auto mt-7 max-w-[34ch] text-base leading-relaxed text-text-secondary sm:mt-8 sm:max-w-[52ch] sm:text-lg lg:text-xl">
+          <p className="mx-auto mt-8 max-w-[34ch] text-base leading-[1.7] text-cool-silver sm:mt-9 sm:max-w-[62ch] sm:text-lg lg:max-w-[720px] lg:text-xl">
             {hero.intro}
           </p>
 
           {/*
-            EGYETLEN hero-CTA. A másodlagos „K&H Értékpapír dokumentumai" gomb a
-            v1.1-ben nem renderelődik itt — ugyanez a hivatkozás a láblécben és a
-            jogi szakaszban változatlanul elérhető maradt.
-            A CTA stabilan látható: nem kap elrejtő kiindulóállapotot.
+            EGYETLEN hero-CTA — az oldal legerősebb konverziós pontja.
+            Világos Berry Soft felület, Carbon felirat (12.85:1, AAA), alsó
+            Berry jelzővonallal. Hoverre 1 px-t emelkedik; nincs pulzálás.
           */}
-          <div className="mt-8 flex w-full max-w-sm flex-col items-stretch sm:mt-9 sm:max-w-none sm:flex-row sm:justify-center">
+          <div className="mt-10 flex w-full max-w-sm flex-col items-stretch sm:mt-11 sm:max-w-none sm:flex-row sm:justify-center">
+            {/*
+              A gomb SEMMILYEN dekoratív karaktert (pl. nyilat) nem tartalmaz:
+              a renderelt szövegnek karakterre a content-modell feliratával kell
+              egyeznie. A hover-visszajelzést a finom emelkedés és az alsó
+              Berry jelzővonal adja.
+            */}
             <a
               href={hero.primaryCta.href}
-              className="hero-cta-primary inline-flex min-h-13 items-center justify-center rounded-md bg-accent px-8 text-center text-sm font-semibold tracking-[0.1em] text-porcelain hover:bg-accent-hover sm:text-base"
+              className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-signal-berry-soft px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
             >
               {hero.primaryCta.label}
             </a>
@@ -159,8 +176,8 @@ export default function Hero() {
           15 px mobilon (0.9375rem), 16 px desktopon. Muted Plum Porcelainen
           mérve 5.33:1 — WCAG AA teljesül.
         */}
-        <div className="border-t border-border pb-10 pt-6 sm:pb-12 lg:pb-14">
-          <p className="max-w-4xl text-[0.9375rem] leading-relaxed text-text-secondary sm:text-base">
+        <div className="border-t border-white/12 pb-12 pt-7 sm:pb-14 lg:pb-16">
+          <p className="max-w-4xl text-[0.9375rem] leading-relaxed text-cool-silver sm:text-base">
             {statusNotice.body}
           </p>
         </div>

@@ -2,11 +2,15 @@ import Section from "./Section";
 import { officialDocuments } from "@/content/homepage";
 
 /**
- * OfficialDocuments — 05. szakasz.
+ * OfficialDocuments — 04. szakasz.
  *
- * Kompakt, rendezett linklista, NEM domináns marketingkártyák. A
- * dokumentumok a K&H Értékpapír hivatalos, ellenőrzött oldalaira mutatnak;
- * kitalált mélylink nincs (ld. a content-modell linkpolitika-jegyzetét).
+ * Vizuálisan MÁSODLAGOS (kisebb címsor, szűkebb ritmus), de nem egyszerű
+ * HTML-lista: 56–64 px magas sorok, kategóriajelölő sorszámmal, hoverre
+ * Berry-vonallal és jobbra mozduló nyíllal. Nem kaphat nagyobb vizuális
+ * súlyt, mint a Szolgáltatások vagy a Kapcsolat.
+ *
+ * LINKPOLITIKA: kizárólag ellenőrzött hivatalos K&H-URL-ek; kitalált
+ * mélylink nincs (ld. a content-modell jegyzetét).
  */
 export default function OfficialDocuments() {
   return (
@@ -22,21 +26,29 @@ export default function OfficialDocuments() {
     >
       <ul className="border-t border-border">
         {officialDocuments.items.map((item) => (
-          <li key={item.label} className="border-b border-border">
+          /*
+            KATEGÓRIAJELÖLÉS sorszám helyett: egy rövid, Berry-re váltó vonal.
+            Tudatos döntés — egy kiírt sorszám szövegcsomópont lenne, és
+            beleírna a renderelt oldalszövegbe, amit a copy freeze tilt. Így a
+            sorok ritmusa és a hover-visszajelzés megmarad, a szöveg viszont
+            karakterre változatlan.
+          */
+          <li key={item.label} className="group flex items-center gap-5 border-b border-border">
+            <span
+              aria-hidden="true"
+              className="block h-px w-6 shrink-0 bg-border-strong transition-all duration-200 group-hover:w-9 group-hover:bg-signal-berry"
+            />
             <a
               href={item.href}
               target="_blank"
               rel="noreferrer noopener"
-              className="group flex min-h-12 items-center justify-between gap-4 py-3 text-[0.9375rem] font-medium text-text-primary transition-colors hover:text-accent sm:text-base"
+              className="flex min-h-16 flex-1 items-center gap-5 py-4 text-[0.9375rem] font-medium text-text-primary transition-colors group-hover:text-accent sm:text-base"
             >
-              <span>
+              <span className="flex-1">
                 {item.label}
                 <span className="sr-only"> (új lapon nyílik meg)</span>
               </span>
-              <span
-                aria-hidden="true"
-                className="shrink-0 text-signal-berry transition-transform group-hover:translate-x-0.5"
-              >
+              <span aria-hidden="true" className="link-arrow shrink-0 pr-1 text-signal-berry">
                 →
               </span>
             </a>
@@ -44,7 +56,7 @@ export default function OfficialDocuments() {
         ))}
       </ul>
 
-      <p className="mt-5 text-sm leading-relaxed text-text-secondary">
+      <p className="mt-6 max-w-[70ch] text-sm leading-relaxed text-text-secondary">
         {officialDocuments.note}
       </p>
     </Section>

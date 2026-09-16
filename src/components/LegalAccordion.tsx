@@ -46,7 +46,7 @@ export default function LegalAccordion({ panels }: { panels: readonly LegalPanel
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 onClick={() => setOpenId(isOpen ? null : panel.id)}
-                className="flex min-h-13 w-full items-center justify-between gap-4 py-4 text-left text-base font-medium text-text-primary transition-colors hover:text-accent sm:text-lg"
+                className="flex min-h-16 w-full items-center justify-between gap-4 py-4 text-left text-base font-medium text-text-primary transition-colors hover:text-accent sm:text-lg"
               >
                 <span>{panel.heading}</span>
                 <span

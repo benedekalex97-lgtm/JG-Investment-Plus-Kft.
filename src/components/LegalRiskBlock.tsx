@@ -95,7 +95,11 @@ export default function LegalRiskBlock() {
       aria-labelledby="jogi-tajekoztato-cim"
       className="bg-canvas"
     >
-      <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+      <div className="mx-auto w-full max-w-[1280px] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        {/* A jogi szakasz szándékosan SZŰKEBB olvasási sávot kap, mint a
+            marketingszakaszok: így jelen van és teljesen olvasható, de nem
+            uralja az oldal vizuális élményét. */}
+        <div className="max-w-[900px]">
         <p className="flex items-baseline gap-3 text-sm font-semibold tracking-[0.18em] text-accent uppercase">
           <span aria-hidden="true" className="h-px w-6 bg-border-strong" />
           <span>{legal.sectionLabel}</span>
@@ -114,7 +118,7 @@ export default function LegalRiskBlock() {
           KOCKÁZATOK — az accordionon KÍVÜL, alapállapotban láthatóan, teljes
           szöveggel. Soha nem csukható össze és nem rövidíthető.
         */}
-        <div className="mt-8 border-l-2 border-l-accent bg-surface px-5 py-4 sm:mt-10 sm:px-6 sm:py-5">
+        <div className="mt-8 rounded-r-md border-l-2 border-l-signal-berry bg-surface px-5 py-5 sm:mt-10 sm:px-6 sm:py-6">
           <h3 className="text-sm font-semibold text-accent">
             {legal.riskWarning.heading}
           </h3>
@@ -162,7 +166,7 @@ export default function LegalRiskBlock() {
                 {item.href ? (
                   <a
                     href={item.href}
-                    className="inline-flex min-h-11 items-center break-all text-base font-medium text-accent underline underline-offset-4 sm:min-h-0"
+                    className="inline-flex min-h-11 items-center break-all text-base font-medium text-accent underline underline-offset-4"
                   >
                     {item.value}
                   </a>
@@ -199,6 +203,7 @@ export default function LegalRiskBlock() {
               </div>
             ))}
           </dl>
+        </div>
         </div>
       </div>
     </section>

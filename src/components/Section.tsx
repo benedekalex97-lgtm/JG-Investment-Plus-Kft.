@@ -8,7 +8,7 @@ type SectionProps = {
   heading: string;
   headingId: string;
   lead?: string;
-  tone?: "canvas" | "surface" | "tint";
+  tone?: "canvas" | "surface" | "tint" | "deep";
   /**
    * "aside": desktopon aszimmetrikus rács — a fejléc a bal, keskenyebb
    * oszlopban, a tartalom a jobb, szélesebb oszlopban.
@@ -29,6 +29,8 @@ const TONE_CLASS = {
   surface: "bg-surface",
   /** Nagyon halvány Aubergine-tónus — szakaszváltást jelöl, nem színez. */
   tint: "bg-section-tint",
+  /** Mély, sötét márkafelület. Az `on-dark` osztály a fókuszgyűrűt is váltja. */
+  deep: "on-dark bg-surface-deep",
 } as const;
 
 /**
@@ -53,27 +55,43 @@ export default function Section({
   children,
 }: SectionProps) {
   const compact = size === "compact";
+  const dark = tone === "deep";
   const header = (
     <>
-      <p className="flex items-baseline gap-3 text-sm font-semibold tracking-[0.18em] text-accent uppercase">
+      <p
+        className={`flex items-baseline gap-3 text-sm font-semibold tracking-[0.18em] uppercase ${
+          dark ? "text-signal-berry-light" : "text-accent"
+        }`}
+      >
         {number ? (
-          <span className="tabular-nums text-text-secondary">{number}</span>
+          <span className={`tabular-nums ${dark ? "text-cool-silver" : "text-text-secondary"}`}>
+            {number}
+          </span>
         ) : null}
-        <span aria-hidden="true" className="h-px w-6 bg-border-strong" />
+        <span
+          aria-hidden="true"
+          className={`h-px w-6 ${dark ? "bg-white/25" : "bg-border-strong"}`}
+        />
         <span>{label}</span>
       </p>
       <h2
         id={headingId}
-        className={`font-display mt-4 leading-[1.15] [overflow-wrap:normal] hyphens-none text-balance text-text-primary ${
+        className={`font-display mt-5 leading-[1.12] [overflow-wrap:normal] hyphens-none text-balance ${
+          dark ? "text-porcelain" : "text-text-primary"
+        } ${
           compact
             ? "text-[1.375rem] sm:text-[1.625rem]"
-            : "text-[1.875rem] sm:text-[2.25rem] lg:text-[2.5rem]"
+            : "text-[2rem] sm:text-[2.5rem] lg:text-[2.875rem]"
         }`}
       >
         {heading}
       </h2>
       {lead ? (
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
+        <p
+          className={`mt-5 max-w-xl text-base leading-[1.7] sm:text-lg ${
+            dark ? "text-cool-silver" : "text-text-secondary"
+          }`}
+        >
           {lead}
         </p>
       ) : null}
@@ -83,13 +101,15 @@ export default function Section({
   return (
     <section id={id} aria-labelledby={headingId} className={TONE_CLASS[tone]}>
       <div
-        className={`mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8 ${
-          compact ? "py-12 sm:py-14 lg:py-16" : "py-16 sm:py-20 lg:py-28"
+        className={`mx-auto w-full max-w-[1280px] px-5 sm:px-6 lg:px-8 ${
+          compact ? "py-16 sm:py-20 lg:py-24" : "py-[72px] sm:py-22 lg:py-[136px]"
         }`}
       >
         {layout === "aside" ? (
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
-            <div className="lg:col-span-4">{header}</div>
+          <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-4">
+              <div className="lg:sticky lg:top-[112px]">{header}</div>
+            </div>
             <div className="lg:col-span-8">{children}</div>
           </div>
         ) : (
