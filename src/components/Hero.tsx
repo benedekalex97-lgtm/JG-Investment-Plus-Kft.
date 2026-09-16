@@ -2,16 +2,21 @@ import HeroMarketMotion from "@/components/HeroMarketMotion";
 import { hero, heroRiskWarning, statusNotice } from "@/content/homepage";
 
 /**
- * Hero — a SOT 1. szakasza, v0.6: középre rendezett copy absztrakt,
- * japángyertya-alapú háttéranimációval.
+ * Hero — a SOT 1. szakasza, v1.1: középre rendezett, tipográfia-vezérelt copy
+ * absztrakt japángyertya-háttéranimációval.
  *
- * v0.1–v0.3-ban itt egy jobb oldali vizuális elem élt (előbb mozgó, majd
- * statikus figura + japángyertya-kompozíció), v0.4-ben pedig egy balra
- * igazított, egyoszlopos szövegblokk. v0.5-ben a copy középre került, és a
- * Hero egy üres, animációra előkészített réteget kapott. v0.6-ban ez a réteg
- * megtelik: a HeroMarketMotion canvas-komponens lassú, atmoszferikus piaci
- * mozgást rajzol a Hero teljes hátterébe — figura és karakter NÉLKÜL. A Hero
- * négy rétegre tagolódik alulról:
+ * Előzmények: v0.1–v0.3-ban itt egy jobb oldali vizuális elem élt (előbb mozgó,
+ * majd statikus figura + japángyertya-kompozíció), v0.4-ben egy balra igazított
+ * szövegblokk, v0.5-ben középre rendezett copy + üres animációs réteg. A v0.6
+ * töltötte ki ezt a réteget a HeroMarketMotion canvasszal. A v1.1 három dolgot
+ * változtat: (a) a copy a jóváhagyott hero-referencia szövegezésére vált,
+ * (b) a v0.6 arany kiemelőszínét a lila–vörös Signal Berry váltja,
+ * (c) a Hero egyetlen CTA-ra egyszerűsödik, a státuszközlés pedig nagy kártya
+ * helyett visszafogott információs sávvá válik.
+ *
+ * FIGURA TOVÁBBRA SINCS és nem is lesz: az animáció kizárólag absztrakt.
+ *
+ * A Hero négy rétegre tagolódik alulról:
  *
  *   1) Porcelain háttér (teljes Hero-szélesség)
  *   2) animation-mount — pointer-events: none, aria-hidden; ebben él a
@@ -19,34 +24,50 @@ import { hero, heroRiskWarning, statusNotice } from "@/content/homepage";
  *      nincs árfolyamadat, nincs piros–zöld színpár)
  *   3) .hero-veil kontrasztfátyol (ld. globals.css) — lágy, szél nélküli
  *      Porcelain gradient a copy és az animáció között
- *   4) a valódi HTML copy és a CTA-k, illetve alattuk, már a középre
- *      rendezett "stage"-en kívül, külön sávban a kötelező státuszközlés és
- *      kockázati figyelmeztetés
+ *   4) a valódi HTML copy és a CTA, illetve alattuk, már a középre rendezett
+ *      "stage"-en kívül a kötelező státuszközlés és a kockázati figyelmeztetés
  *
- * A függőleges eltolás ("2–4vh a közép fölött") szándékosan NEM
- * transform/translate-tel készül, hanem a stage aszimmetrikus felső/alsó
- * paddingjével: ez ugyanazt a vizuális hatást adja, de rövid viewportokon
- * (pl. 320×568) sosem vághatja le a tartalmat, mert a padding-különbség
- * legfeljebb kevesebb üres teret hagy, sosem tolja a copyt a doboz határán
- * kívülre — szemben egy transformmal, ami egy overflow-hidden szülőn belül
- * ezt megtehetné.
+ * A stage függőleges ritmusa szándékosan NEM transform/translate-tel készül,
+ * hanem aszimmetrikus felső/alsó paddinggel: rövid viewportokon (pl. 320×568)
+ * így sosem vághatja le a tartalmat, mert a padding-különbség legfeljebb
+ * kevesebb üres teret hagy — szemben egy transformmal, ami egy overflow-hidden
+ * szülőn belül a copyt a doboz határán kívülre tolhatná.
  */
+
+/**
+ * Egy főcímsort három részre bont a kiemelt szó mentén. A főcím SZÖVEGE nem
+ * változik: a markup kizárólag azért tagolódik, hogy a hero.headlineHighlight
+ * által megjelölt szó (jelenleg: „Átláthatóság.") önálló Signal Berry
+ * kiemelést kaphasson. Ha a szó nem szerepel az adott sorban, a sor egyben,
+ * kiemelés nélkül jelenik meg — a szöveg soha nem veszhet el, és az sem
+ * számít, melyik sorba kerül a kiemelendő szó.
+ */
+function splitHeadlineLine(line: string, highlight: string) {
+  const at = line.indexOf(highlight);
+  if (at === -1 || highlight.length === 0) {
+    return { before: line, highlighted: "", after: "" };
+  }
+  return {
+    before: line.slice(0, at),
+    highlighted: highlight,
+    after: line.slice(at + highlight.length),
+  };
+}
+
+/** Egyetlen főcímsor, a kiemelt szóval Signal Berry színben. */
+function HeadlineLine({ line }: { line: string }) {
+  const { before, highlighted, after } = splitHeadlineLine(line, hero.headlineHighlight);
+  return (
+    <span className="block">
+      {before}
+      {highlighted ? <span className="text-signal-berry">{highlighted}</span> : null}
+      {after}
+    </span>
+  );
+}
+
 export default function Hero() {
   const [firstLine, secondLine] = hero.headlineLines;
-
-  /*
-    A főcím SZÖVEGE változatlan; a markup kizárólag azért bomlik három
-    részre, hogy a hero.headlineHighlight által megjelölt szó (jelenleg:
-    „Átlátható") önálló, visszafogott Signal Amber kiemelést kaphasson. Ha a
-    szó nem szerepel a sorban, a sor egyben, kiemelés nélkül jelenik meg —
-    a szöveg soha nem veszhet el.
-  */
-  const highlightStart = secondLine.indexOf(hero.headlineHighlight);
-  const hasHighlight = highlightStart !== -1;
-  const beforeHighlight = hasHighlight ? secondLine.slice(0, highlightStart) : secondLine;
-  const afterHighlight = hasHighlight
-    ? secondLine.slice(highlightStart + hero.headlineHighlight.length)
-    : "";
 
   return (
     <section
@@ -85,75 +106,78 @@ export default function Hero() {
         */}
         <div
           data-hero-copy=""
-          className="flex min-h-[68svh] flex-col items-center justify-center pt-10 pb-16 text-center sm:min-h-[72svh] sm:pt-12 sm:pb-20 lg:min-h-[76vh] lg:pt-16 lg:pb-24"
+          className="flex min-h-[64svh] flex-col items-center justify-center pt-10 pb-14 text-center sm:min-h-[68svh] sm:pt-12 sm:pb-16 lg:min-h-[72vh] lg:pt-16 lg:pb-20"
         >
-          <p className="text-sm font-medium tracking-[0.04em] text-text-secondary sm:text-base lg:text-lg">
+          {/*
+            Eyebrow — a forrásszöveg már nagybetűs; a tipográfiai karaktert a
+            széles betűköz és a kis méret adja, nem egy uppercase transzformáció.
+          */}
+          <p className="text-[0.6875rem] font-semibold tracking-[0.2em] text-text-secondary sm:text-xs lg:text-sm">
             {hero.eyebrow}
           </p>
 
+          {/*
+            Főcím — a két sor együtt: „Biztonság. Átláthatóság. Szakmai háttér.”
+            A sorok Ink színűek; EGYETLEN szó, a hero.headlineHighlight
+            („Átláthatóság.") kap Signal Berry kiemelést. Nincs gradient, nincs
+            glow, nincs text-shadow, nincs animált betűszín.
+          */}
           <h1
             id="hero-cim"
-            className="font-display mx-auto mt-7 max-w-[900px] text-[clamp(2.5rem,11vw,3rem)] leading-[1.02] font-medium text-ink md:text-[clamp(3.125rem,6vw,3.875rem)] lg:text-[clamp(3.5rem,5vw,5rem)]"
+            className="font-display mx-auto mt-6 max-w-[15ch] text-[clamp(2.75rem,12vw,3.25rem)] leading-[1.03] font-medium text-balance text-ink sm:mt-7 sm:max-w-[16ch] md:text-[clamp(3.5rem,6.6vw,4.5rem)] lg:max-w-[18ch] lg:text-[clamp(4rem,5.8vw,5.5rem)]"
           >
-            <span className="mx-auto block max-w-[20ch] text-balance">
-              {firstLine}
-            </span>
-            <span className="mx-auto mt-2 block max-w-[24ch] text-balance text-accent">
-              {beforeHighlight}
-              {hasHighlight ? (
-                <span className="text-signal-amber-dark">{hero.headlineHighlight}</span>
-              ) : null}
-              {afterHighlight}
-            </span>
+            <HeadlineLine line={firstLine} />
+            <HeadlineLine line={secondLine} />
           </h1>
 
-          <p className="mx-auto mt-9 max-w-[680px] text-base leading-relaxed text-text-secondary sm:text-lg lg:text-xl">
+          <p className="mx-auto mt-7 max-w-[34ch] text-base leading-relaxed text-text-secondary sm:mt-8 sm:max-w-[52ch] sm:text-lg lg:text-xl">
             {hero.intro}
           </p>
 
-          {/* A CTA-k stabilan láthatók: nem kapnak elrejtő kiindulóállapotot. */}
-          <div className="mt-9 flex w-full max-w-md flex-col items-stretch gap-4 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
+          {/*
+            EGYETLEN hero-CTA. A másodlagos „K&H Értékpapír dokumentumai" gomb a
+            v1.1-ben nem renderelődik itt — ugyanez a hivatkozás a láblécben és a
+            jogi szakaszban változatlanul elérhető maradt.
+            A CTA stabilan látható: nem kap elrejtő kiindulóállapotot.
+          */}
+          <div className="mt-8 flex w-full max-w-sm flex-col items-stretch sm:mt-9 sm:max-w-none sm:flex-row sm:justify-center">
             <a
               href={hero.primaryCta.href}
-              className="hero-cta-primary inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-6 text-center text-base font-medium text-porcelain hover:bg-accent-hover"
+              className="hero-cta-primary inline-flex min-h-13 items-center justify-center rounded-md bg-accent px-8 text-center text-sm font-semibold tracking-[0.1em] text-porcelain hover:bg-accent-hover sm:text-base"
             >
               {hero.primaryCta.label}
-            </a>
-            <a
-              href={hero.secondaryCta.href}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex min-h-12 items-center justify-center rounded-md border border-border-strong bg-transparent px-6 text-center text-base font-medium text-ink transition-colors hover:border-ink"
-            >
-              {hero.secondaryCta.label}
-              <span className="sr-only"> (új lapon nyílik meg)</span>
             </a>
           </div>
         </div>
 
-        {/* KÖTELEZŐ STÁTUSZKÖZLÉS — a középre rendezett stage alatti, önálló sávban. */}
-        <div className="grid gap-4 pb-14 sm:pb-16 md:grid-cols-2 lg:pb-16">
-          <div className="rounded-card border border-border bg-surface p-5 text-left">
-            <p className="text-xs font-medium tracking-[0.14em] text-text-secondary uppercase">
+        {/*
+          KÖTELEZŐ STÁTUSZKÖZLÉS — a stage alatti, visszafogott információs sáv.
+          Szándékosan NEM nagy kártya: egyetlen, teljes szélességű csík, vékony
+          kerettel és keskeny Aubergine jelzővonallal. Nem kap Signal Berry
+          hátteret, és nem versenyez a főcímmel. Mobilon sem rejtett.
+        */}
+        <div className="pb-12 sm:pb-14 lg:pb-16">
+          <div className="rounded-lg border border-border border-l-[3px] border-l-accent bg-surface px-4 py-3.5 text-left sm:px-5 sm:py-4">
+            <p className="text-[0.6875rem] font-medium tracking-[0.14em] text-text-secondary uppercase">
               {statusNotice.label}
             </p>
-            <p className="mt-2 text-base leading-relaxed text-text-primary sm:text-[1.0625rem]">
+            <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-text-primary sm:text-base">
               {statusNotice.body}
             </p>
           </div>
 
           {/*
-            KIEMELT KOCKÁZATI FIGYELMEZTETÉS.
+            KIEMELT KOCKÁZATI FIGYELMEZTETÉS — tartalma változatlan.
             Mindig látható: nincs accordionban, tooltipben vagy modalban, és
-            nem elrejthető. Betűmérete nem kisebb a környező törzsszövegnél;
-            az Aubergine jelzővonal és a félkövér szöveg adja a nagyobb
-            hangsúlyt.
+            nem elrejthető, nem rövidíthető. Betűmérete nem kisebb a környező
+            törzsszövegnél; az Aubergine jelzővonal és a félkövér szöveg adja a
+            nagyobb hangsúlyt.
           */}
-          <div className="rounded-card border border-border border-l-[3px] border-l-accent bg-surface p-5 text-left">
-            <p className="text-xs font-semibold tracking-[0.14em] text-accent uppercase">
+          <div className="mt-3 rounded-lg border border-border border-l-[3px] border-l-accent bg-surface px-4 py-3.5 text-left sm:px-5 sm:py-4">
+            <p className="text-[0.6875rem] font-semibold tracking-[0.14em] text-accent uppercase">
               {heroRiskWarning.label}
             </p>
-            <p className="mt-2 text-base leading-relaxed font-medium text-text-primary sm:text-[1.0625rem]">
+            <p className="mt-1.5 text-[0.9375rem] leading-relaxed font-medium text-text-primary sm:text-base">
               {heroRiskWarning.body}
             </p>
           </div>

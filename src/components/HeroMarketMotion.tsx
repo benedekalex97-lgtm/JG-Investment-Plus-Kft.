@@ -17,9 +17,10 @@ import { useEffect, useRef } from "react";
      – nincs piros–zöld tőzsdei színpár: a gyertyák színét KIZÁRÓLAG a
        mélységi rétegük adja, az irányuk (emelkedő/csökkenő test) csak
        formai változatosság, semmilyen pénzügyi jelentése nincs. A ritka
-       Signal Amber kiemelés is szándékosan mindkét irányú gyertyán
+       Signal Berry kiemelés is szándékosan mindkét irányú gyertyán
        megjelenik, hogy ne lehessen "nyereséges"/"vesztes" jelentést
-       tulajdonítani neki.
+       tulajdonítani neki. A Signal Berry lila–vörös, NEM tőzsdei vörös:
+       nem irányt, eredményt vagy hozamot jelöl, hanem figyelmet vezet.
 
    Akadálymentesség és teljesítmény:
      – aria-hidden + pointer-events: none → nincs a fókuszsorrendben, nem
@@ -45,7 +46,7 @@ type Rgb = readonly [number, number, number];
 const COOL_SILVER: Rgb = [190, 193, 199]; // #BEC1C7 — háttérréteg
 const MUTED_PLUM: Rgb = [117, 93, 112]; //  #755D70 — középső réteg
 const AUBERGINE: Rgb = [73, 52, 71]; //     #493447 — fókuszréteg
-const SIGNAL_AMBER: Rgb = [199, 154, 59]; // #C79A3B — ritka kiemelés
+const SIGNAL_BERRY: Rgb = [142, 63, 103]; // #8E3F67 — ritka kiemelés
 
 /* -------------------------------------------------------------------------
    Determinisztikus álvéletlen — a kompozíció minden betöltésnél ugyanaz.
@@ -85,7 +86,7 @@ type Candle = {
   readonly bobAmplitude: number;
   readonly bobSpeed: number;
   readonly bobPhase: number;
-  /** Ritka Signal Amber fókuszpont. */
+  /** Ritka Signal Berry fókuszpont. */
   readonly accent: boolean;
 };
 
@@ -173,7 +174,7 @@ const DESKTOP_LAYERS: readonly LayerSpec[] = [
     offsetSpread: 0.22,
     bobAmplitude: 4.5,
     readabilityFloor: 0.22,
-    accentIndices: [12],
+    accentIndices: [],
   },
   {
     // Fókuszréteg — Aubergine, nagyobb testek, ritkább elhelyezés,
@@ -190,7 +191,12 @@ const DESKTOP_LAYERS: readonly LayerSpec[] = [
     offsetSpread: 0.16,
     bobAmplitude: 6,
     readabilityFloor: 0.09,
-    accentIndices: [2, 8],
+    // Desktopon PONTOSAN 3 Signal Berry gyertya, mind ugyanebben a rétegben.
+    // Ez tudatos: egy rétegen belül a gyertyák azonos sebességgel sodródnak,
+    // így a köztük lévő távolság (a 11 elemű világsávban 4-4 pozíció, azaz
+    // nagyjából fél viewport) ÁLLANDÓ — sosem kerülhetnek közvetlenül egymás
+    // mellé. Külön rétegekben ezt a parallax miatt nem lehetne garantálni.
+    accentIndices: [1, 5, 9],
   },
 ];
 
@@ -238,7 +244,9 @@ const MOBILE_LAYERS: readonly LayerSpec[] = [
     offsetSpread: 0.15,
     bobAmplitude: 4.5,
     readabilityFloor: 0.11,
-    accentIndices: [1, 5],
+    // Mobilon PONTOSAN 2 Signal Berry gyertya, szintén egyetlen rétegben,
+    // a 7 elemű világsávban 3 pozíciónyi állandó távolsággal.
+    accentIndices: [1, 4],
   },
 ];
 
@@ -265,7 +273,7 @@ function createScene(width: number, height: number, copyRect: CopyRect | null): 
   const heightScale = clamp(height / 760, 0.62, 1.2);
   const widthScale = isMobile ? 0.9 : 1;
 
-  /* A kiemelt (Signal Amber) gyertyák rétegeken átívelő számlálója — ld. lentebb. */
+  /* A kiemelt (Signal Berry) gyertyák rétegeken átívelő számlálója — ld. lentebb. */
   let accentCursor = 0;
 
   // A rétegek egyetlen, közös seedből épülnek, de mindegyik saját
@@ -304,9 +312,9 @@ function createScene(width: number, height: number, copyRect: CopyRect | null): 
       );
 
       /*
-        A Signal Amber gyertyák iránya NEM véletlen, hanem felváltva emelkedő és
+        A Signal Berry gyertyák iránya NEM véletlen, hanem felváltva emelkedő és
         csökkenő alakot kap (accentCursor). Ez tudatos döntés: ha a kiemelt
-        gyertyák mind ugyanolyan alakúak lennének, az amber szín véletlenül
+        gyertyák mind ugyanolyan alakúak lennének, a Berry szín véletlenül
         „nyereséges" (vagy „vesztes") jelentést kaphatna. Így a kiemelés
         bizonyíthatóan csak figyelemvezetés, nem piaci üzenet.
       */
@@ -454,8 +462,12 @@ function drawScene(ctx: CanvasRenderingContext2D, scene: Scene, elapsed: number)
         1,
       );
 
-      const color = candle.accent ? SIGNAL_AMBER : layer.color;
-      const bodyAlpha = (candle.accent ? 0.5 : layer.alpha) * factor * edgeFade;
+      // A Signal Berry lényegesen sötétebb a rétegszíneknél, ezért jóval kisebb
+      // alfát kap, mint amit a tónusa indokolna — így határozott fókuszpont
+      // marad, de nem válik domináns folttá. Porcelain fölött 0.45 alfával
+      // lágy, mályvás árnyalatot ad, nem telített lila–vörös felületet.
+      const color = candle.accent ? SIGNAL_BERRY : layer.color;
+      const bodyAlpha = (candle.accent ? 0.45 : layer.alpha) * factor * edgeFade;
       if (bodyAlpha <= 0.004) continue;
 
       // Kanóc: vékony, egyenes, és mindig kevésbé kontrasztos a testnél.

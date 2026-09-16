@@ -13,9 +13,11 @@
  * MÓDOSÍTÁSI SZABÁLY: compliance-visszajelzés esetén kizárólag ezt a fájlt
  * kell szerkeszteni. A komponensek nem tartalmaznak beégetett üzleti szöveget.
  *
- * STÁTUSZ: v0.2 vizuális rendszer + Hero motion prototípus. Nem MNB-megfelelő, nem jogilag végleges,
- * nem K&H-jóváhagyott, nem publikálásra kész, nem production-ready.
- * Élesítés előtt a K&H Compliance/Kommunikáció írásbeli jóváhagyása szükséges.
+ * STÁTUSZ: v1.1 — Hero motion + hero-referencia (Lovable) preview-copy. Nem
+ * MNB-megfelelő, nem jogilag végleges, nem K&H-jóváhagyott, nem publikálásra
+ * kész, nem production-ready. Élesítés előtt a K&H Compliance/Kommunikáció
+ * írásbeli jóváhagyása szükséges — a Hero preview-copy mezőire külön is
+ * (ld. a `hero` konstans figyelmeztetését).
  */
 
 export const meta = {
@@ -63,35 +65,64 @@ export const nav = {
   ],
 } as const;
 
-/** SOT 1. Főoldal – Hero */
+/**
+ * SOT 1. Főoldal – Hero
+ *
+ * FIGYELEM — v1.1 PREVIEW-COPY, NEM A DOCX SOT SZÖVEGE
+ * ----------------------------------------------------
+ * A Hero eyebrow / headlineLines / intro / primaryCta.label mezői és a lentebbi
+ * statusNotice.body a v1.1-ben a jóváhagyott hero-referencia (Lovable-preview)
+ * szövegezésére cserélődtek, kifejezett megrendelői utasításra. Ezek a mezők
+ * TEHÁT NEM a docx source of truthból származnak, és compliance-szempontból még
+ * NYITOTTAK. Jóváhagyásra váró pontok:
+ *
+ *   – az intro „a K&H Értékpapír partnereként” megfogalmazása (a jogállás a
+ *     docx SOT szerint „függő ügynök”, nem „partner”);
+ *   – az eyebrow „KÖZVETÍTŐ” megjelölése (ugyanezen okból);
+ *   – a statusNotice „a Magyar Nemzeti Bank nyilvántartásában szereplő
+ *     társaságként” fordulata (nyilvántartási állítás, ami a docx SOT-ban nem
+ *     szerepel).
+ *
+ * Mindhárom K&H Compliance/Kommunikáció írásbeli jóváhagyását igényli az
+ * élesítés előtt. A Hero alatti összes többi szakasz szövege változatlanul a
+ * docx source of truthból származik.
+ */
 export const hero = {
-  eyebrow: "JG Investment Plus Kft. · A K&H Értékpapír függő ügynöke",
-  /** A főcím két sorra bontva a soronkénti reveal animációhoz. */
-  headlineLines: [
-    "Közvetlen kapcsolat a tőkepiacokhoz.",
-    "Átlátható, szabályozott keretek között.",
-  ],
+  eyebrow: "PATRIA FINANCE · K&H ÉRTÉKPAPÍR · KÖZVETÍTŐ",
+  /** A főcím két sorra bontva; együtt: „Biztonság. Átláthatóság. Szakmai háttér.” */
+  headlineLines: ["Biztonság. Átláthatóság.", "Szakmai háttér."],
   /**
-   * Kontrollált tipográfiai kiemelés — NEM tartalmi mező: a főcím szövege
-   * változatlan, ez csak megjelöli, melyik SZÓ kapja a Hero-ban a visszafogott
-   * Signal Amber színt. A szónak szó szerint szerepelnie kell a
-   * headlineLines egyik sorában; ha nem található, a főcím kiemelés nélkül,
-   * teljes egészében megjelenik.
+   * Kontrollált tipográfiai kiemelés — NEM tartalmi mező: a főcím szövegét nem
+   * változtatja meg, csak megjelöli, melyik szó kapja a Hero-ban a Signal Berry
+   * színt. A szónak szó szerint szerepelnie kell a headlineLines egyik sorában;
+   * ha nem található, a főcím kiemelés nélkül, teljes egészében megjelenik.
    */
-  headlineHighlight: "Átlátható",
+  headlineHighlight: "Átláthatóság.",
   intro:
-    "Bemutatjuk a K&H Értékpapír szolgáltatásait és az általa forgalmazott pénzügyi eszközöket, támogatjuk a kapcsolatfelvételt, valamint a hatályos ügynöki hirdetményben meghatározott körben közreműködünk a megbízások fogadásában, továbbításában és végrehajtásában.",
-  primaryCta: { label: "Kapcsolatfelvétel", href: "/#kapcsolat" },
+    "Tájékoztatás közvetített befektetési szolgáltatásainkról — a K&H Értékpapír partnereként.",
+  primaryCta: { label: "KAPCSOLATFELVÉTEL", href: "/#kapcsolat" },
+  /**
+   * A Hero v1.1-ben egyetlen CTA-t jelenít meg, ezért ez a másodlagos CTA a
+   * Heróban NEM renderelődik. A mezőt szándékosan NEM töröljük: ugyanez a
+   * dokumentumhivatkozás a láblécben (footer.links) és a jogi szakaszban
+   * továbbra is elérhető, és egy későbbi fázisban a Hero is visszakaphatja.
+   */
   secondaryCta: {
     label: "K&H Értékpapír dokumentumai",
     href: "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok",
   },
 } as const;
 
-/** SOT 1. — KÖTELEZŐ STÁTUSZKÖZLÉS A HERO KÖZELÉBEN */
+/**
+ * SOT 1. — KÖTELEZŐ STÁTUSZKÖZLÉS A HERO KÖZELÉBEN
+ *
+ * v1.1: a body a hero-referencia (Lovable-preview) szövegére cserélve. Tartalmaz
+ * egy MNB-nyilvántartásra vonatkozó állítást, ami a docx SOT-ban nem szerepel —
+ * ld. a hero konstans fenti figyelmeztetését. Jóváhagyás nélkül nem élesíthető.
+ */
 export const statusNotice = {
   label: "Kötelező státuszközlés",
-  body: "A tényleges befektetési szolgáltató a Patria Finance Magyarországi Fióktelepe, amely a „K&H Értékpapír” márkanevet használja. A JG Investment Plus Kft. a Fióktelep függő ügynöke, és nem nyújt befektetési tanácsadást.",
+  body: "A JG Investment Plus Kft. a Patria Finance Magyarországi Fióktelepe (K&H Értékpapír) függő ügynökeként működik, szabályozott keretek között, a Magyar Nemzeti Bank nyilvántartásában szereplő társaságként. Nem nyújt befektetési tanácsadást.",
 } as const;
 
 /** SOT 1. — KIEMELT KOCKÁZATI FIGYELMEZTETÉS */

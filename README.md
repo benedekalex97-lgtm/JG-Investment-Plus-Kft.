@@ -2,7 +2,7 @@
 
 Ez a repository a JG Investment Plus Kft. weboldalát tartalmazza.
 
-## Jelenlegi állapot: v0.6 Hero — absztrakt japángyertya-háttéranimáció
+## Jelenlegi állapot: v1.1 Hero — japángyertya-animáció + preview-copy
 
 **A prototípus nem publikálásra kész.** Kifejezetten *nem*:
 
@@ -25,11 +25,23 @@ került, és a szekció egy üres, animációra előkészített réteget kapott.
 v0.6 ezt a réteget tölti ki: egy saját fejlesztésű, absztrakt
 japángyertya-háttéranimáció (`HeroMarketMotion`).
 
+A **v1.1** három dolgot változtat, kizárólag a Heróban:
+
+1. a Hero copy a jóváhagyott hero-referencia (preview) szövegezésére vált —
+   **ez NEM a docx source of truth szövege**, ld. lentebb;
+2. a v0.6 arany kiemelőszíne teljes egészében kikerült; helyette a lila–vörös
+   **Signal Berry** funkcionális accent lépett be;
+3. a Hero egyetlen CTA-ra egyszerűsödött, a kötelező státuszközlés pedig nagy
+   kártya helyett visszafogott információs sávvá vált.
+
 A karakteres/figurás koncepció **véglegesen kikerült a scope-ból**: a Hero
 animációja kizárólag absztrakt, és nem tartalmaz emberi figurát, sétáló
-karaktert, fotót vagy illusztrált személyt. A tartalmi source of truth és a
-compliance-szabályok a v0.1-hez képest változatlanok; a v0.6 egyetlen
-szövegváltozást sem tartalmaz.
+karaktert, fotót vagy illusztrált személyt.
+
+A Hero **alatti** összes szakasz — Szereptisztázás, Rólunk, Szolgáltatások,
+Miért a JG, Hogyan működik, Kapcsolat, részletes Jogi tájékoztató,
+Panaszkezelés, Impresszum, footer, valamint a külön oldalon élő Adatkezelési
+tájékoztató — a v1.1-ben **byte-azonosan változatlan** maradt.
 
 ## Tartalmi source of truth
 
@@ -53,8 +65,11 @@ ezek nem a docx-ből származnak, és verzióváltáskor szabadon frissíthetők
   hozamadat, ügyfélszám, statisztika, referencia, ügyfélvélemény,
   teljesítményadat, ígéret vagy garancia.
 - Nincs K&H- vagy Patria-logó, és nincs a K&H logóját imitáló elem.
-- A JG Investment Plus Kft. mellett kizárólag a „függő ügynök" jogállás
-  szerepel.
+- A JG Investment Plus Kft. mellett a docx-alapú szövegekben kizárólag a
+  „függő ügynök" jogállás szerepel. **Kivétel, jóváhagyásra várva:** a v1.1
+  Hero preview-copyja az eyebrow-ban „KÖZVETÍTŐ" megjelölést, az introban
+  pedig „a K&H Értékpapír partnereként" fordulatot használ — ld. a
+  „Hero preview-copy" szakaszt.
 - Az adatkezelési tájékoztató **nincs** saját készítésű jogi szöveggel
   pótolva. A K&H/Patria által átadott tájékoztató teljes, tartalmilag
   változatlan szövege szükséges hozzá; a hiányt az oldal láthatóan jelzi.
@@ -104,20 +119,55 @@ fallback stackkel (`src/app/globals.css` `--font-serif-display` /
 `--font-sans`) — ha a betűtöltés a build-környezetben elérhetetlen lenne, a
 megjelenés akkor is stabil marad.
 
-## Hero — absztrakt japángyertya-háttéranimáció (v0.6)
+## Hero — japángyertya-animáció + preview-copy (v1.1)
 
-A Hero középre rendezett, egyoszlopos szövegkompozíció maradt (eyebrow →
-főcím → bevezető → CTA-k), alatta külön sávban a kötelező státuszközléssel és
-a kiemelt kockázati figyelmeztetéssel. A v0.6 ehhez egy teljes Hero-felületet
-kitöltő háttéranimációt ad.
+A Hero középre rendezett, tipográfia-vezérelt kompozíció (eyebrow → főcím →
+rövid bevezető → egyetlen CTA), alatta két visszafogott információs sávval: a
+kötelező státuszközléssel és a kiemelt kockázati figyelmeztetéssel. Mögötte
+teljes felületen fut a japángyertya-háttéranimáció.
 
 Rétegek (alulról):
 
 1. Porcelain háttér
 2. `HeroMarketMotion` canvas — `aria-hidden`, `pointer-events: none`
 3. `.hero-veil` Porcelain kontrasztfátyol
-4. HTML copy és CTA-k
+4. HTML copy és CTA
 5. sticky header (`z-50`)
+
+### Hero preview-copy — JÓVÁHAGYÁSRA VÁR
+
+> **Ez a Hero-szövegezés NEM a docx source of truthból származik.** A v1.1-ben
+> a Hero eyebrow / főcím / bevezető / CTA-felirat mezői és a kötelező
+> státuszközlés törzsszövege a jóváhagyott hero-referencia (preview)
+> szövegezésére cserélődtek, kifejezett megrendelői utasításra.
+
+| Mező | Érték |
+| --- | --- |
+| eyebrow | `PATRIA FINANCE · K&H ÉRTÉKPAPÍR · KÖZVETÍTŐ` |
+| főcím | `Biztonság. Átláthatóság. Szakmai háttér.` |
+| kiemelt szó | `Átláthatóság.` (Signal Berry) |
+| bevezető | `Tájékoztatás közvetített befektetési szolgáltatásainkról — a K&H Értékpapír partnereként.` |
+| CTA | `KAPCSOLATFELVÉTEL` → `/#kapcsolat` |
+
+**Compliance-szempontból nyitott pontok** — mindhárom K&H Compliance és
+Kommunikáció írásbeli jóváhagyását igényli az élesítés előtt:
+
+1. a bevezető **„a K&H Értékpapír partnereként"** megfogalmazása (a docx SOT
+   szerinti jogállás „függő ügynök", nem „partner");
+2. az eyebrow **„KÖZVETÍTŐ"** megjelölése (ugyanezen okból);
+3. a státuszközlés **„a Magyar Nemzeti Bank nyilvántartásában szereplő
+   társaságként"** fordulata (nyilvántartási állítás, ami a docx SOT-ban nem
+   szerepel).
+
+Emiatt a v1.1 **nem** tekinthető compliance-approved, K&H-approved vagy
+public-ready változatnak. A preview-copy mezőket a
+`src/content/homepage.ts` `hero` és `statusNotice` konstansai jelölik, saját
+figyelmeztető kommenttel.
+
+A Hero **egyetlen** CTA-t jelenít meg. A korábbi másodlagos
+„K&H Értékpapír dokumentumai" gomb csak a Heróból került ki — ugyanez a
+hivatkozás a **láblécben** (`footer.links`) és a jogi szakaszban változatlanul
+elérhető, és az adatmező sem lett törölve a content modellből.
 
 ### Az animáció
 
@@ -139,11 +189,15 @@ WebGL, nincs Rive).
   szélre és a felső/alsó perifériára kerül. A `.hero-veil` gradient ezt
   egészíti ki.
 - **Nincs pénzügyi tartalom**: nincs valós árfolyam, instrumentum, historikus
-  adat, kereskedési jelzés vagy hozamábra. **Nincs piros–zöld színpár** — a
-  gyertya színét kizárólag a rétege adja; az irány (hosszabb felső vagy alsó
-  kanóc) csak formai változatosság, és a Signal Amber kiemelés szándékosan
-  mindkét alakon megjelenik, hogy ne kaphasson „nyereséges"/„vesztes"
-  jelentést.
+  adat, ticker, számadat, kereskedési jelzés vagy hozamábra. **Nincs
+  piros–zöld színpár, és nincs arany vagy sárga** — a gyertya színét kizárólag
+  a rétege adja; az irány (hosszabb felső vagy alsó kanóc) csak formai
+  változatosság, és a Signal Berry kiemelés szándékosan mindkét alakon
+  megjelenik, hogy ne kaphasson „nyereséges"/„vesztes" jelentést.
+- **Kiemelő gyertyák**: desktopon pontosan 3, mobilon pontosan 2, mind
+  ugyanabban a rétegben. Ez tudatos: egy rétegen belül azonos a sodródási
+  sebesség, így a köztük lévő távolság állandó, és **sosem kerülnek
+  közvetlenül egymás mellé**.
 - **Teljesítmény**: `ResizeObserver`, DPR-cap (desktop 2, mobil 1.5),
   `IntersectionObserver` (képernyőn kívül a loop leáll), `visibilitychange`
   (háttérfülön leáll), unmountkor teljes cleanup. Mobilon kevesebb gyertya,
@@ -154,20 +208,36 @@ WebGL, nincs Rive).
   gyertyakompozíció rajzolódik ki (nincs parallax, nincs sodródás, nincs
   opacity-pulzálás).
 
-### Signal Amber
+### Signal Berry
 
-A v0.6 egyetlen új színt vezet be — a **Signal Amber** funkcionális
-figyelemfelkeltő jelzést (`#C79A3B`, dark `#9A7225`, soft `#F1E5C8`). Ez
-**nem brandszín**, és a teljes oldalon legfeljebb ~3–5%-os vizuális arányban
-jelenhet meg. Jelenleg három helyen él, mind a Heróban:
+A v1.1 egyetlen funkcionális accent színt használ — a **Signal Berry**
+figyelemirányító jelzést. Ez az Aubergine és a vörös közötti, erősebb
+lila–vörös árnyalat; **nem brandszín**, és kifejezetten **nem tőzsdei vörös**:
+nem jelöl irányt, eredményt, hozamot vagy veszteséget.
 
-1. a főcím „Átlátható" szava (Signal Amber **Dark**, 3.94:1 Porcelainen — AA
-   nagy szöveghez; a világosabb alapárnyalat szövegre sosem használható),
-2. az elsődleges CTA nagyon visszafogott alsó jelzővonala (a gomb
-   töltőszíne változatlanul Aubergine; nincs glow),
-3. a háttéranimáció néhány (desktopon 3, mobilon 2) fókuszgyertyája.
+| Token | Érték | Kontraszt Porcelainen | Használat |
+| --- | --- | --- | --- |
+| `--color-signal-berry` | `#8E3F67` | **6.19:1** (AA törzsszöveg, AAA nagy szöveg) | főcím kiemelt szava, CTA-jelzővonal, CTA-fókuszgyűrű, canvas-kiemelés |
+| `--color-signal-berry-dark` | `#6F2D50` | 8.74:1 (AAA) | tartalék sötétebb változat, jelenleg nincs használva |
+| `--color-signal-berry-soft` | `#EBD6E0` | 1.24:1 (FAIL — sosem szöveg) | definiált, jelenleg nincs használva |
 
-A domináns színek továbbra is a Porcelain / Ink / Aubergine.
+A főcím a **base `#8E3F67`** változatot használja, mert Porcelainen mérve
+6.19:1 — ez nem csak a nagy szövegre előírt 3:1-et, hanem a törzsszövegre
+vonatkozó AA 4.5:1-et is teljesíti, így nem volt szükség a sötétebb
+változatra.
+
+A Signal Berry a teljes oldalon legfeljebb ~3–5%-os vizuális arányban jelenik
+meg, és ebben a fázisban kizárólag a Heróban:
+
+1. a főcím „Átláthatóság." szava,
+2. az elsődleges CTA 2 px-es alsó jelzővonala és fókuszgyűrűje (a gomb
+   töltőszíne végig Aubergine; nincs glow, gradient, színes árnyék vagy
+   pulzálás),
+3. a háttéranimáció 3 (mobilon 2) fókuszgyertyája.
+
+A domináns színek továbbra is a Porcelain / Ink / Aubergine. A korábbi arany
+kiemelőrendszer teljes egészében kikerült: a heróban és a dokumentációban
+nem maradt arany, sárga vagy mustár árnyalat.
 
 A Hero — és az oldal egésze — a betöltés után AZONNAL, teljes egészében
 látható, minden módban; a szöveg megjelenése soha nem függ az animációtól.
@@ -199,7 +269,7 @@ npm run build
 ```
 src/
   app/
-    globals.css              design tokenek (@theme, Signal Amberrel), .hero-veil,
+    globals.css              design tokenek (@theme, Signal Berryvel), .hero-veil,
                               .hero-cta-primary, reduced-motion (globális CSS-effektek)
     layout.tsx                next/font/google (Newsreader, Inter)
     page.tsx                  skip link + szakaszok összeállítása
