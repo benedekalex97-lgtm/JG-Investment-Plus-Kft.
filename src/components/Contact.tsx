@@ -15,6 +15,7 @@ export default function Contact() {
   return (
     <Section
       id="kapcsolat"
+      number={contact.sectionNumber}
       label={contact.sectionLabel}
       heading={contact.heading}
       headingId="kapcsolat-cim"

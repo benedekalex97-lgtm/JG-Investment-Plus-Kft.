@@ -1,5 +1,5 @@
 import LegalAccordion, { type LegalPanel } from "./LegalAccordion";
-import { imprint, legal, riskWarningSummary } from "@/content/homepage";
+import { imprint, legal } from "@/content/homepage";
 
 /**
  * LegalRiskBlock — a részletes Jogi tájékoztató, a Panaszkezelés és az
@@ -119,16 +119,14 @@ export default function LegalRiskBlock() {
             {legal.riskWarning.heading}
           </h3>
           {/*
-            Két kockázati szöveg, MINDKETTŐ alapállapotban látható:
-            1) a rövid, kiemelt összefoglaló,
-            2) a docx source of truth teljes kockázati bekezdése.
-            Egy mondatuk átfed; ezt tudatosan vállaljuk, mert egyiket sem
-            szabad elhagyni vagy accordionba rejteni.
+            EGYETLEN kockázati blokk. A korábbi két, egymást átfedő bekezdés
+            (rövid összefoglaló + docx-szöveg) helyett csak a docx source of
+            truth teljes szövege áll itt — ez tartalmazza az összes kötelező
+            elemet: a kockázat tényét, a részleges vagy teljes tőkevesztés
+            lehetőségét, a múltbeli hozamra vonatkozó közlést és a hivatalos
+            dokumentumok megismerésének kötelezettségét. Nincs ismétlés.
           */}
           <p className="mt-2 max-w-4xl text-[0.9375rem] leading-relaxed font-medium text-text-primary sm:text-base">
-            {riskWarningSummary.body}
-          </p>
-          <p className="mt-3 max-w-4xl text-[0.9375rem] leading-relaxed text-text-primary sm:text-base">
             {legal.riskWarning.body}
           </p>
         </div>

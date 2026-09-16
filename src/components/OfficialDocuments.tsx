@@ -17,23 +17,21 @@ export default function OfficialDocuments() {
       heading={officialDocuments.heading}
       headingId="hivatalos-dokumentumok-cim"
       lead={officialDocuments.lead}
-      tone="surface"
+      tone="canvas"
+      size="compact"
     >
       <ul className="border-t border-border">
         {officialDocuments.items.map((item) => (
           <li key={item.label} className="border-b border-border">
             <a
               href={item.href}
-              {...(item.external
-                ? { target: "_blank", rel: "noreferrer noopener" }
-                : {})}
-              className="group flex min-h-13 items-center justify-between gap-4 py-3.5 text-base font-medium text-text-primary transition-colors hover:text-accent"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="group flex min-h-12 items-center justify-between gap-4 py-3 text-[0.9375rem] font-medium text-text-primary transition-colors hover:text-accent sm:text-base"
             >
               <span>
                 {item.label}
-                {item.external ? (
-                  <span className="sr-only"> (új lapon nyílik meg)</span>
-                ) : null}
+                <span className="sr-only"> (új lapon nyílik meg)</span>
               </span>
               <span
                 aria-hidden="true"

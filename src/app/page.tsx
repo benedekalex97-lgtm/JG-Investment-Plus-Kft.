@@ -1,28 +1,28 @@
 import About from "@/components/About";
 import Contact from "@/components/Contact";
-import CtaBand from "@/components/CtaBand";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import LegalRiskBlock from "@/components/LegalRiskBlock";
 import OfficialDocuments from "@/components/OfficialDocuments";
-import Process from "@/components/Process";
 import Services from "@/components/Services";
 import WhyJG from "@/components/WhyJG";
 import { nav } from "@/content/homepage";
 
 /**
- * Főoldal — konverziós sorrend (v1.1).
+ * Főoldal — v1.2, a jóváhagyott hero-referencia (Lovable) szerkezete szerint.
  *
- * A látogató ebben a sorrendben érti meg az ajánlatot:
- *   Hero (mit kap)  →  01 Rólunk (kik vagyunk)  →  02 Miben segítünk
- *   →  03 Miért a JG  →  04 Hogyan működik  →  CTA-sáv (kapcsolatfelvétel)
- *   →  05 Hivatalos dokumentumok  →  Kapcsolat  →  Jogi tájékoztató.
+ *   Hero  →  01 Rólunk  →  02 Szolgáltatások  →  03 Miért mi?
+ *   →  04 Hivatalos dokumentumok  →  05 Kapcsolat  →  Jogi tájékoztató
  *
- * A részletes jogi blokk TUDATOSAN az értékajánlat és a szolgáltatások UTÁN
- * áll — de semmi nincs elrejtve: a rövid státuszközlés már a Heróban, a
- * szereptisztázás a szolgáltatások alatt, a kockázati figyelmeztetés pedig a
- * jogi szakasz tetején, összecsukhatatlanul olvasható.
+ * A v1.1-ben általunk hozzáadott külön FOLYAMAT szakasz és a konverziós
+ * CTA-sáv eltávolítva: egyik sem része a referenciaoldal szövegének. A
+ * konverziós útvonalat a header-CTA, a hero-CTA és a Kapcsolat szakasz
+ * biztosítja.
+ *
+ * A jogi hierarchia változatlan: rövid státuszközlés a Heróban → egyetlen
+ * közös közlés a szolgáltatások alatt → részletes Jogi tájékoztató az oldal
+ * alján. Semmi nincs elrejtve.
  */
 export default function Home() {
   return (
@@ -42,8 +42,6 @@ export default function Home() {
         <About />
         <Services />
         <WhyJG />
-        <Process />
-        <CtaBand />
         <OfficialDocuments />
         <Contact />
         <LegalRiskBlock />

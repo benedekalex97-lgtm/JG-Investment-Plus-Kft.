@@ -4,11 +4,9 @@ import { services } from "@/content/homepage";
 /**
  * Services — 02. szakasz, „Miben segítünk?".
  *
- * A négy blokk nem bekeretezett kártyahalmaz, hanem számozott, vékony
- * osztóvonalakkal tagolt lista — kevesebb doboz, több whitespace.
- *
- * A jogi hierarchia 2. szintje: a négy blokk alatt EGYETLEN, közös
- * szereptisztázás áll. A disclaimer szándékosan NEM ismétlődik kártyánként.
+ * A négy blokk számozott, vékony osztóvonalakkal tagolt lista — nem
+ * bekeretezett kártyahalmaz. A jogi figyelmeztetés SZÁNDÉKOSAN nem ismétlődik
+ * blokkonként: a négy blokk alatt egyetlen, visszafogott közös közlés áll.
  */
 export default function Services() {
   return (
@@ -40,19 +38,10 @@ export default function Services() {
         ))}
       </ul>
 
-      {/*
-        EGYETLEN közös szereptisztázás. Emberi cím („Fontos tudnivaló"), nem
-        all-caps figyelmeztetés; visszafogott Aubergine jelzővonal, nem
-        riasztó doboz. Alapállapotban látható, nem elrejthető.
-      */}
-      <div className="mt-10 border-l-2 border-l-accent bg-canvas px-5 py-4">
-        <h3 className="text-sm font-semibold text-accent">
-          {services.roleNote.label}
-        </h3>
-        <p className="mt-1.5 text-base leading-relaxed text-text-primary">
-          {services.roleNote.body}
-        </p>
-      </div>
+      {/* EGYETLEN közös közlés — visszafogott, nem riasztó doboz. */}
+      <p className="mt-10 border-l-2 border-l-accent bg-canvas px-5 py-4 text-base leading-relaxed text-text-primary">
+        {services.roleNote.body}
+      </p>
     </Section>
   );
 }

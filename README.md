@@ -2,7 +2,7 @@
 
 Ez a repository a JG Investment Plus Kft. weboldalát tartalmazza.
 
-## Jelenlegi állapot: v1.1 — konverziófókuszú főoldal + rendezett hero-motion
+## Jelenlegi állapot: v1.2 — a referenciaoldal (Lovable) teljes copyja
 
 **A prototípus nem publikálásra kész.** Kifejezetten *nem*:
 
@@ -25,31 +25,57 @@ került, és a szekció egy üres, animációra előkészített réteget kapott.
 v0.6 ezt a réteget tölti ki: egy saját fejlesztésű, absztrakt
 japángyertya-háttéranimáció (`HeroMarketMotion`).
 
-A **v1.1** a teljes főoldalt érinti:
+A **v1.2** a főoldal MARKETINGCOPYJÁT a jóváhagyott hero-referencia
+(`jginvst.lovable.app`) szövegére állítja vissza. A v1.1-ben általunk
+kitalált helyettesítő szövegek (pl. „Személyes kapcsolat. Egyértelmű
+szerepek.", „Így indul a kapcsolat", „Ismerje meg a lehetőségeket…")
+eltávolításra kerültek.
 
-1. **Konverziós szerkezet.** Az oldal sorrendje: Hero → 01 Rólunk →
-   02 Miben segítünk → 03 Miért a JG → 04 Hogyan működik → CTA-sáv →
-   05 Hivatalos dokumentumok → Kapcsolat → Jogi tájékoztató. Az értékajánlat
-   és a kapcsolatfelvétel megelőzi a részletes jogi blokkot.
-2. **Teljes főoldali szövegcsere** — konverziófókuszú, de a jogállás
-   mindenhol a docx SOT szerinti „függő ügynök".
-3. **Rendezett hero-motion.** A korábbi, gyertyánként független („összevissza")
-   sodródás helyett egyetlen közös *master market path*, rendezett pozíciós
-   sor és szomszédkorrelált fázisok — plusz animált gyertyatest és külön mozgó
-   felső/alsó kanóc.
-4. **Signal Berry** maradt az egyetlen figyelemirányító accent; arany/sárga
-   sehol nincs.
-5. **Háromszintű jogi hierarchia** — semmi nincs elrejtve, de a részletes jogi
-   tartalom nem uralja az oldal első felét.
+A marketingcopy elsődleges source of truthja a referenciaoldal. Ettől
+KIZÁRÓLAG az alábbi okokból tértünk el:
 
-A karakteres/figurás koncepció **véglegesen kikerült a scope-ból**: a Hero
-animációja kizárólag absztrakt, és nem tartalmaz emberi figurát, sétáló
-karaktert, fotót vagy illusztrált személyt.
+1. konkrét compliance-javítás;
+2. a valós kapcsolat- és cégadatok megtartása;
+3. az Adatkezelési tájékoztató, Impresszum és Panaszkezelés változatlan
+   megőrzése;
+4. placeholder adatok eltávolítása;
+5. a „partnerként", „közvetítő" és az ellenőrizetlen jogosultsági állítások
+   javítása.
 
-**Változatlan maradt** (DOM-szinten igazolva): az Adatkezelési tájékoztató (a
-teljes oldal pixelre azonos), az Impresszum, a Panaszkezelés, a telefonszámok,
-e-mail-címek, cégadatok, üzleti órák, a K&H ügyfélszolgálati adatok, a footer
-jogi szövege és minden meglévő hivatalos link.
+Szerkezet: Hero → 01 Rólunk → 02 Szolgáltatások → 03 Miért mi? →
+04 Hivatalos dokumentumok → 05 Kapcsolat → Jogi tájékoztató.
+A v1.1 külön FOLYAMAT szakasza és a konverziós CTA-sáv eltávolítva (egyik sem
+része a referenciaoldalnak); a konverziós útvonalat a header-CTA, a hero-CTA
+és a Kapcsolat szakasz biztosítja. A navigációban a „Hogyan működik?" pont
+helyére a „Miért mi?" került.
+
+A HeroMarketMotion animáció, a Graphite × Aubergine × Silver × Signal Berry
+rendszer, a Newsreader + Inter tipográfia, a reszponzív rendszer és a
+reduced-motion támogatás VÁLTOZATLAN — ebben a körben nem lett újraépítve
+vagy áthangolva.
+
+A karakteres/figurás koncepció véglegesen kikerült a scope-ból. Nincs
+arany/sárga akcentus, nincs fekete–arany brand, nincs K&H-logó, nincs
+trading-piros vagy trading-zöld.
+
+**Változatlan maradt** (DOM-szinten igazolva): az Adatkezelési tájékoztató
+tartalma (a `<main>` szövege bitre azonos, SHA-256 egyezés), az Impresszum, a
+Panaszkezelés, a telefonszámok, e-mail-címek, cégadatok, üzleti órák, a K&H
+ügyfélszolgálati adatok, a footer jogi szövege és minden meglévő hivatalos
+link.
+
+### Compliance-review tételek (jóváhagyásra várnak)
+
+- a 03. szakasz címében a „**pénzügyi biztonsága**" fordulat;
+- a hero főcím „**Biztonság.**" szava;
+- a **KBC-adatok** (13 millió ügyfél, 397 milliárd euró mérlegfőösszeg) —
+  időérzékenyek, ellenőrzött hivatalos forrás nélkül nem frissítendők;
+- a **III. pillér** egésze (MNB-nyilvántartás, közös felügyelet,
+  20 000 EUR befektetővédelmi összeghatár);
+- a Rólunk infosáv **Felügyeleti hatóság** és **Befektetővédelem** tétele.
+
+Ezek tényszerű közlésként, nem garanciaként jelennek meg; a content-modell
+`complianceReview: true` jelöléssel tartja őket nyilván.
 
 ## Tartalmi source of truth
 

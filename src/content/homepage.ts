@@ -59,7 +59,7 @@ export const nav = {
   items: [
     { label: "Rólunk", href: "/#rolunk" },
     { label: "Szolgáltatások", href: "/#szolgaltatasok" },
-    { label: "Hogyan működik?", href: "/#hogyan-mukodik" },
+    { label: "Miért mi?", href: "/#miert-a-jg" },
     { label: "Jogi tájékoztató", href: "/#jogi-tajekoztato" },
     { label: "Kapcsolat", href: "/#kapcsolat" },
   ],
@@ -103,130 +103,168 @@ export const statusNotice = {
   body: "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltatást a K&H Értékpapír nyújtja. A JG Investment Plus Kft. nem nyújt befektetési tanácsadást.",
 } as const;
 
-/**
- * Kockázati figyelmeztetés — RÖVID, kiemelt összefoglaló.
- *
- * A részletes Jogi tájékoztató accordionján KÍVÜL, alapállapotban láthatóan
- * jelenik meg, közvetlenül a docx SOT teljes kockázati bekezdése (lásd
- * legal.riskWarning) fölött. Egyik sincs elrejtve vagy rövidítve; a két szöveg
- * egy mondata átfed, ezt tudatosan vállaljuk, mert egyiket sem szabad
- * kihagyni. A címke emberi megfogalmazású, nem all-caps riasztás.
+/*
+ * A korábbi külön `riskWarningSummary` export TÖRÖLVE: a Jogi tájékoztató
+ * tetején két, egymást átfedő kockázati bekezdés jelent meg egymás alatt.
+ * Mostantól EGYETLEN kockázati blokk van, a docx source of truth teljes
+ * szövegével (legal.riskWarning) — ez tartalmazza az összes kötelező elemet
+ * (kockázat, részleges vagy teljes tőkevesztés, múltbeli hozam, a hivatalos
+ * dokumentumok megismerésének kötelezettsége), ismétlés nélkül.
  */
-export const riskWarningSummary = {
-  label: "Kockázatok",
-  body: "A tőzsdei kereskedés és a tőkepiaci befektetések kockázattal járnak, és akár a befektetett tőke részleges vagy teljes elvesztését is okozhatják. A múltbeli hozam nem jelent garanciát a jövőbeni teljesítményre.",
-} as const;
 
-/** SOT 2. Rólunk — 01 */
-export const about = {
+/**
+ * SOT 2. Rólunk — 01
+ *
+ * A szövegezés forrása a jóváhagyott hero-referencia (Lovable) oldal. Az
+ * infosáv utolsó két tétele (felügyeleti hatóság, befektetővédelem) tényszerű
+ * közlésként jelenik meg, NEM marketingígéretként — és compliance-review
+ * tételként van megjelölve (`complianceReview: true`). Hivatalos forrás
+ * hiányában NEM rendelünk hozzájuk kitalált hivatkozást.
+ */
+export const about: {
+  sectionNumber: string;
+  sectionLabel: string;
+  heading: string;
+  paragraphs: readonly string[];
+  quote: string;
+  facts: readonly { readonly label: string; readonly value: string; readonly complianceReview: boolean }[];
+} = {
   sectionNumber: "01",
   sectionLabel: "Rólunk",
-  heading: "Személyes kapcsolat. Egyértelmű szerepek.",
+  heading: "Kik vagyunk?",
   paragraphs: [
-    "A JG Investment Plus Kft. abban segít, hogy közérthetően megismerje a K&H Értékpapírnál elérhető befektetési szolgáltatásokat, pénzügyi eszközöket és az ügyintézés fő lépéseit. Személyes kapcsolattartással támogatjuk az eligazodást és a kapcsolatfelvételt.",
-    "Függő ügynökként a mindenkor hatályos ügynöki hirdetményben meghatározott keretek között járunk el. A tényleges befektetési szolgáltatást és a hivatalos ügyféltájékoztatást a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) nyújtja.",
+    "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynökeként közvetlen kapcsolatot biztosít ügyfeleink és Magyarország egyik vezető bankcsoporti hátterű brókercége között. Társaságunk tevékenysége a Bszt. 111. §-a alapján folyik, a K&H Értékpapír dokumentumai között közzétett, mindenkor hatályos együttműködési hirdetmény keretein belül.",
+    "Munkánk középpontjában az átlátható, szakmailag megalapozott tájékoztatás áll.",
   ],
-  highlight: "Érthető tájékoztatás. Átlátható folyamat. Személyes elérhetőség.",
-} as const;
+  quote:
+    "A pénzügyi döntések nem csupán számokról szólnak — hanem értékekről, célokról és felelős gondolkodásról is.",
+  facts: [
+    {
+      label: "Megbízó befektetési szolgáltató",
+      value: "K&H Értékpapír (Patria Finance Magyarországi Fióktelepe)",
+      complianceReview: false,
+    },
+    {
+      label: "Jogalap",
+      value: "Bszt. 111. § — függő ügynöki tevékenység",
+      complianceReview: false,
+    },
+    {
+      label: "Felügyeleti hatóság",
+      value: "Magyar Nemzeti Bank (MNB)",
+      complianceReview: true,
+    },
+    {
+      label: "Befektetővédelem",
+      value: "Cseh Befektetővédelmi Alap — 20 000 EUR",
+      complianceReview: true,
+    },
+  ],
+};
 
-/** SOT 3. Szolgáltatások — 02 */
+/**
+ * SOT 3. Szolgáltatások — 02
+ *
+ * A négy blokk címe és szövege a jóváhagyott hero-referencia (Lovable) oldal
+ * szövege, szó szerint. A jogi figyelmeztetés SZÁNDÉKOSAN nem ismétlődik
+ * blokkonként: a négy blokk alatt egyetlen, visszafogott közös közlés áll.
+ */
 export const services = {
   sectionNumber: "02",
   sectionLabel: "Szolgáltatások",
   heading: "Miben segítünk?",
-  lead: "Segítünk eligazodni a K&H Értékpapírnál elérhető lehetőségek, dokumentumok és ügyintézési folyamatok között.",
+  lead: "Az alábbi témakörökben nyújtunk általános, nem személyre szóló tájékoztatást — az ügyfél döntési folyamatának előkészítéseként.",
   items: [
     {
-      title: "Elérhető lehetőségek bemutatása",
-      body: "Közérthetően bemutatjuk a K&H Értékpapírnál elérhető befektetési szolgáltatások és pénzügyi eszközök fő jellemzőit. A tájékoztatás általános jellegű, és nem tartalmaz személyre szóló befektetési ajánlást.",
+      title: "Pénzügyi lehetőségek bemutatása",
+      body: "Vállalkozók és magánszemélyek számára elérhető tőkepiaci eszközök és megtakarítási konstrukciók általános ismertetése — részvények, kötvények, ETF-ek, befektetési alapok, TBSZ számlák —, kizárólag tájékoztató jelleggel, egyedi ajánlás nélkül.",
     },
     {
-      title: "Kapcsolatfelvétel és számlanyitási folyamat",
-      body: "Segítünk elérni a mindenkor hatályos hivatalos tájékoztatókat, és bemutatjuk a kapcsolatfelvétel, valamint a számlanyitás fő lépéseit. A szerződéskötés és a tényleges befektetési szolgáltatás a K&H Értékpapírral történik.",
+      title: "Megtakarítási és adózási lehetőségek",
+      body: "Különböző megtakarítási formák — TBSZ, NYESZ, rendszeres befektetési tervek — működésének, valamint a vonatkozó adójogszabályi környezetnek az általános bemutatása. Nem minősül adótanácsadásnak.",
     },
     {
-      title: "Meglévő ügyfelek támogatása",
-      body: "A mindenkor hatályos ügynöki hirdetményben meghatározott keretek között támogatjuk a kapcsolattartást és az engedélyezett közvetítői folyamatokat.",
+      title: "Digitális pénzügyi megoldások",
+      body: "A K&H Webtrader és Mobiltrader platform lehetőségeinek, funkcióinak és a számlanyitás folyamatának bemutatása — segítség az online tőkepiaci jelenlét megkezdéséhez.",
     },
     {
-      title: "Hivatalos dokumentumok és csatornák",
-      body: "Segítünk eligazodni abban, hogy egy adott kérdéssel, dokumentummal vagy ügyintézési igénnyel melyik hivatalos K&H Értékpapír-csatornához szükséges fordulni.",
+      title: "Kapcsolattartás és pénzügyi edukáció",
+      body: "Folyamatos kommunikáció, pénzügyi szemléletformálás és tapasztalatcsere hosszú távú együttműködés keretében. Segítség abban, hogy az ügyfél megalapozottabb kérdésekkel fordulhasson a befektetési szolgáltatóhoz.",
     },
   ],
-  /**
-   * EGYETLEN, közös szereptisztázás a négy blokk alatt — a jogi hierarchia
-   * második szintje. Szándékosan NEM ismétlődik kártyánként.
-   */
+  /** EGYETLEN közös közlés a négy blokk alatt — nem ismétlődik kártyánként. */
   roleNote: {
-    label: "Fontos tudnivaló",
-    body: "A JG Investment Plus Kft. nem nyújt befektetési tanácsadást, nem végez portfóliókezelést, és nem ad személyre szóló befektetési ajánlást.",
+    body: "A tényleges befektetési szolgáltatást a K&H Értékpapír nyújtja. A JG Investment Plus Kft. tájékoztatása nem minősül befektetési tanácsadásnak, személyre szóló ajánlásnak vagy adótanácsadásnak.",
   },
 } as const;
 
-/** SOT 4. Miért a JG? — 03 */
-export const whyJg = {
+/**
+ * SOT 4. Miért mi? — 03
+ *
+ * COMPLIANCE-REVIEW TÉTELEK ebben a szakaszban (a riport is felsorolja):
+ *   – a cím „pénzügyi biztonsága" fordulata;
+ *   – a KBC Csoportra vonatkozó, IDŐÉRZÉKENY adatok (13 millió ügyfél,
+ *     397 milliárd euró mérlegfőösszeg) — ellenőrzött hivatalos forrás nélkül
+ *     nem módosítandók és nem frissítendők;
+ *   – a teljes III. pillér (nyilvántartás, közös felügyelet, 20 000 EUR
+ *     befektetővédelmi összeghatár).
+ * Egyik sem garanciaként jelenik meg; a UI tényszerű, visszafogott közlésként
+ * rendereli őket.
+ */
+export const whyJg: {
+  sectionNumber: string;
+  sectionLabel: string;
+  heading: string;
+  pillars: readonly {
+    readonly numeral: string;
+    readonly title: string;
+    readonly body: string;
+    readonly complianceReview: boolean;
+  }[];
+} = {
   sectionNumber: "03",
-  sectionLabel: "Miért a JG?",
-  heading: "A személyes kapcsolattartás értéke",
+  sectionLabel: "Miért minket?",
+  heading: "Három pillér, egy cél: az Ön pénzügyi biztonsága.",
   pillars: [
     {
-      title: "Átlátható működés",
-      body: "Pontosan megmutatjuk, mely feladatokat végezzük mi, és mely szolgáltatásokat nyújtja közvetlenül a K&H Értékpapír.",
+      numeral: "I",
+      title: "Átláthatóság",
+      body: "Minden lépés dokumentált. Ön mindig pontosan tudja, ki felelős miért: a JG Investment Plus Kft. tájékoztat és közvetít, a K&H Értékpapír szolgáltat. Nincsenek rejtett szerepek.",
+      complianceReview: false,
     },
     {
-      title: "Személyes elérhetőség",
-      body: "Elérhető kapcsolattartókkal és érthető ügyintézési útvonalakkal segítjük az érdeklődőket és a meglévő ügyfeleket.",
+      numeral: "II",
+      title: "Szakmai háttér",
+      body: "A K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) a belgiumi székhelyű nemzetközi pénzügyi szolgáltató KBC Csoport (KBC Group NV) tagja. A KBC Csoport világszerte 13 millió ügyfelet szolgál ki, mérlegfőösszege 397 milliárd euró. A Fióktelep működését a Magyar Nemzeti Bank és a Cseh Nemzeti Bank közösen felügyeli.",
+      complianceReview: true,
     },
     {
-      title: "Szabályozott háttér",
-      body: "Tevékenységünket a vonatkozó jogszabályok, a K&H Értékpapír szabályzatai és a mindenkor hatályos ügynöki hirdetmény keretei között végezzük.",
+      numeral: "III",
+      title: "Szabályozottság és biztonság",
+      body: "A JG Investment Plus Kft. az MNB közvetítői nyilvántartásában szereplő függő ügynök. A K&H Értékpapír működését az MNB és a Cseh Nemzeti Bank közösen felügyeli. A befektetővédelmi alap 20 000 EUR összeghatárig nyújt fedezetet.",
+      complianceReview: true,
     },
   ],
-} as const;
+};
 
-/** SOT 4. Folyamat — 04 */
-export const process = {
-  sectionNumber: "04",
-  sectionLabel: "Folyamat",
-  heading: "Így indul a kapcsolat",
-  steps: [
-    {
-      title: "Kapcsolatfelvétel",
-      body: "Röviden egyeztetjük, milyen témában keres tájékoztatást.",
-    },
-    {
-      title: "Lehetőségek és dokumentumok",
-      body: "Bemutatjuk a releváns, hivatalos K&H Értékpapír-információkat és dokumentumokat.",
-    },
-    {
-      title: "Hivatalos ügyintézés",
-      body: "A számlanyitás, szerződéskötés és a tényleges befektetési szolgáltatás a K&H Értékpapírral történik.",
-    },
-    {
-      title: "Folyamatos kapcsolattartás",
-      body: "A mindenkor hatályos ügynöki keretek között segítjük az eligazodást és az ügyintézést.",
-    },
-  ],
-} as const;
-
-/**
- * Konverziós CTA-sáv a folyamat után.
- * Nincs sürgetés, hiányérzet, hozamígéret vagy mesterséges exkluzivitás.
+/*
+ * A külön FOLYAMAT („Így indul a kapcsolat") szakasz és a konverziós CTA-sáv
+ * („Ismerje meg a lehetőségeket…") TÖRÖLVE: egyik sem része a jóváhagyott
+ * hero-referencia (Lovable) oldal szövegének, mindkettő általunk kitalált
+ * kiegészítés volt. A konverziós útvonalat a header-CTA, a hero-CTA és a
+ * Kapcsolat szakasz biztosítja.
  */
-export const ctaBand = {
-  heading: "Ismerje meg a lehetőségeket személyes kapcsolattartással.",
-  body: "Vegye fel velünk a kapcsolatot, ha szeretne közérthető tájékoztatást kapni a K&H Értékpapírnál elérhető szolgáltatásokról és a következő lépésekről.",
-  cta: { label: "KAPCSOLATFELVÉTEL", href: "/#kapcsolat" },
-} as const;
 
 /**
- * SOT — Hivatalos dokumentumok — 05
+ * Hivatalos dokumentumok — 04
+ *
+ * A compliance-visszajelzés miatt marad, de vizuálisan MÁSODLAGOS és kompakt,
+ * az oldal alsó felében.
  *
  * LINKPOLITIKA: kizárólag ELLENŐRZÖTT, a repositoryban már korábban is
- * használt hivatalos URL-ek szerepelnek. Az egyes dokumentumokhoz NEM
- * találunk ki mélylinket: a K&H Értékpapír a felsorolt dokumentumokat a
- * dokumentum-gyűjtőoldalán teszi közzé, ezért azok oda mutatnak. A
- * panaszkezelés a saját, szintén ellenőrzött oldalára mutat.
+ * használt hivatalos URL-ek. Az egyes dokumentumokhoz NEM találunk ki
+ * mélylinket: a K&H Értékpapír ezeket a dokumentum-gyűjtőoldalán teszi közzé,
+ * ezért oda mutatnak. A panaszkezelés a saját, szintén ellenőrzött oldalára.
  */
 const KH_DOCUMENTS_URL = "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok";
 const KH_COMPLAINTS_URL = "https://www.khertekpapir.hu/ugyfelvedelem/panaszkezeles";
@@ -236,26 +274,27 @@ export const officialDocuments: {
   sectionLabel: string;
   heading: string;
   lead: string;
-  items: readonly { readonly label: string; readonly href: string; readonly external: boolean }[];
+  items: readonly { readonly label: string; readonly href: string }[];
   note: string;
 } = {
-  sectionNumber: "05",
+  sectionNumber: "04",
   sectionLabel: "Hivatalos dokumentumok",
-  heading: "Döntés előtt ismerje meg a hivatalos dokumentumokat",
-  lead: "A hivatalos, mindenkor hatályos dokumentumokat a K&H Értékpapír teszi közzé. Befektetési döntés előtt ezek megismerése szükséges.",
+  heading: "Hivatalos dokumentumok",
+  lead: "A szolgáltatások részletes feltételeit, költségeit, végrehajtási szabályait és kockázatait a K&H Értékpapír mindenkor hatályos dokumentumai tartalmazzák.",
   items: [
-    { label: "Üzletszabályzat", href: KH_DOCUMENTS_URL, external: true },
-    { label: "Végrehajtási Politika", href: KH_DOCUMENTS_URL, external: true },
-    { label: "Kondíciós Lista", href: KH_DOCUMENTS_URL, external: true },
-    { label: "Termék- és kockázati tájékoztatók", href: KH_DOCUMENTS_URL, external: true },
-    { label: "Mindenkor hatályos ügynöki hirdetmény", href: KH_DOCUMENTS_URL, external: true },
-    { label: "Panaszkezelési oldal és szabályzat", href: KH_COMPLAINTS_URL, external: true },
+    { label: "Üzletszabályzat", href: KH_DOCUMENTS_URL },
+    { label: "Végrehajtási Politika", href: KH_DOCUMENTS_URL },
+    { label: "Kondíciós Lista", href: KH_DOCUMENTS_URL },
+    { label: "Termék- és kockázati tájékoztatók", href: KH_DOCUMENTS_URL },
+    { label: "Mindenkor hatályos ügynöki hirdetmény", href: KH_DOCUMENTS_URL },
+    { label: "Panaszkezelési oldal és szabályzat", href: KH_COMPLAINTS_URL },
   ],
   note: "A felsorolt dokumentumokat a K&H Értékpapír a hivatalos dokumentum-gyűjtőoldalán teszi közzé; a hivatkozások oda vezetnek.",
 };
 
 /** SOT 5. Kapcsolat */
 export const contact: {
+  sectionNumber: string;
   sectionLabel: string;
   heading: string;
   lead: string;
@@ -267,6 +306,7 @@ export const contact: {
   khSupport: { heading: string; items: readonly ContactEntry[] };
   orderNotice: string;
 } = {
+  sectionNumber: "05",
   sectionLabel: "Kapcsolat",
   heading: "Lépjen kapcsolatba velünk",
   lead: "Ha szeretné megismerni a K&H Értékpapírnál elérhető szolgáltatásokat, vagy meglévő ügyfélként a függő ügynöki tevékenység körébe tartozó ügyben keres minket, vegye fel velünk a kapcsolatot.",

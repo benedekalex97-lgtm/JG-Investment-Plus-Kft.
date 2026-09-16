@@ -15,6 +15,12 @@ type SectionProps = {
    * "stack": a fejléc a tartalom fölött, teljes szélességben.
    */
   layout?: "aside" | "stack";
+  /**
+   * "compact": kisebb címsor és szűkebb függőleges ritmus — vizuálisan
+   * MÁSODLAGOS szakaszokhoz (pl. hivatalos dokumentumok), amelyeknek jelen
+   * kell lenniük, de nem versenyezhetnek az értékajánlattal.
+   */
+  size?: "default" | "compact";
   children: ReactNode;
 };
 
@@ -43,8 +49,10 @@ export default function Section({
   lead,
   tone = "canvas",
   layout = "aside",
+  size = "default",
   children,
 }: SectionProps) {
+  const compact = size === "compact";
   const header = (
     <>
       <p className="flex items-baseline gap-3 text-sm font-semibold tracking-[0.18em] text-accent uppercase">
@@ -56,7 +64,11 @@ export default function Section({
       </p>
       <h2
         id={headingId}
-        className="font-display mt-4 text-[1.875rem] leading-[1.15] [overflow-wrap:normal] hyphens-none text-balance text-text-primary sm:text-[2.25rem] lg:text-[2.5rem]"
+        className={`font-display mt-4 leading-[1.15] [overflow-wrap:normal] hyphens-none text-balance text-text-primary ${
+          compact
+            ? "text-[1.375rem] sm:text-[1.625rem]"
+            : "text-[1.875rem] sm:text-[2.25rem] lg:text-[2.5rem]"
+        }`}
       >
         {heading}
       </h2>
@@ -70,7 +82,11 @@ export default function Section({
 
   return (
     <section id={id} aria-labelledby={headingId} className={TONE_CLASS[tone]}>
-      <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+      <div
+        className={`mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8 ${
+          compact ? "py-12 sm:py-14 lg:py-16" : "py-16 sm:py-20 lg:py-28"
+        }`}
+      >
         {layout === "aside" ? (
           <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
             <div className="lg:col-span-4">{header}</div>
