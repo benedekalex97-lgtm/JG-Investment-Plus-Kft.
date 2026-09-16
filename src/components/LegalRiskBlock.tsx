@@ -25,6 +25,12 @@ import { imprint, legal } from "@/content/homepage";
  *   – az all-caps riasztó címek („KIEMELT KOCKÁZATI FIGYELMEZTETÉS") helyett
  *     emberi megfogalmazású címek állnak.
  *
+ * v1.4: a szakasz függőleges ritmusa levegősebb lett, a kockázati blokk
+ * hajszálnyi mélységet (lágy árnyék) és jelölt fejlécet kapott, a két
+ * al-horgony (#panaszkezeles, #impresszum) pedig a globális, header-pontos
+ * scroll-padding-topot használja a korábbi, fix `scroll-mt-24` helyett —
+ * így minden horgony ugyanoda érkezik.
+ *
  * Tipográfia: a részletes jogi szöveg 15 px (0.9375rem) mobilon és 16 px
  * desktopon — a specifikált minimum (14/15 px) fölött —, Ink színnel
  * Porcelainen/fehéren, ami WCAG AAA (13.56:1 / 15.03:1). Semmi nem halvány.
@@ -95,22 +101,22 @@ export default function LegalRiskBlock() {
       aria-labelledby="jogi-tajekoztato-cim"
       className="bg-canvas"
     >
-      <div className="mx-auto w-full max-w-[1280px] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+      <div className="mx-auto w-full max-w-[1280px] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
         {/* A jogi szakasz szándékosan SZŰKEBB olvasási sávot kap, mint a
             marketingszakaszok: így jelen van és teljesen olvasható, de nem
             uralja az oldal vizuális élményét. */}
         <div className="max-w-[900px]">
-        <p className="flex items-baseline gap-3 text-sm font-semibold tracking-[0.18em] text-accent uppercase">
-          <span aria-hidden="true" className="h-px w-6 bg-border-strong" />
+        <p className="flex items-baseline gap-3.5 text-sm font-semibold tracking-[0.18em] text-accent uppercase">
+          <span aria-hidden="true" className="h-px w-7 bg-border-strong" />
           <span>{legal.sectionLabel}</span>
         </p>
         <h2
           id="jogi-tajekoztato-cim"
-          className="font-display mt-4 text-[1.875rem] leading-[1.15] [overflow-wrap:normal] hyphens-none text-text-primary sm:text-[2.25rem]"
+          className="font-display mt-5 text-[1.875rem] leading-[1.13] tracking-[-0.012em] [overflow-wrap:normal] hyphens-none text-text-primary sm:text-[2.25rem]"
         >
           {legal.heading}
         </h2>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-text-secondary">
+        <p className="mt-5 max-w-2xl text-base leading-[1.72] text-text-secondary">
           {legal.lead}
         </p>
 
@@ -118,8 +124,9 @@ export default function LegalRiskBlock() {
           KOCKÁZATOK — az accordionon KÍVÜL, alapállapotban láthatóan, teljes
           szöveggel. Soha nem csukható össze és nem rövidíthető.
         */}
-        <div className="mt-8 rounded-r-md border-l-2 border-l-signal-berry bg-surface px-5 py-5 sm:mt-10 sm:px-6 sm:py-6">
-          <h3 className="text-sm font-semibold text-accent">
+        <div className="mt-9 rounded-r-lg border-l-2 border-l-signal-berry bg-surface px-5 py-5 shadow-[0_10px_28px_-24px_rgb(24_24_27/45%)] sm:mt-11 sm:px-7 sm:py-6">
+          <h3 className="flex items-center gap-2.5 text-sm font-semibold text-accent">
+            <span aria-hidden="true" className="block h-px w-4 bg-signal-berry" />
             {legal.riskWarning.heading}
           </h3>
           {/*
@@ -136,7 +143,7 @@ export default function LegalRiskBlock() {
         </div>
 
         {/* Részletes témakörök — összecsukva, de a DOM-ban teljes szöveggel. */}
-        <div className="mt-10">
+        <div className="mt-11">
           <LegalAccordion panels={panels} />
         </div>
 
@@ -146,7 +153,7 @@ export default function LegalRiskBlock() {
         */}
         <div
           id="panaszkezeles"
-          className="mt-12 scroll-mt-24 border-t border-border-strong pt-6"
+          className="mt-14 border-t border-border-strong pt-7"
         >
           <h3 className="font-display text-xl text-text-primary">
             {legal.complaints.heading}
@@ -186,7 +193,7 @@ export default function LegalRiskBlock() {
         {/* Impresszum — szintén mindig nyitva, változatlan tartalommal. */}
         <div
           id="impresszum"
-          className="mt-12 scroll-mt-24 border-t border-border-strong pt-6"
+          className="mt-14 border-t border-border-strong pt-7"
         >
           <h3 className="font-display text-xl text-text-primary">
             {imprint.heading}

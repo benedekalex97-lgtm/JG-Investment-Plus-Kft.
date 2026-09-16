@@ -114,17 +114,48 @@ export default function Hero() {
       {/* Réteg 6: valódi HTML copy és CTA. */}
       <div className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-col px-5 sm:px-6 lg:px-8">
         {/*
-          data-hero-copy: ez a doboz jelöli ki a Hero olvasási zónáját. A
-          HeroMarketMotion ennek a VALÓDI, kimért geometriájának megfelelően
-          halványítja le a gyertyákat — így a readability-zóna minden
-          viewporton pontosan a szöveget követi, nem egy találgatott arányt.
+          data-hero-copy: ez a doboz jelöli ki a Hero olvasási zónáját.
+
+          v1.4: a HeroMarketMotion már NEM ennek a paddinggel és
+          min-height-tal felfújt doboznak a geometriáját méri, hanem a
+          benne lévő, [data-hero-ink] attribútummal megjelölt, ténylegesen
+          SZÖVEGET HORDOZÓ elemek (eyebrow, H1, bevezető, CTA) egyesített
+          befoglaló dobozát. Ez azért lényeges, mert
+            – a konténer paddingje miatt a zóna függőlegesen jóval nagyobb
+              volt a szövegnél (mobilon 600 px a ~440 px helyett), ezért a
+              gyertyák a Hero nagy részén feleslegesen le voltak halkítva;
+            – a CTA-t körbevevő flex-doboz teljes konténerszélességű, tehát
+              a zóna szélessége sem a szöveget követte.
+          A megjelölt elemek mérésével a csillapítás pontosan ott van, ahol
+          szöveg van — és sehol máshol.
+        */}
+        {/*
+          v1.4 WHITESPACE-KORREKCIÓ — mérés alapján, nem becslésből.
+
+          A v1.3-ban a header alja és az eyebrow között 154 px (1440) és
+          164 px (1280) volt a távolság, a Hero teljes magassága pedig 905 px.
+          A copy így a viewport közepe ALÁ csúszott, fölötte pedig egy üres
+          „várakozási zóna" maradt. A min-height és a felső/alsó padding
+          együttes szűkítésével a mért érték 95–140 px közé kerül, a Hero
+          pedig kb. 100 px-szel kompaktabb lesz — a nagy, prémium arányok
+          megtartása mellett.
+
+          A ritmus továbbra sem transform/translate: rövid viewportokon így
+          legfeljebb kevesebb üres tér marad, tartalom sosem vágódik le.
         */}
         <div
           data-hero-copy=""
-          className="flex min-h-[600px] flex-col items-center justify-center pt-16 pb-14 text-center sm:min-h-[680px] sm:pt-20 sm:pb-16 lg:min-h-[760px] lg:pt-24 lg:pb-20"
+          className="flex min-h-[600px] flex-col items-center justify-center pt-16 pb-14 text-center sm:min-h-[624px] sm:pt-[68px] sm:pb-[60px] lg:min-h-[660px] lg:pt-[76px] lg:pb-16"
         >
-          <p className="text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:text-[0.8125rem]">
+          <p
+            data-hero-ink=""
+            className="flex items-center gap-3 text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:text-[0.8125rem]"
+          >
+            {/* Geometriai jelölés, nem szöveg: a felirat kap egy vizuális
+                horgonyt mindkét oldalról, a copy pedig optikailag középre áll. */}
+            <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
             {hero.eyebrow}
+            <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
           </p>
 
           {/*
@@ -136,13 +167,17 @@ export default function Hero() {
           */}
           <h1
             id="hero-cim"
-            className="font-display mx-auto mt-7 max-w-[15ch] text-[clamp(2.75rem,12vw,3.5rem)] leading-[1.04] font-medium [overflow-wrap:normal] hyphens-none text-balance text-porcelain sm:mt-8 sm:max-w-[16ch] md:text-[clamp(3.75rem,7vw,5rem)] lg:max-w-[19ch] lg:text-[clamp(4.5rem,6vw,5.75rem)]"
+            data-hero-ink=""
+            className="font-display mx-auto mt-7 max-w-[15ch] text-[clamp(2.75rem,12vw,3.5rem)] leading-[1.03] font-medium tracking-[-0.018em] [overflow-wrap:normal] hyphens-none text-balance text-porcelain sm:mt-8 sm:max-w-[16ch] md:text-[clamp(3.75rem,7vw,5rem)] lg:max-w-[19ch] lg:text-[clamp(4.5rem,6vw,5.75rem)]"
           >
             <HeadlineLine line={firstLine} />
             <HeadlineLine line={secondLine} />
           </h1>
 
-          <p className="mx-auto mt-8 max-w-[34ch] text-base leading-[1.7] text-cool-silver sm:mt-9 sm:max-w-[62ch] sm:text-lg lg:max-w-[720px] lg:text-xl">
+          <p
+            data-hero-ink=""
+            className="mx-auto mt-7 max-w-[34ch] text-base leading-[1.72] text-cool-silver text-pretty sm:mt-8 sm:max-w-[58ch] sm:text-lg lg:max-w-[680px] lg:text-xl"
+          >
             {hero.intro}
           </p>
 
@@ -151,7 +186,7 @@ export default function Hero() {
             Világos Berry Soft felület, Carbon felirat (12.85:1, AAA), alsó
             Berry jelzővonallal. Hoverre 1 px-t emelkedik; nincs pulzálás.
           */}
-          <div className="mt-10 flex w-full max-w-sm flex-col items-stretch sm:mt-11 sm:max-w-none sm:flex-row sm:justify-center">
+          <div className="mt-9 flex w-full max-w-sm flex-col items-stretch sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center">
             {/*
               A gomb SEMMILYEN dekoratív karaktert (pl. nyilat) nem tartalmaz:
               a renderelt szövegnek karakterre a content-modell feliratával kell
@@ -160,6 +195,7 @@ export default function Hero() {
             */}
             <a
               href={hero.primaryCta.href}
+              data-hero-ink=""
               className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-signal-berry-soft px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
             >
               {hero.primaryCta.label}
@@ -182,6 +218,16 @@ export default function Hero() {
           </p>
         </div>
       </div>
+
+      {/*
+        Szakaszhatár — hajszálvékony, középen Berryre erősödő fényvonal a Hero
+        alján. Ettől a Hero -> Rólunk váltás tudatos metszésnek hat, nem
+        véletlen színváltásnak. Tisztán dekoratív.
+      */}
+      <div
+        aria-hidden="true"
+        className="jg-seam pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px"
+      />
     </section>
   );
 }

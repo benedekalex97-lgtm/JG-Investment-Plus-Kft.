@@ -5,6 +5,11 @@ import { footer, meta } from "@/content/homepage";
  * Footer — a SOT 10. szakaszának kötelező rövid változata, teljes szöveggel.
  * Nem jelenik meg K&H- vagy Patria-logó; a wordmark egyszerű szöveg.
  *
+ * v1.4: a footer a legmélyebb felületre (surface-sink) került, felső élén
+ * szakaszhatár-fényvonallal és nagyon gyenge Aubergine atmoszférával; a
+ * wordmark ugyanazt a Berry signature-rudat kapja, mint a headerben, így a
+ * lap eleje és vége ugyanazt a jelet zárja körbe.
+ *
  * v0.2 anyagvilág: Carbon alap, Porcelain/Cool Silver tipográfia, egyetlen
  * nagyon visszafogott Aubergine jelzővonal a wordmark alatt — signature
  * érintés, nem dekoráció. A .on-dark osztály a fókuszgyűrűt Porcelainre
@@ -13,8 +18,22 @@ import { footer, meta } from "@/content/homepage";
  */
 export default function Footer() {
   return (
-    <footer className="on-dark border-t border-white/12 bg-surface-deep">
-      <div className="mx-auto w-full max-w-[1280px] px-5 py-16 sm:px-6 lg:px-8 lg:py-20">
+    <footer className="on-dark relative bg-surface-sink">
+      {/*
+        v1.4 — a footer valódi LEZÁRÁS, nem sötét doboz. Hajszálvékony,
+        középen Berryre erősödő fényvonal a felső élen (.jg-seam), fölötte
+        egy nagyon gyenge Aubergine atmoszféra: a szem lezárásként olvassa,
+        nem egy újabb szakaszként. Mindkettő dekoratív.
+      */}
+      <div
+        aria-hidden="true"
+        className="jg-seam pointer-events-none absolute inset-x-0 top-0 h-px"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_46%_at_18%_0%,rgb(97_70_94/22%)_0%,transparent_68%)]"
+      />
+      <div className="relative mx-auto w-full max-w-[1280px] px-5 py-16 sm:px-6 lg:px-8 lg:py-24">
         {/*
           Kétoszlopos hierarchia: balra a márka és a státusz, jobbra a
           hosszabb jogi szöveg. Mobilon egymás alatt, logikus sorrendben.
@@ -23,13 +42,19 @@ export default function Footer() {
           <div className="lg:col-span-4">
             <Link
               href="/#top"
-              className="inline-flex min-h-11 items-center rounded font-display text-xl text-porcelain"
+              className="group inline-flex min-h-11 items-center gap-3 rounded"
             >
-              {meta.wordmark}
+              <span
+                aria-hidden="true"
+                className="jg-wordmark-rule block h-6 w-0.5 shrink-0 rounded-full"
+              />
+              <span className="font-display text-xl tracking-[-0.015em] text-porcelain transition-colors duration-200 group-hover:text-white">
+                {meta.wordmark}
+              </span>
             </Link>
             <span
               aria-hidden="true"
-              className="mt-3 block h-0.5 w-10 rounded-full bg-signal-berry-light"
+              className="mt-5 block h-px w-14 bg-gradient-to-r from-signal-berry-light to-transparent"
             />
             <p className="mt-6 max-w-[42ch] text-[0.9375rem] leading-relaxed font-medium text-porcelain">
               {footer.statusLine}
@@ -46,8 +71,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <nav aria-label="Lábléc" className="mt-12 border-t border-white/12 pt-7">
-          <ul className="flex flex-wrap items-center gap-x-8 gap-y-1">
+        <nav aria-label="Lábléc" className="mt-14 border-t border-white/12 pt-8">
+          <ul className="flex flex-wrap items-center gap-x-9 gap-y-1">
             {footer.links.map((link) => (
               <li key={link.label}>
                 {link.href ? (
@@ -78,7 +103,7 @@ export default function Footer() {
           </ul>
         </nav>
 
-        <div className="mt-10 border-t border-white/12 pt-7">
+        <div className="mt-10 border-t border-white/12 pt-8">
           <p className="text-sm text-cool-silver">{footer.copyright}</p>
         </div>
       </div>

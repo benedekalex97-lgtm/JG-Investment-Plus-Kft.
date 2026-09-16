@@ -16,6 +16,10 @@ import { whyJg } from "@/content/homepage";
  * (9.88:1), Berry-light kizárólag a római számon (5.82:1).
  *
  * Nincs pecsét, shield, pipa vagy bármilyen garanciát sugalló grafika.
+ *
+ * v1.4: a szakasz a Section `deep` tónusán keresztül atmoszférát és
+ * szakaszhatár-fényvonalat kap, az elválasztók pedig irányított (balról
+ * jobbra halványodó) fényvonalra váltottak, rövid Berry indítással.
  */
 export default function WhyJG() {
   return (
@@ -33,22 +37,42 @@ export default function WhyJG() {
             as="li"
             key={pillar.title}
             delay={index * 100}
-            className="relative border-t border-white/12 py-9 first:border-t-0 first:pt-0 sm:py-11"
+            className="group relative py-10 first:pt-0 sm:py-12"
           >
-            <div className="relative grid gap-4 sm:grid-cols-[auto_1fr] sm:gap-9">
+            {/*
+              v1.4 — ELVÁLASZTÓ RENDSZER. A v1.3-ban ez egyetlen, egyenletes
+              1 px-es fehér vonal volt, ami sötét alapon olcsónak hatott.
+              Most balról induló, jobbra elhalványuló fényvonal, a bal
+              végén rövid Berry szakasszal: a pillérek így tagoltak, de a
+              felület nem esik szét dobozokra.
+            */}
+            {index > 0 ? (
+              <>
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-white/22 via-white/10 to-transparent"
+                />
+                <span
+                  aria-hidden="true"
+                  className="absolute top-0 left-0 h-px w-14 bg-signal-berry-light/70"
+                />
+              </>
+            ) : null}
+
+            <div className="relative grid gap-4 sm:grid-cols-[auto_1fr] sm:gap-10">
               {/* Nagy, halvány római szám — tisztán tipográfiai jelölés. */}
               <span
                 aria-hidden="true"
-                className="font-display text-[2.5rem] leading-none tracking-[0.06em] text-signal-berry-light/45 sm:w-16 sm:text-[3.25rem]"
+                className="font-display text-[2.75rem] leading-[0.9] tracking-[0.06em] text-signal-berry-light/40 transition-colors duration-500 group-hover:text-signal-berry-light/60 sm:w-20 sm:text-[3.5rem]"
               >
                 {pillar.numeral}
               </span>
 
               <div>
-                <h3 className="font-display text-[1.5rem] leading-[1.25] text-porcelain sm:text-[1.75rem]">
+                <h3 className="font-display text-[1.5rem] leading-[1.22] tracking-[-0.01em] text-porcelain sm:text-[1.8125rem]">
                   {pillar.title}
                 </h3>
-                <p className="mt-3.5 max-w-[72ch] text-base leading-[1.75] text-cool-silver sm:text-[1.0625rem]">
+                <p className="mt-4 max-w-[72ch] text-base leading-[1.76] text-cool-silver sm:text-[1.0625rem]">
                   {pillar.body}
                 </p>
               </div>

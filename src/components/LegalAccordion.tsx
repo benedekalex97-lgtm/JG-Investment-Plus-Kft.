@@ -46,13 +46,13 @@ export default function LegalAccordion({ panels }: { panels: readonly LegalPanel
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 onClick={() => setOpenId(isOpen ? null : panel.id)}
-                className="flex min-h-16 w-full items-center justify-between gap-4 py-4 text-left text-base font-medium text-text-primary transition-colors hover:text-accent sm:text-lg"
+                className="group flex min-h-16 w-full items-center justify-between gap-4 py-4 text-left text-base font-medium text-text-primary transition-colors hover:text-accent sm:text-lg"
               >
                 <span>{panel.heading}</span>
                 <span
                   aria-hidden="true"
-                  className={`shrink-0 text-signal-berry transition-transform duration-200 ${
-                    isOpen ? "rotate-45" : ""
+                  className={`flex size-7 shrink-0 items-center justify-center rounded-full border border-border text-signal-berry transition-all duration-200 group-hover:border-signal-berry/50 ${
+                    isOpen ? "rotate-45 border-signal-berry/60" : ""
                   }`}
                 >
                   +
@@ -65,7 +65,7 @@ export default function LegalAccordion({ panels }: { panels: readonly LegalPanel
               role="region"
               aria-labelledby={buttonId}
               hidden={!isOpen}
-              className="pb-6"
+              className="pb-7"
             >
               {panel.content}
             </div>

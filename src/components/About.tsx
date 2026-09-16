@@ -13,6 +13,9 @@ import { about } from "@/content/homepage";
  * facts rail": egyetlen, kontrasztos Carbon inset panel, számozott
  * adatpontokkal és függőleges elválasztókkal. Tényszerű, nem marketingjellegű.
  * Mobilon függőleges, elválasztott lista.
+ *
+ * v1.4: az idézet Berry jelzővonala felülről lefelé halványodó gradiensre
+ * váltott, a facts rail pedig a `.jg-inset-panel` mélységet kapta.
  */
 export default function About() {
   return (
@@ -34,9 +37,14 @@ export default function About() {
         ))}
       </Reveal>
 
-      <Reveal as="figure" delay={90} className="mt-12 max-w-[60ch] sm:mt-14">
-        <div className="border-l-2 border-l-signal-berry pl-6 sm:pl-8">
-          <blockquote className="font-display text-[1.625rem] leading-[1.35] text-balance text-text-primary sm:text-[1.875rem] lg:text-[2.125rem]">
+      <Reveal as="figure" delay={90} className="mt-14 max-w-[60ch] sm:mt-16">
+        <div className="relative pl-7 sm:pl-9">
+          {/* Berry jelzővonal, a tetején erősebb — nem egyenletes border. */}
+          <span
+            aria-hidden="true"
+            className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal-berry via-signal-berry/70 to-accent/25"
+          />
+          <blockquote className="font-display text-[1.6875rem] leading-[1.32] tracking-[-0.01em] text-balance text-text-primary sm:text-[1.9375rem] lg:text-[2.1875rem]">
             <span aria-hidden="true" className="text-signal-berry">
               „
             </span>
@@ -52,12 +60,18 @@ export default function About() {
         Institutional facts rail — kontrasztos Carbon panel. Tényszerű
         adatsáv, nem marketingblokk: nincs ikon, pecsét vagy badge.
       */}
-      <Reveal delay={160} className="mt-14 sm:mt-16">
-        <dl className="on-dark grid overflow-hidden rounded-lg bg-surface-deep sm:grid-cols-2">
+      <Reveal delay={160} className="mt-16 sm:mt-18">
+        {/*
+          v1.4: a panel nem lapos Deep téglalap többé. A `.jg-inset-panel`
+          tonális gradienst (raise -> deep -> sink), felső belső fényt és
+          alsó belső mélyedést ad — a sáv így a lapba SÜLLYESZTVE hat, nem
+          ráragasztott dashboard-kártyaként. Ikon, pecsét és badge nincs.
+        */}
+        <dl className="jg-inset-panel on-dark grid overflow-hidden rounded-xl sm:grid-cols-2">
           {about.facts.map((fact, index) => (
             <div
               key={fact.label}
-              className="border-b border-white/10 px-6 py-7 last:border-b-0 sm:border-r sm:[&:nth-child(2n)]:border-r-0 sm:[&:nth-last-child(-n+2)]:border-b-0 sm:px-8"
+              className="border-b border-white/10 px-6 py-8 last:border-b-0 sm:border-r sm:[&:nth-child(2n)]:border-r-0 sm:[&:nth-last-child(-n+2)]:border-b-0 sm:px-9 sm:py-9"
             >
               {/*
                 Finom GEOMETRIAI jelölés, nem sorszám. Tudatos döntés: egy
@@ -71,10 +85,10 @@ export default function About() {
                   <span key={i} className="block h-0.5 w-2.5 bg-signal-berry-light" />
                 ))}
               </span>
-              <dt className="mt-3 text-[0.6875rem] font-semibold tracking-[0.12em] text-cool-silver uppercase">
+              <dt className="mt-3.5 text-[0.6875rem] font-semibold tracking-[0.14em] text-cool-silver uppercase">
                 {fact.label}
               </dt>
-              <dd className="mt-2 text-[0.9375rem] leading-relaxed text-porcelain">
+              <dd className="mt-2.5 text-[0.9375rem] leading-relaxed text-porcelain">
                 {fact.value}
               </dd>
             </div>

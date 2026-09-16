@@ -5,11 +5,31 @@ import { useEffect, useId, useRef, useState } from "react";
 import { meta, nav } from "@/content/homepage";
 
 /**
- * Header — v0.2, Graphite × Aubergine × Silver.
+ * Header — v1.4: „az oldal első prémium részlete".
  *
- * Nyugodt, editorial, private-client hangulat: sok whitespace, egyszerű
- * szöveges wordmark (nincs ikon, nincs monogram, nincs végleges logó),
- * visszafogott Aubergine CTA gradiens/glow nélkül, finom hajszálvonal-osztó.
+ * A v1.3-as header egyetlen lapos, egyszínű sötét sáv volt: funkcionálisan
+ * rendben, vizuálisan viszont gyakorlatilag egy alap Tailwind navigation bar.
+ * A v1.4 NEM tesz bele glassmorphismot, blurt vagy fényes SaaS-hatást; ehelyett
+ * öt visszafogott eszközzel ad neki karaktert és mélységet:
+ *
+ *   1) .jg-header — függőleges tonális gradiens (raise -> deep -> sink), 1 px
+ *      belső felső fény, 1 px belső alsó határvonal és egy nagyon halvány
+ *      vetett árnyék (ld. globals.css);
+ *   2) a határvonal box-shadow, NEM border: így NEM ad hozzá magasságot, a
+ *      header külső magassága PONTOSAN 72 px (mobil) és 80 px (desktop) —
+ *      ugyanaz a két érték, amire a html { scroll-padding-top } is be van
+ *      állítva, tehát az anchor-eltolás ±0 px;
+ *   3) a wordmark nagyobb, feszesebb betűközzel és egy hajszálvékony
+ *      függőleges Berry/Aubergine signature-ruddal — ez GEOMETRIAI jel, nem
+ *      logó, és NEM ad új szövegcsomópontot a DOM-hoz (aria-hidden span);
+ *   4) a nav itemek szélesebb ritmust és középről kifutó Berry sínt kapnak,
+ *      ami hoverre ÉS :focus-visible-re is működik;
+ *   5) a CTA finomabb élkezelést kap (belső felső fény + alsó Berry
+ *      jelzővonal + szűk vetett árnyék), és hoverkor 1 px-t emelkedik.
+ *
+ * A header VÉGIG sötét, nem csak a Hero fölött: így nincs scroll-függő
+ * állapotváltás (nincs villanás, nincs layout shift), és a sticky állapot
+ * ugyanolyan olvasható marad. Porcelain szöveg a sávon 15.05–16.85:1 (AAA).
  *
  * A mobilmenü billentyűzettel is teljesen használható: a gomb aria-expanded
  * állapotot közöl, nyitáskor a fókusz a panel első linkjére kerül, Tab/
@@ -61,45 +81,54 @@ export default function Header() {
   }, [open]);
 
   /*
-    v1.3: a header VÉGIG sötét (Deep) felületen áll, nem csak a Hero fölött.
-    Ez tudatos: így nincs scroll-függő állapotváltás (nincs villanás, nincs
-    layout shift, nincs blur/glassmorphism), a sticky állapot pedig ugyanolyan
-    olvasható és prémium marad, mint a Hero fölött.
-    Porcelain szöveg Deep alapon 16.07:1 (AAA).
+    A külső magasság PONTOSAN 72 / 80 px: a záró hajszálvonal box-shadow
+    (ld. .jg-header), nem border, ezért nem növeli a sávot. Erre épül az
+    anchor-eltolás is (html { scroll-padding-top: 72px / 80px }).
   */
   return (
-    <header className="on-dark sticky top-0 z-50 border-b border-white/10 bg-surface-deep">
-      <div className="mx-auto flex h-[72px] w-full max-w-[1280px] items-center justify-between gap-x-8 px-5 sm:px-6 lg:h-20 lg:px-8">
+    <header className="jg-header on-dark sticky top-0 z-50">
+      <div className="mx-auto flex h-[72px] w-full max-w-[1280px] items-center justify-between gap-x-10 px-5 sm:px-6 lg:h-20 lg:px-8">
         <Link
           href="/#top"
-          className="flex min-h-11 shrink-0 items-center rounded font-display text-lg leading-none whitespace-nowrap text-porcelain sm:text-xl lg:text-[1.375rem]"
+          className="group flex min-h-11 shrink-0 items-center gap-3 rounded"
         >
-          {meta.wordmark}
+          {/*
+            Geometriai signature a wordmark mellett — NEM logó és NEM új
+            szöveg: aria-hidden, tartalom nélküli span. Egy rövid függőleges
+            Berry rúd, Aubergine-be futó alsó véggel.
+          */}
+          <span
+            aria-hidden="true"
+            className="jg-wordmark-rule block h-6 w-0.5 shrink-0 rounded-full lg:h-7"
+          />
+          <span className="font-display text-[1.1875rem] leading-none tracking-[-0.015em] whitespace-nowrap text-porcelain transition-colors duration-200 group-hover:text-white sm:text-[1.3125rem] lg:text-[1.4375rem]">
+            {meta.wordmark}
+          </span>
         </Link>
 
         <nav aria-label={nav.menuLabel} className="hidden min-w-0 lg:block">
           {/* A lista törhet: 200%-os szövegnagyításnál sem okoz vízszintes overflow-t. */}
-          <ul className="flex flex-wrap items-center justify-end gap-2">
+          <ul className="flex flex-wrap items-center justify-end gap-x-1">
             {nav.items.map((item) => (
               <li key={item.href}>
                 <a
                   href={item.href}
-                  className="group relative flex min-h-11 items-center rounded px-3 text-[0.9375rem] text-cool-silver transition-colors hover:text-porcelain"
+                  className="jg-nav-item relative flex min-h-11 items-center rounded px-4 text-[0.9375rem] tracking-[0.005em] text-cool-silver transition-colors duration-200 hover:text-porcelain focus-visible:text-porcelain"
                 >
                   {item.label}
-                  {/* Hover-jelölés: hajszálvékony Berry vonal, nem aláhúzás. */}
+                  {/* Hover/fókusz-jelölés: középről kifutó, hajszálvékony Berry sín. */}
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-x-3 bottom-2 h-px origin-left scale-x-0 bg-signal-berry-light transition-transform duration-200 group-hover:scale-x-100"
+                    className="jg-nav-rail pointer-events-none absolute inset-x-4 bottom-[0.6875rem] h-px bg-signal-berry-light"
                   />
                 </a>
               </li>
             ))}
-            <li aria-hidden="true" className="mx-2 h-5 w-px bg-white/15" />
+            <li aria-hidden="true" className="mx-4 h-6 w-px bg-white/12" />
             <li>
               <Link
                 href="/#kapcsolat"
-                className="flex min-h-11 items-center rounded-md bg-porcelain px-5 text-[0.9375rem] font-semibold text-ink transition-colors hover:bg-white"
+                className="jg-header-cta flex min-h-11 items-center rounded-[0.5rem] bg-porcelain px-6 text-[0.9375rem] font-semibold tracking-[0.005em] text-ink hover:-translate-y-px hover:bg-white"
               >
                 Kapcsolatfelvétel
               </Link>
@@ -114,11 +143,11 @@ export default function Header() {
           aria-expanded={open}
           aria-controls={panelId}
           aria-label={open ? nav.closeMenuAccessible : nav.openMenuAccessible}
-          className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-md border border-white/20 px-3 text-sm font-medium text-porcelain lg:hidden"
+          className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-2.5 rounded-[0.5rem] border border-white/20 bg-white/[0.04] px-3.5 text-sm font-medium text-porcelain transition-colors hover:border-white/35 hover:bg-white/[0.08] lg:hidden"
         >
           <span
             aria-hidden="true"
-            className="flex h-3.5 w-5 flex-col justify-between"
+            className="flex h-3.5 w-[1.125rem] flex-col justify-between"
           >
             <span className="block h-px w-full bg-porcelain" />
             <span className="block h-px w-full bg-porcelain" />
@@ -133,26 +162,30 @@ export default function Header() {
         <div
           ref={panelRef}
           id={panelId}
-          className="border-t border-white/10 bg-surface-deep lg:hidden"
+          className="border-t border-white/10 bg-surface-sink shadow-[0_24px_48px_-28px_rgb(0_0_0/90%)] lg:hidden"
         >
           <nav aria-label={nav.menuLabel}>
-            <ul className="mx-auto w-full max-w-[1280px] px-5 py-2 sm:px-6">
+            <ul className="mx-auto w-full max-w-[1280px] px-5 pt-1 pb-4 sm:px-6">
               {nav.items.map((item) => (
                 <li key={item.href}>
                   <a
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="flex min-h-12 items-center border-b border-white/10 text-base text-porcelain"
+                    className="group flex min-h-14 items-center gap-3.5 border-b border-white/10 text-base text-porcelain"
                   >
+                    <span
+                      aria-hidden="true"
+                      className="block h-px w-4 shrink-0 bg-white/25 transition-all duration-200 group-hover:w-7 group-hover:bg-signal-berry-light"
+                    />
                     {item.label}
                   </a>
                 </li>
               ))}
-              <li className="py-3">
+              <li className="pt-4">
                 <Link
                   href="/#kapcsolat"
                   onClick={() => setOpen(false)}
-                  className="flex min-h-12 items-center justify-center rounded-md bg-porcelain px-4 text-base font-semibold text-ink"
+                  className="jg-header-cta flex min-h-13 items-center justify-center rounded-[0.5rem] bg-porcelain px-4 text-base font-semibold text-ink"
                 >
                   Kapcsolatfelvétel
                 </Link>

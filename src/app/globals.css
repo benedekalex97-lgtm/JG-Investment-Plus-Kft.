@@ -46,6 +46,18 @@
      későbbi visszafogott háttér/jelölő felületekhez. */
   --color-signal-berry-soft: #ebd6e0;
 
+  /* ---- v1.4: mélységi felület-tokenek ---------------------------------
+     A sötét felületek eddig EGYETLEN lapos tónusból álltak (#1B161C). A v1.4
+     ehhez két, hajszálnyival eltérő testvértónust ad, hogy a header, a Hero
+     és a sötét szakaszok ne laposodjanak ki: a -raise a felület teteje felé
+     világosodó, a -sink az alja felé sötétedő változat. A különbség
+     szándékosan a láthatóság határán van (ΔL* ≈ 2–3), így nem „szürkül" el a
+     márkafelület, csak megszűnik a nyomdai laposság.
+     Mérve: Porcelain a -raise tónuson 15.05:1, a -sink tónuson 16.85:1 (AAA);
+     Cool Silver 9.25:1 / 10.36:1 (AAA); Berry-light 5.45:1 / 6.10:1 (AA). */
+  --color-surface-raise: #221c23;
+  --color-surface-sink: #151116;
+
   /* Az elsődleges felület a Porcelain fölé emelt tiszta fehér — finom
      szintkülönbséget ad a kártyáknak a canvashoz képest. */
   --color-surface: #ffffff;
@@ -171,13 +183,63 @@
    muted-plum   section-tint-en ........... 5.06:1  AA  — másodlagos szöveg
    aubergine    section-tint-en ........... 9.65:1  AAA — felirat, accent szöveg
    signal-berry section-tint-en ........... 5.89:1  AA  — kiemelés
+
+   ---- v1.4 MÉRÉSEK ---------------------------------------------------------
+   Porcelain    surface-raise-en ........ 15.05:1  AAA — header felső sávja
+   Porcelain    surface-sink-en ......... 16.85:1  AAA — header alja, footer
+   Cool Silver  surface-raise-en .......... 9.25:1  AAA
+   Cool Silver  surface-sink-en .......... 10.36:1  AAA
+   signal-berry-light surface-raise-en .... 5.45:1  AA
+   signal-berry-light surface-sink-en ..... 6.10:1  AA
+
+   A GYERTYAMEZŐ rajzolási színei a Deep (#1B161C) alapon, teljes alfánál:
+   Cool Silver  #BEC1C7 .................... 9.88:1  háttérréteg
+   Plum light   #B29CB0 .................... 7.02:1  középső réteg
+   Aubergine lt #D0BCCE .................... 9.99:1  fókuszréteg
+   signal-berry-light #C27FA3 .............. 5.82:1  ritka kiemelés
+
+   A HERO SZÖVEGE MÖGÖTTI TÉNYLEGES HÁTTÉR — nem számítás, hanem 10 animációs
+   képkockán, a renderelt pixelekből mintázott LEGROSSZABB eset (a mérést a
+   scratchpad heroContrast.mjs végzi; a copy ideiglenesen átlátszó, a
+   háttérrétegek érintetlenek):
+                          1440     1280      768      390      375
+   H1 Porcelain ....... 15.16    15.20    15.03    14.82    14.82   AAA
+   H1 Berry kiemelés ... 5.49     5.51     5.45     5.37     5.37   AA
+   Bevezető Cool Silv .. 9.26     8.97     9.23     8.94     8.73   AAA
+   Státuszközlés ...... 10.00     9.98     9.16     7.89     9.30   AAA
+
+   Ez a mérés fedte fel a v1.3 két rejtett hibáját, amit a v1.4 javított:
+     – a csillapított zóna ELLIPSZIS volt, a szöveg pedig épp a peremén ért
+       véget, ahol a csillapítás már közel nulla (768 px: 3.21:1, AA FAIL);
+     – a csillapítást a gyertya KÖZÉPPONTJÁRA számoltuk, így egy magas
+       gyertya teste átlóghatott a szövegre teljes erővel (768 px: 3.77:1).
+   Mindkettőt a HeroMarketMotion readabilityFactor()-a javítja: elemenkénti,
+   lekerekített téglalap alakú zónák és doboz–doboz szeparáció.
    -------------------------------------------------------------------------- */
 
 html {
   scroll-behavior: smooth;
-  /* A fix header miatti anchor-eltolás. */
-  scroll-padding-top: 5.5rem;
+  /*
+    ANCHOR-ELTOLÁS — v1.4 JAVÍTÁS.
+
+    Korábban ez egyetlen, fix 5.5rem (88 px) érték volt, a header viszont
+    72 px magas mobilon és 80 px desktopon. Horgonyra ugrás után ezért
+    7–15 px-es rés maradt a sticky header alja és a célszakasz teteje
+    között: ha a célszakasz sötét, a fölötte lévő VILÁGOS szakasz sávja
+    villant be a header alatt — ez volt a jelentett „világos strip".
+
+    A javítás reszponzív, és PONTOSAN a header külső magasságát követi.
+    Nincs JS scroll-hack és nincs negatív margin: a header magasságát ez a
+    két érték és a .jg-header két magassága együtt, egy helyen definiálja.
+  */
+  scroll-padding-top: 72px;
   -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 1024px) {
+  html {
+    scroll-padding-top: 80px;
+  }
 }
 
 body {
@@ -226,6 +288,92 @@ body {
 }
 
 /* ==========================================================================
+   HEADER — v1.4: „az oldal első prémium részlete"
+   --------------------------------------------------------------------------
+   A v1.3-ban a header egyetlen lapos, egyszínű sötét sáv volt (bg + 1 px
+   határvonal). Vizuálisan ez gyakorlatilag megkülönböztethetetlen volt egy
+   alap Tailwind navigation bartól, és nem készítette elő a Hero világát.
+
+   A v1.4 NEM glassmorphismot és nem fényes SaaS-navbart ad hozzá, hanem
+   NYOMDAI MÉLYSÉGET, négy nagyon visszafogott rétegben:
+     1) függőleges tonális gradiens (raise → deep → sink): a sáv teteje egy
+        hajszállal világosabb, az alja sötétebb — ettől a felület nem lapos;
+     2) 1 px-es belső felső fény (a sáv felső éle „megcsillan");
+     3) 1 px-es belső alsó határvonal — box-shadow, NEM border, ezért NEM ad
+        hozzá magasságot: a header külső magassága pontosan 72 / 80 px
+        marad, és az anchor-eltolás ±0 px-re illeszthető;
+     4) nagyon halvány, széles vetett árnyék, hogy a sáv a tartalom FÖLÖTT
+        legyen, ne beleolvadva.
+   ========================================================================== */
+.jg-header {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-surface-raise) 0%,
+    var(--color-surface-deep) 58%,
+    var(--color-surface-sink) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 7%),
+    inset 0 -1px 0 0 rgb(255 255 255 / 10%),
+    0 12px 28px -18px rgb(0 0 0 / 85%);
+}
+
+/*
+  A wordmark melletti Berry signature — tisztán geometriai, NEM logó és NEM
+  új szövegcsomópont (aria-hidden span). Egy rövid függőleges Berry rúd,
+  fölötte egy hajszálnyi Aubergine folytatással: a márka „jelzése", nem
+  díszítés. Hoverkor a rúd nem mozog; a wordmark visszafogottan világosodik.
+*/
+.jg-wordmark-rule {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-signal-berry-light) 22%, transparent) 0%,
+    var(--color-signal-berry) 46%,
+    color-mix(in srgb, var(--color-aubergine) 70%, transparent) 100%
+  );
+}
+
+/*
+  Nav-hover: a felirat alatt középről kifutó, hajszálvékony Berry sín.
+  Kizárólag transform (scaleX), ezért nincs reflow és nincs layout shift.
+  A :focus-visible ugyanezt a visszajelzést kapja, nem csak az egér.
+*/
+.jg-nav-rail {
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.jg-nav-item:hover .jg-nav-rail,
+.jg-nav-item:focus-visible .jg-nav-rail {
+  transform: scaleX(1);
+}
+
+/*
+  Header-CTA — világos Porcelain felület Ink felirattal (13.56:1, AAA).
+  A „prémium él" három nagyon finom eszközből áll: felső belső fény, alsó
+  belső Berry jelzővonal és egy szűk vetett árnyék. Hoverkor 1 px-t
+  emelkedik. Nincs gradient-animáció, nincs glow, nincs shine sweep.
+*/
+.jg-header-cta {
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 85%),
+    inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-berry) 40%, transparent),
+    0 6px 16px -10px rgb(0 0 0 / 80%);
+  transition:
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
+}
+
+.jg-header-cta:hover {
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 90%),
+    inset 0 -2px 0 0 var(--color-signal-berry),
+    0 10px 22px -12px rgb(0 0 0 / 85%);
+}
+
+/* ==========================================================================
    HERO — v1.1: középre rendezett copy + absztrakt japángyertya-háttéranimáció
    A Hero öt rétegre tagolódik (alulról):
      1) Porcelain háttér
@@ -244,70 +392,123 @@ body {
 /*
   .hero-veil — SÖTÉT kontrasztvédő réteg a copy és a mozgó canvas között.
 
-  A v1.2-ig ez egy Porcelain (világos) fátyol volt, mert a Hero világos
-  alapon állt. A v1.3-ban a Hero mély, sötét felületre került, ezért a fátyol
-  is megfordult: most a Deep felület sűrűsödik be a copy mögött, és a Hero
-  pereme felé oldódik fel. Így a szöveg mögött nő a kontraszt, a gyertyák
-  viszont a széleken és a perifériákon TOVÁBBRA IS jól láthatók — a korábbi
-  „kifehéredett" hatás megszűnik.
+  v1.4: a fátyol MÉRHETŐEN GYENGÜLT (core 88% -> 76%, mid 64% -> 44%), mert a
+  gyertyák olvashatóság-védelmét immár nem ez a globális réteg végzi, hanem a
+  canvas LOKÁLIS csillapítása a copy-zónában (ld. readabilityFactor a
+  HeroMarketMotion-ben). Így a copy mögött ugyanolyan nyugodt a felület, a
+  Hero peremén és a copy alatt viszont a gyertyák láthatóan erősebbek — ez
+  volt a cél: nem az egész animációt halványítjuk, csak ott, ahol szöveg van.
 
   A sok köztes stop a radiális gradiens sávosodását (banding) szünteti meg.
 */
 .hero-veil {
-  --veil-core: 88%; /* közvetlenül a H1 mögött */
-  --veil-mid: 64%; /* leírás/CTA belső zónája */
+  --veil-core: 76%; /* közvetlenül a H1 mögött */
+  --veil-mid: 44%; /* leírás/CTA belső zónája */
 
   background-image: radial-gradient(
-    ellipse 72% 66% at 50% 42%,
+    ellipse 68% 58% at 50% 40%,
     rgb(27 22 28 / var(--veil-core)) 0%,
-    rgb(27 22 28 / calc(var(--veil-core) - 6%)) 24%,
-    rgb(27 22 28 / var(--veil-mid)) 46%,
-    rgb(27 22 28 / calc(var(--veil-mid) * 0.6)) 62%,
-    rgb(27 22 28 / calc(var(--veil-mid) * 0.28)) 78%,
-    rgb(27 22 28 / calc(var(--veil-mid) * 0.09)) 90%,
+    rgb(27 22 28 / calc(var(--veil-core) - 8%)) 26%,
+    rgb(27 22 28 / var(--veil-mid)) 48%,
+    rgb(27 22 28 / calc(var(--veil-mid) * 0.58)) 64%,
+    rgb(27 22 28 / calc(var(--veil-mid) * 0.26)) 79%,
+    rgb(27 22 28 / calc(var(--veil-mid) * 0.08)) 91%,
     rgb(27 22 28 / 0%) 100%
   );
 }
 
 @media (max-width: 640px) {
   .hero-veil {
-    --veil-core: 90%;
-    --veil-mid: 70%;
+    /*
+      Mobilon a copy a Hero szélességének szinte egészét kitölti, ezért a
+      fátyol itt szükségszerűen erősebb marad, mint desktopon — de a v1.3-as
+      90/70%-hoz képest így is jelentősen visszavettünk.
+    */
+    --veil-core: 62%;
+    --veil-mid: 26%;
 
     background-image: radial-gradient(
-      ellipse 98% 84% at 50% 40%,
+      ellipse 92% 56% at 50% 38%,
       rgb(27 22 28 / var(--veil-core)) 0%,
-      rgb(27 22 28 / calc(var(--veil-core) - 6%)) 28%,
-      rgb(27 22 28 / var(--veil-mid)) 55%,
-      rgb(27 22 28 / calc(var(--veil-mid) * 0.58)) 72%,
-      rgb(27 22 28 / calc(var(--veil-mid) * 0.22)) 86%,
+      rgb(27 22 28 / calc(var(--veil-core) - 8%)) 30%,
+      rgb(27 22 28 / var(--veil-mid)) 56%,
+      rgb(27 22 28 / calc(var(--veil-mid) * 0.56)) 73%,
+      rgb(27 22 28 / calc(var(--veil-mid) * 0.2)) 87%,
       rgb(27 22 28 / 0%) 100%
     );
   }
 }
 
 /*
-  .hero-grid — nagyon visszafogott tőkepiaci rácsháló a Hero alján.
-  Tisztán dekoratív (aria-hidden), két ismétlődő lineáris gradiens; a felső
-  kétharmadban maszkkal teljesen elhalványul, hogy a copy körül semmi ne
-  zavarjon. Nincs arany, nincs neon, nincs glow.
+  .hero-grid — v1.4: PERSPEKTIVIKUS, de szándékosan NEM „synthwave floor".
+
+  A v1.3-ban ez két egyenletes, 88 px-es repeating-gradient volt: egy lapos
+  négyzetháló, ami semmilyen térérzetet nem adott. Egy valódi 3D-transzformált
+  rácssík (perspective + rotateX) megadná a mélységet, de azonnal sci-fi
+  dashboard/retro-grid hatást keltene — ezt a brief kizárja.
+
+  Ezért a perspektívát TÉRKÖZZEL és INTENZITÁSSAL modellezzük: a vízszintes
+  vonalak a horizont (~43%) alatt lefelé haladva egyre RITKÁBBAK és egyre
+  kontrasztosabbak (2.6% -> 8.4% alfa), pontosan úgy, ahogy egy távolodó sík
+  vonalai a horizont felé sűrűsödnek és halványulnak. A függőleges vonalak
+  párhuzamosak maradnak, így nincs eltűnési pont és nincs retro-hatás.
+
+  A teljes réteg dekoratív (aria-hidden), és a copy zónája fölött a maszk
+  teljesen kioltja.
 */
 .hero-grid {
   background-image:
-    repeating-linear-gradient(to right, rgb(190 193 199 / 6%) 0 1px, transparent 1px 88px),
-    repeating-linear-gradient(to bottom, rgb(190 193 199 / 5%) 0 1px, transparent 1px 88px);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 46%, black 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, transparent 46%, black 100%);
+    linear-gradient(to bottom,
+      transparent 43.0%, rgb(190 193 199 / 2.6%) 43.0%, rgb(190 193 199 / 2.6%) calc(43.0% + 1px), transparent calc(43.0% + 1px),
+      transparent 45.3%, rgb(190 193 199 / 3.2%) 45.3%, rgb(190 193 199 / 3.2%) calc(45.3% + 1px), transparent calc(45.3% + 1px),
+      transparent 48.03%, rgb(190 193 199 / 3.8%) 48.03%, rgb(190 193 199 / 3.8%) calc(48.03% + 1px), transparent calc(48.03% + 1px),
+      transparent 51.26%, rgb(190 193 199 / 4.3%) 51.26%, rgb(190 193 199 / 4.3%) calc(51.26% + 1px), transparent calc(51.26% + 1px),
+      transparent 55.08%, rgb(190 193 199 / 4.9%) 55.08%, rgb(190 193 199 / 4.9%) calc(55.08% + 1px), transparent calc(55.08% + 1px),
+      transparent 59.62%, rgb(190 193 199 / 5.5%) 59.62%, rgb(190 193 199 / 5.5%) calc(59.62% + 1px), transparent calc(59.62% + 1px),
+      transparent 64.99%, rgb(190 193 199 / 6.1%) 64.99%, rgb(190 193 199 / 6.1%) calc(64.99% + 1px), transparent calc(64.99% + 1px),
+      transparent 71.36%, rgb(190 193 199 / 6.7%) 71.36%, rgb(190 193 199 / 6.7%) calc(71.36% + 1px), transparent calc(71.36% + 1px),
+      transparent 78.91%, rgb(190 193 199 / 7.2%) 78.91%, rgb(190 193 199 / 7.2%) calc(78.91% + 1px), transparent calc(78.91% + 1px),
+      transparent 87.85%, rgb(190 193 199 / 7.8%) 87.85%, rgb(190 193 199 / 7.8%) calc(87.85% + 1px), transparent calc(87.85% + 1px),
+      transparent 98.45%, rgb(190 193 199 / 8.4%) 98.45%, rgb(190 193 199 / 8.4%) calc(98.45% + 1px), transparent calc(98.45% + 1px),
+      transparent 100%),
+    repeating-linear-gradient(to right, rgb(190 193 199 / 4.5%) 0 1px, transparent 1px 108px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 38%, black 70%, black 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, transparent 38%, black 70%, black 100%);
 }
 
 /*
-  .hero-vignette — lágy Aubergine mélység a Hero sarkaiban. Szél nélküli,
-  nagyon alacsony intenzitású; a felület így nem hat laposnak.
+  .hero-vignette — v1.4: három szerep egy rétegben.
+    1) lokalizált Aubergine atmoszféra a copy mögött (felülről érkező, nagyon
+       gyenge megvilágítás) — ettől a copy zóna „megvilágítottnak" hat, nem
+       csak lefátyolozottnak;
+    2) két átlós Aubergine mélység a sarkokban (a v1.3-ból, visszafogva);
+    3) HATÁROZOTT peremsötétítés mind a négy szél felé, hogy a gyertyamező a
+       Hero közepén koncentrálódjon és a szakaszhatárok tiszták legyenek.
+  Nincs glow, nincs bloom, nincs telített szín.
 */
 .hero-vignette {
   background-image:
-    radial-gradient(ellipse 60% 70% at 8% 12%, rgb(73 52 71 / 46%) 0%, transparent 62%),
-    radial-gradient(ellipse 58% 68% at 94% 86%, rgb(73 52 71 / 38%) 0%, transparent 60%);
+    radial-gradient(ellipse 54% 42% at 50% 22%, rgb(114 84 111 / 26%) 0%, transparent 70%),
+    radial-gradient(ellipse 58% 66% at 6% 10%, rgb(73 52 71 / 40%) 0%, transparent 62%),
+    radial-gradient(ellipse 56% 64% at 95% 88%, rgb(73 52 71 / 34%) 0%, transparent 60%),
+    linear-gradient(to right, rgb(21 17 22 / 62%) 0%, transparent 16%, transparent 84%, rgb(21 17 22 / 62%) 100%),
+    linear-gradient(to bottom, rgb(21 17 22 / 52%) 0%, transparent 22%, transparent 72%, rgb(21 17 22 / 74%) 100%);
+}
+
+/*
+  Mobilon a Hero keskeny és magas: a desktopra hangolt perem- és
+  fejsötétítés itt a gyertyamező felét kioltaná. A peremsötétítés ezért
+  számottevően visszavesz, az Aubergine atmoszféra viszont marad — mérés
+  alapján (a v1.4 közbenső állapotában a mobil mező gyakorlatilag eltűnt).
+*/
+@media (max-width: 640px) {
+  .hero-vignette {
+    background-image:
+      radial-gradient(ellipse 78% 34% at 50% 20%, rgb(114 84 111 / 24%) 0%, transparent 72%),
+      radial-gradient(ellipse 72% 46% at 2% 8%, rgb(73 52 71 / 34%) 0%, transparent 64%),
+      radial-gradient(ellipse 70% 44% at 98% 90%, rgb(73 52 71 / 30%) 0%, transparent 62%),
+      linear-gradient(to bottom, rgb(21 17 22 / 30%) 0%, transparent 16%, transparent 80%, rgb(21 17 22 / 58%) 100%);
+  }
 }
 
 /*
@@ -324,15 +525,85 @@ body {
 .hero-cta-primary {
   --focus: var(--color-signal-berry-light);
 
-  box-shadow: inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-berry) 55%, transparent);
+  /*
+    v1.4 éltisztítás: a lapos „inset alsó vonal" helyett négy rétegű, de
+    végig visszafogott élkezelés — felső belső fény (a gomb teteje megcsillan),
+    alsó belső Berry jelzővonal, egy hajszálnyi Berry kontúr és egy szűk,
+    mély vetett árnyék, ami a gombot elemeli a Hero felületéről.
+    Nincs gradient-animáció, nincs glow, nincs shine sweep, nincs pulzálás.
+  */
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 80%),
+    inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-berry) 55%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-signal-berry) 18%, transparent),
+    0 14px 30px -16px rgb(0 0 0 / 90%);
   transition:
-    background-color 200ms ease,
-    box-shadow 200ms ease,
-    transform 200ms ease;
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
 }
 
 .hero-cta-primary:hover {
-  box-shadow: inset 0 -2px 0 0 var(--color-signal-berry);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 92%),
+    inset 0 -2px 0 0 var(--color-signal-berry),
+    0 0 0 1px color-mix(in srgb, var(--color-signal-berry) 30%, transparent),
+    0 18px 38px -18px rgb(0 0 0 / 95%);
+}
+
+/* ==========================================================================
+   SÖTÉT SZAKASZOK MÉLYSÉGE — v1.4
+   A „Miért minket?" és a Kapcsolat szakasz eddig egyetlen lapos Deep
+   felületen állt. Ez a két segédosztály adja meg nekik ugyanazt a nyomdai
+   mélységet, amit a header és a Hero kapott — új dependency és extra DOM-
+   elem nélkül, tisztán háttérrétegként.
+   ========================================================================== */
+
+/*
+  .jg-deep-atmosphere — nagyon gyenge, felülről érkező Aubergine megvilágítás
+  és peremsötétítés a sötét szakaszokon. A szakasz teteje egy hajszálnyival
+  világosabb (ott lép be a szem), az alja sötétebb: ettől a hosszú sötét
+  blokkok nem hatnak egyenletes fekete falnak.
+*/
+.jg-deep-atmosphere {
+  background-image:
+    radial-gradient(ellipse 66% 52% at 22% 0%, rgb(97 70 94 / 24%) 0%, transparent 68%),
+    linear-gradient(to bottom, rgb(34 28 35 / 85%) 0%, transparent 34%, transparent 66%, rgb(21 17 22 / 85%) 100%);
+}
+
+/*
+  .jg-inset-panel — kontrasztos, „besüllyesztett" sötét panel (Rólunk
+  institutional facts rail). Felső belső fény + alsó belső mélyedés +
+  hajszálnyi külső kontúr: a panel a lapba süllyesztve hat, nem ráragasztott
+  dashboard-kártyaként.
+*/
+.jg-inset-panel {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-surface-raise) 0%,
+    var(--color-surface-deep) 46%,
+    var(--color-surface-sink) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 9%),
+    inset 0 -1px 0 0 rgb(0 0 0 / 55%),
+    0 18px 40px -28px rgb(0 0 0 / 80%);
+}
+
+/*
+  .jg-seam — hajszálvékony, középen erősödő fényvonal két szakasz határán.
+  Sötét szakasz tetején/alján ül; ettől a szakaszváltás tudatos metszésnek
+  hat, nem véletlen színváltásnak.
+*/
+.jg-seam {
+  background-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgb(255 255 255 / 10%) 22%,
+    color-mix(in srgb, var(--color-signal-berry-light) 55%, transparent) 50%,
+    rgb(255 255 255 / 10%) 78%,
+    transparent 100%
+  );
 }
 
 /*

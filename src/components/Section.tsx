@@ -37,6 +37,9 @@ const TONE_CLASS = {
  * Section — közös szakaszkeret egységes ritmussal és heading-hierarchiával.
  * Minden szakasz h2 szintű címet kap; a szakaszon belüli tételek h3-at.
  *
+ * v1.4: a sötét tónusú szakaszok atmoszférát és szakaszhatár-fényvonalat
+ * kapnak (ld. lentebb), a fejléc tipográfiája pedig feszesebb lett.
+ *
  * v1.1: a szakaszok 01–05 sorszámot kapnak, a desktop elrendezés pedig
  * aszimmetrikussá vált (4/8 oszlopos rács a korábbi, minden szakaszon azonos
  * „cím fölül, kártyák alul" séma helyett). A háromféle tónus (canvas /
@@ -59,7 +62,7 @@ export default function Section({
   const header = (
     <>
       <p
-        className={`flex items-baseline gap-3 text-sm font-semibold tracking-[0.18em] uppercase ${
+        className={`flex items-baseline gap-3.5 text-sm font-semibold tracking-[0.18em] uppercase ${
           dark ? "text-signal-berry-light" : "text-accent"
         }`}
       >
@@ -70,13 +73,13 @@ export default function Section({
         ) : null}
         <span
           aria-hidden="true"
-          className={`h-px w-6 ${dark ? "bg-white/25" : "bg-border-strong"}`}
+          className={`h-px w-7 ${dark ? "bg-signal-berry-light/50" : "bg-border-strong"}`}
         />
         <span>{label}</span>
       </p>
       <h2
         id={headingId}
-        className={`font-display mt-5 leading-[1.12] [overflow-wrap:normal] hyphens-none text-balance ${
+        className={`font-display mt-6 leading-[1.1] tracking-[-0.014em] [overflow-wrap:normal] hyphens-none text-balance ${
           dark ? "text-porcelain" : "text-text-primary"
         } ${
           compact
@@ -88,7 +91,7 @@ export default function Section({
       </h2>
       {lead ? (
         <p
-          className={`mt-5 max-w-xl text-base leading-[1.7] sm:text-lg ${
+          className={`mt-6 max-w-xl text-base leading-[1.72] text-pretty sm:text-[1.0625rem] ${
             dark ? "text-cool-silver" : "text-text-secondary"
           }`}
         >
@@ -99,16 +102,48 @@ export default function Section({
   );
 
   return (
-    <section id={id} aria-labelledby={headingId} className={TONE_CLASS[tone]}>
+    <section
+      id={id}
+      aria-labelledby={headingId}
+      className={`relative ${TONE_CLASS[tone]}`}
+    >
+      {/*
+        v1.4 — SÖTÉT SZAKASZOK MÉLYSÉGE ÉS SZAKASZHATÁR.
+
+        A sötét szakaszok eddig egyetlen lapos Deep felületen álltak, a
+        szakaszváltás pedig puszta színugrás volt. A `.jg-deep-atmosphere`
+        nagyon gyenge, felülről érkező Aubergine megvilágítást és
+        peremsötétítést ad (a szakasz teteje egy hajszállal világosabb, ott
+        lép be a szem), a `.jg-seam` pedig hajszálvékony, középen Berryre
+        erősödő fényvonalat tesz a felső és az alsó élre. Mindkettő
+        dekoratív: aria-hidden és pointer-events: none.
+      */}
+      {dark ? (
+        <>
+          <div
+            aria-hidden="true"
+            className="jg-deep-atmosphere pointer-events-none absolute inset-0"
+          />
+          <div
+            aria-hidden="true"
+            className="jg-seam pointer-events-none absolute inset-x-0 top-0 h-px"
+          />
+          <div
+            aria-hidden="true"
+            className="jg-seam pointer-events-none absolute inset-x-0 bottom-0 h-px"
+          />
+        </>
+      ) : null}
+
       <div
-        className={`mx-auto w-full max-w-[1280px] px-5 sm:px-6 lg:px-8 ${
+        className={`relative mx-auto w-full max-w-[1280px] px-5 sm:px-6 lg:px-8 ${
           compact ? "py-16 sm:py-20 lg:py-24" : "py-[72px] sm:py-22 lg:py-[136px]"
         }`}
       >
         {layout === "aside" ? (
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div className="lg:col-span-4">
-              <div className="lg:sticky lg:top-[112px]">{header}</div>
+              <div className="lg:sticky lg:top-[120px]">{header}</div>
             </div>
             <div className="lg:col-span-8">{children}</div>
           </div>

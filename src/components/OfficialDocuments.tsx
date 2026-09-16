@@ -33,16 +33,19 @@ export default function OfficialDocuments() {
             sorok ritmusa és a hover-visszajelzés megmarad, a szöveg viszont
             karakterre változatlan.
           */
-          <li key={item.label} className="group flex items-center gap-5 border-b border-border">
+          <li
+            key={item.label}
+            className="group relative flex items-center gap-5 border-b border-border transition-colors duration-200 hover:bg-white/55"
+          >
             <span
               aria-hidden="true"
-              className="block h-px w-6 shrink-0 bg-border-strong transition-all duration-200 group-hover:w-9 group-hover:bg-signal-berry"
+              className="ml-0 block h-px w-6 shrink-0 bg-border-strong transition-all duration-200 group-hover:w-10 group-hover:bg-signal-berry"
             />
             <a
               href={item.href}
               target="_blank"
               rel="noreferrer noopener"
-              className="flex min-h-16 flex-1 items-center gap-5 py-4 text-[0.9375rem] font-medium text-text-primary transition-colors group-hover:text-accent sm:text-base"
+              className="flex min-h-16 flex-1 items-center gap-5 py-4 pr-2 text-[0.9375rem] font-medium text-text-primary transition-colors group-hover:text-accent sm:text-base"
             >
               <span className="flex-1">
                 {item.label}
@@ -56,7 +59,7 @@ export default function OfficialDocuments() {
         ))}
       </ul>
 
-      <p className="mt-6 max-w-[70ch] text-sm leading-relaxed text-text-secondary">
+      <p className="mt-7 max-w-[70ch] text-sm leading-relaxed text-text-secondary">
         {officialDocuments.note}
       </p>
     </Section>

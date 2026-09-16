@@ -177,7 +177,7 @@ export const services = {
   items: [
     {
       title: "Pénzügyi lehetőségek bemutatása",
-      body: "Vállalkozók és magánszemélyek számára elérhető tőkepiaci eszközök és megtakarítási konstrukciók általános ismertetése — részvények, kötvények, ETF-ek, befektetési alapok, TBSZ számlák —, kizárólag tájékoztató jelleggel, egyedi ajánlás nélkül.",
+      body: "Vállalkozók és magánszemélyek számára elérhető tőkepiaci eszközök és megtakarítási konstrukciók általános ismertetése — például részvények, kötvények, ETF-ek, befektetési alapok és TBSZ-számlák — kizárólag tájékoztató jelleggel, egyedi ajánlás nélkül.",
     },
     {
       title: "Megtakarítási és adózási lehetőségek",
