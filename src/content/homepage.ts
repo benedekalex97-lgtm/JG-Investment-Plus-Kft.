@@ -79,7 +79,28 @@ export const nav = {
  * sem nevezhető K&H-approved vagy compliance-approved változatnak.
  */
 export const hero = {
-  eyebrow: "JG INVESTMENT PLUS KFT. · A K&H ÉRTÉKPAPÍR FÜGGŐ ÜGYNÖKE",
+  /**
+   * v1.5.3 — az eyebrow KÉT, TUDATOSAN külön sor, nem egy elválasztóval
+   * összefűzött füzér.
+   *
+   * Korábban egyetlen sztring volt:
+   *   "JG INVESTMENT PLUS KFT. · A K&H ÉRTÉKPAPÍR FÜGGŐ ÜGYNÖKE"
+   * Ezt a böngésző szűk viewporton ott törte, ahol éppen elfért — a
+   * középpont-elválasztó pedig hol az első sor végén, hol a második elején
+   * maradt. A sortörés így nem tervezési döntés volt, hanem a rendelkezésre
+   * álló szélesség következménye.
+   *
+   * A két sor ezért itt, a tartalmi modellben külön mező, és a Hero külön
+   * markup-blokkban rendereli őket. Két szándékos eltérés a korábbi
+   * sztringhez képest, mindkettő a briefben előírva:
+   *   – a „KFT" után NINCS pont (a sor önmagában áll, nem rövidítésként egy
+   *     mondat közepén);
+   *   – a két sor között NINCS `·` elválasztó (a sortörés maga a tagolás).
+   */
+  eyebrowLines: [
+    "JG INVESTMENT PLUS KFT",
+    "A K&H ÉRTÉKPAPÍR FÜGGŐ ÜGYNÖKE",
+  ],
   /** A főcím két sorra bontva; együtt: „Biztonság. Átláthatóság. Szakmai háttér." */
   headlineLines: ["Biztonság. Átláthatóság.", "Szakmai háttér."],
   /**

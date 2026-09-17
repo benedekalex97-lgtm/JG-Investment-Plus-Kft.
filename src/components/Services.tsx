@@ -26,6 +26,7 @@ import { services } from "@/content/homepage";
 export default function Services() {
   return (
     <Section
+      transitionFrom="canvas"
       id="szolgaltatasok"
       number={services.sectionNumber}
       label={services.sectionLabel}

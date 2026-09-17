@@ -87,7 +87,7 @@ export default function Header() {
   */
   return (
     <header className="jg-header on-dark sticky top-0 z-50">
-      <div className="mx-auto flex h-[72px] w-full max-w-[1280px] items-center justify-between gap-x-10 px-5 sm:px-6 lg:h-20 lg:px-8">
+      <div className="jg-safe-x mx-auto flex h-[72px] w-full max-w-[1280px] items-center justify-between gap-x-10 lg:h-20">
         <Link
           href="/#top"
           className="group flex min-h-11 shrink-0 items-center gap-3 rounded"
@@ -165,7 +165,7 @@ export default function Header() {
           className="border-t border-white/10 bg-surface-sink shadow-[0_24px_48px_-28px_rgb(0_0_0/90%)] lg:hidden"
         >
           <nav aria-label={nav.menuLabel}>
-            <ul className="mx-auto w-full max-w-[1280px] px-5 pt-1 pb-4 sm:px-6">
+            <ul className="jg-safe-x mx-auto w-full max-w-[1280px] pt-1 pb-4">
               {nav.items.map((item) => (
                 <li key={item.href}>
                   <a

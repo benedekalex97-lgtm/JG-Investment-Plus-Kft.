@@ -128,6 +128,31 @@
 
   --shadow-elevated: 0 1px 2px rgba(24, 24, 27, 0.04), 0 12px 32px -12px rgba(24, 24, 27, 0.18);
   --shadow-soft: 0 1px 2px rgba(24, 24, 27, 0.03), 0 4px 16px -8px rgba(24, 24, 27, 0.12);
+
+  /*
+    v1.5.3 — A TARTALMI OLDALMARGÓ EGYETLEN FORRÁSA.
+
+    Eddig ugyanez az érték hat helyen, Tailwind-osztályként ismétlődött
+    (`px-5 sm:px-6 lg:px-8`). A safe-area javításhoz viszont a margót
+    `max()`-szal kell összevetni a készülék behúzásával, ehhez pedig
+    értékként kell hozzáférni — ezért kap saját tokent. A három érték
+    PONTOSAN a korábbi három Tailwind-osztály értéke, tehát safe-area
+    nélküli környezetben (desktop, Android, minden emulátor) a renderelt
+    margó bitre azonos marad.
+  */
+  --jg-gutter: 1.25rem; /* = px-5,  20 px */
+}
+
+@media (min-width: 640px) {
+  :root {
+    --jg-gutter: 1.5rem; /* = sm:px-6, 24 px */
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --jg-gutter: 2rem; /* = lg:px-8, 32 px */
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -702,6 +727,130 @@ body {
     rgb(255 255 255 / 10%) 78%,
     transparent 100%
   );
+}
+
+/* ==========================================================================
+   v1.5.3 — SAFE AREA: HÁTTÉR ÉLIG, TARTALOM BEHÚZVA
+   --------------------------------------------------------------------------
+   A `viewport-fit=cover` (ld. layout.tsx) után a dokumentum a kijelző teljes
+   szélességét elfoglalja, tehát a szakaszhátterek fekvő tájolásban is élig
+   érnek — nincs többé böngésző által festett Porcelain oldalsáv.
+
+   Cserébe a SZÖVEG kerülhetne a lekerekített sarkok vagy a kamerasziget alá.
+   Ezt az alábbi két segédosztály előzi meg — és kizárólag TARTALMI
+   konténereken van rajtuk, soha nem a `body`-n, soha nem egy teljes szélességű
+   háttérrétegen. (A `body`-ra tett padding pontosan a javítandó hibát,
+   a bekeretezett oldalt hozná vissza.)
+
+   A `max()` miatt a viselkedés kétirányban is helyes:
+     – ahol nincs készülék-behúzás (desktop, Android, tablet, minden
+       emulátor): env() = 0px, tehát a margó PONTOSAN a korábbi
+       20 / 24 / 32 px marad — nulla vizuális eltérés;
+     – ahol van (iPhone fekvőben 47–59 px): a nagyobbik nyer, tehát a szöveg
+       a biztonságos zónán belülre kerül, miközben a háttér élig ér.
+
+   Nincs `100vw`, nincs negatív margó, nincs beégetett notch-szélesség, nincs
+   JS resize-hack, nincs user-agent szimatolás és nincs készülékspecifikus
+   media query. Egyetlen szabvány CSS-primitív, minden készüléken ugyanaz.
+   ========================================================================== */
+.jg-safe-x {
+  padding-left: max(var(--jg-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--jg-gutter), env(safe-area-inset-right, 0px));
+}
+
+/*
+  A lap ALJA: a `cover` után a home indicator sávja alá is kerülhetne
+  tartalom. Csak a footer utolsó belső dobozára kell; a meglévő alsó
+  paddinggel `max()`-szal vetjük össze, tehát ahol nincs behúzás, ott a
+  footer ritmusa változatlan.
+*/
+.jg-safe-b {
+  padding-bottom: max(var(--jg-safe-b-base, 0px), env(safe-area-inset-bottom, 0px));
+}
+
+/* ==========================================================================
+   v1.5.3 — SZAKASZÁTMENET-RENDSZER (egységes, dekoratív, nulla layout-hatás)
+   --------------------------------------------------------------------------
+   MÉRT KIINDULÁS (1280 px, renderelt pixelek a bal oldali margóoszlopban,
+   a határ ±1 px-es sora):
+
+     Hero  → Rólunk ............ rgb(28,24,29)   → rgb(244,243,241)   Δ ~216
+     Rólunk → Szolgáltatások ... rgb(244,243,241)→ rgb(255,255,255)   Δ ~11
+     Szolg. → Miért a JG ....... rgb(255,255,255)→ rgb(44,35,44)      Δ ~211
+     Miért  → Dokumentumok ..... rgb(24,20,25)   → rgb(244,243,241)   Δ ~220
+     Dok.   → Kapcsolat ........ rgb(244,243,241)→ rgb(44,35,45)      Δ ~200
+     Kapcs. → Jogi ............. rgb(25,21,26)   → rgb(244,243,241)   Δ ~219
+     Jogi   → Footer ........... rgb(244,243,241)→ rgb(21,17,22)      Δ ~223
+
+   Minden határon a rés PONTOSAN 0 px, a border 0 px, a margó 0 px — tehát a
+   bejelentett „fehér csík a Hero alatt" nem egy téves 1 px-es elem, hanem
+   maga a 216 fokozatnyi, ÁTMENET NÉLKÜLI világosságugrás.
+
+   A megoldás egyetlen, abszolút pozicionált fedőréteg a FOGADÓ szakasz
+   tetején, ami az ELŐZŐ szakasz színét viszi tovább, és lágy görbével
+   old ki. Mivel abszolút és `top: 0`, a normál elrendezésből kifolyik:
+     – nem ad hozzá magasságot,
+     – nem mozdítja el a horgonyokat (a szakasz `top`-ja változatlan),
+     – a szakasz saját belső paddingjén (72–136 px) belül marad, tehát
+       szöveget sosem takar.
+   Tisztán dekoratív: `aria-hidden`, `pointer-events: none`.
+
+   Az opacitásgörbe szándékosan nem lineáris: lineáris ramp esetén a sáv alsó
+   vége éles vonalként olvasható. Az alábbi öt megállás egy ease-out
+   jellegű kioldást ad, amitől a váltás észrevehetetlen.
+   ========================================================================== */
+.jg-section-transition {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--jg-transition-h);
+  pointer-events: none;
+  background-image: linear-gradient(
+    to bottom,
+    var(--jg-transition-c) 0%,
+    color-mix(in srgb, var(--jg-transition-c) 86%, transparent) 18%,
+    color-mix(in srgb, var(--jg-transition-c) 58%, transparent) 38%,
+    color-mix(in srgb, var(--jg-transition-c) 26%, transparent) 62%,
+    color-mix(in srgb, var(--jg-transition-c) 8%, transparent) 82%,
+    transparent 100%
+  );
+}
+
+/*
+  A sáv MAGASSÁGA a határ erősségét követi, nem egységes:
+    – világos → világos (Δ ~11): 20 px. Ennél több már észrevehető sávot
+      csinálna egy olyan határból, ami eleve alig látszik.
+    – világos ↔ sötét (Δ ~200–223): 44 px. Ennél kevesebb nem oldja fel a
+      ugrást; ennél több már „ködös" alsó peremnek látszana.
+*/
+.jg-transition-short {
+  --jg-transition-h: 20px;
+}
+
+.jg-transition-tall {
+  --jg-transition-h: 44px;
+}
+
+/* A FORRÁS szakasz színe — kizárólag meglévő tokenek, új globális szín nincs. */
+.jg-from-canvas {
+  --jg-transition-c: var(--color-canvas);
+}
+
+.jg-from-surface {
+  --jg-transition-c: var(--color-surface);
+}
+
+.jg-from-tint {
+  --jg-transition-c: var(--color-section-tint);
+}
+
+.jg-from-deep {
+  --jg-transition-c: var(--color-surface-deep);
+}
+
+.jg-from-sink {
+  --jg-transition-c: var(--color-surface-sink);
 }
 
 /*

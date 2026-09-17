@@ -25,6 +25,7 @@ import { about } from "@/content/homepage";
 export default function About() {
   return (
     <Section
+      transitionFrom="deep"
       id="rolunk"
       number={about.sectionNumber}
       label={about.sectionLabel}

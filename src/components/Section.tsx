@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import SectionTransition, { type TransitionFrom } from "./SectionTransition";
+
 type SectionProps = {
   id: string;
   /** Kétjegyű szakaszszám (01–05) — vizuális ritmus, nem tartalom. */
@@ -21,6 +23,14 @@ type SectionProps = {
    * kell lenniük, de nem versenyezhetnek az értékajánlattal.
    */
   size?: "default" | "compact";
+  /**
+   * v1.5.3 — az ELŐZŐ szakasz felülete. Ha meg van adva, a szakasz teteje
+   * lágy átmenetet kap arról a felületről (ld. SectionTransition). Tisztán
+   * dekoratív és abszolút pozicionált: nem ad hozzá magasságot, és nem
+   * mozdítja el a horgonyt. Az oldal határláncát a page.tsx sorrendje adja,
+   * ezért az értéket ott, a szakasz hívásánál kell helyesen megadni.
+   */
+  transitionFrom?: TransitionFrom;
   children: ReactNode;
 };
 
@@ -55,6 +65,7 @@ export default function Section({
   tone = "canvas",
   layout = "aside",
   size = "default",
+  transitionFrom,
   children,
 }: SectionProps) {
   const compact = size === "compact";
@@ -108,35 +119,36 @@ export default function Section({
       className={`relative ${TONE_CLASS[tone]}`}
     >
       {/*
-        v1.4 — SÖTÉT SZAKASZOK MÉLYSÉGE ÉS SZAKASZHATÁR.
+        v1.4 — SÖTÉT SZAKASZOK MÉLYSÉGE.
 
-        A sötét szakaszok eddig egyetlen lapos Deep felületen álltak, a
-        szakaszváltás pedig puszta színugrás volt. A `.jg-deep-atmosphere`
-        nagyon gyenge, felülről érkező Aubergine megvilágítást és
-        peremsötétítést ad (a szakasz teteje egy hajszállal világosabb, ott
-        lép be a szem), a `.jg-seam` pedig hajszálvékony, középen Berryre
-        erősödő fényvonalat tesz a felső és az alsó élre. Mindkettő
-        dekoratív: aria-hidden és pointer-events: none.
+        A sötét szakaszok eddig egyetlen lapos Deep felületen álltak. A
+        `.jg-deep-atmosphere` nagyon gyenge, felülről érkező Aubergine
+        megvilágítást és peremsötétítést ad — a szakasz teteje egy hajszállal
+        világosabb, ott lép be a szem. Dekoratív: aria-hidden és
+        pointer-events: none.
       */}
       {dark ? (
-        <>
-          <div
-            aria-hidden="true"
-            className="jg-deep-atmosphere pointer-events-none absolute inset-0"
-          />
-          <div
-            aria-hidden="true"
-            className="jg-seam pointer-events-none absolute inset-x-0 top-0 h-px"
-          />
-          <div
-            aria-hidden="true"
-            className="jg-seam pointer-events-none absolute inset-x-0 bottom-0 h-px"
-          />
-        </>
+        <div
+          aria-hidden="true"
+          className="jg-deep-atmosphere pointer-events-none absolute inset-0"
+        />
+      ) : null}
+
+      {/*
+        v1.5.3 — SZAKASZÁTMENET.
+
+        A korábbi két `.jg-seam` (a sötét szakaszok felső és alsó éle) innen
+        eltűnt, hogy egy határhoz pontosan egy elválasztó tartozzon. A vonal a
+        SectionTransition legfelső sorába költözött — de csak ott, ahol SÖTÉT
+        felületről érkezünk, mert világos alapon ugyanez a vonal rózsaszín
+        hajszálvonalként olvasna. Mért indoklás: a SectionTransition fejléce.
+      */}
+      {transitionFrom ? (
+        <SectionTransition from={transitionFrom} toDark={dark} />
       ) : null}
 
       <div
-        className={`relative mx-auto w-full max-w-[1280px] px-5 sm:px-6 lg:px-8 ${
+        className={`jg-safe-x relative mx-auto w-full max-w-[1280px] ${
           compact ? "py-16 sm:py-20 lg:py-24" : "py-[72px] sm:py-22 lg:py-[136px]"
         }`}
       >

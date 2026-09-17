@@ -15,6 +15,7 @@ import { officialDocuments } from "@/content/homepage";
 export default function OfficialDocuments() {
   return (
     <Section
+      transitionFrom="deep"
       id="hivatalos-dokumentumok"
       number={officialDocuments.sectionNumber}
       label={officialDocuments.sectionLabel}

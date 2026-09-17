@@ -62,6 +62,27 @@ export const viewport: Viewport = {
   initialScale: 1,
   // A 200%-os szövegnagyítás engedélyezett marad.
   maximumScale: 5,
+  /*
+   * v1.5.3 — SAFE AREA.
+   *
+   * Enélkül az iOS Safari FEKVŐ tájolásban a teljes dokumentumot a
+   * „safe area" DOBOZÁBA rendezi: a Dynamic Island / notch oldalán és a
+   * szemközti oldalon marad egy sáv, amit nem a dokumentum, hanem a
+   * böngésző fest ki — a `body` háttérszínével. A `body` háttere Porcelain,
+   * ezért a bejelentett világos oldalsávok. Ez tehát NEM a szakaszok
+   * szélességének hibája (mérve: minden szakasz pontosan 100% széles,
+   * vízszintes overflow 0 px minden viewporton), hanem a hiányzó
+   * `viewport-fit=cover`.
+   *
+   * A `cover` a dokumentumot a kijelző TELJES szélességére engedi, tehát a
+   * hátterek élig érnek. A szöveg viszont nem kerülhet a lekerekített sarkok
+   * vagy a kamerasziget alá: ezért a TARTALMI konténerek — és kizárólag azok —
+   * kapnak `env(safe-area-inset-*)` alapú belső margót a `.jg-safe-x` /
+   * `.jg-safe-b` segédosztályokon keresztül (ld. globals.css). A `body`-ra
+   * vagy a teljes oldalkeretre tett padding pontosan azt a hibát hozná
+   * vissza, amit javítunk.
+   */
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

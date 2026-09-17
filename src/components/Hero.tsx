@@ -72,6 +72,7 @@ function HeadlineLine({ line }: { line: string }) {
 
 export default function Hero() {
   const [firstLine, secondLine] = hero.headlineLines;
+  const [eyebrowPrimary, eyebrowSecondary] = hero.eyebrowLines;
 
   return (
     /*
@@ -141,7 +142,7 @@ export default function Hero() {
       <div aria-hidden="true" className="hero-scrim pointer-events-none absolute inset-0" />
 
       {/* Réteg 5: valódi HTML copy és CTA. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-col px-5 sm:px-6 lg:px-8">
+      <div className="jg-safe-x relative z-10 mx-auto flex w-full max-w-[1280px] flex-col">
         {/*
           data-hero-copy: ez a doboz jelöli ki a Hero olvasási zónáját.
 
@@ -176,15 +177,35 @@ export default function Hero() {
           data-hero-copy=""
           className="flex min-h-[600px] flex-col items-center justify-center pt-16 pb-14 text-center sm:min-h-[624px] sm:pt-[68px] sm:pb-[60px] lg:min-h-[660px] lg:pt-[76px] lg:pb-16"
         >
+          {/*
+            v1.5.3 — AZ EYEBROW PONTOSAN KÉT, TUDATOS SOR.
+
+            Korábban egyetlen szövegcsomó volt (cégnév · ügynöki státusz), és
+            a törés helyét a böngésző választotta meg — szűk viewporton a
+            középpont-elválasztó hol az egyik, hol a másik sor végére került.
+
+            Most a két sor KÜLÖN markup-blokk, tehát a törés nem a szélesség
+            függvénye: a böngészőnek nincs mit eldöntenie. A két sort egy
+            oszlop tartja össze; a `whitespace-nowrap` garantálja, hogy egyik
+            sor se essen tovább kettőnél — mérve 320 px-es viewporton is elfér
+            (ld. a v1.5.3 riportot).
+
+            A dekoratív vonalak megmaradnak és aria-hidden-ek. Az ELSŐ sorral
+            EGY sorban, flex-testvérként ülnek, tehát nem válnak külön sorrá:
+            a cégnevet keretezik, ahogy eddig a teljes feliratot.
+          */}
           <p
             data-hero-ink=""
-            className="flex items-center gap-3 text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:text-[0.8125rem]"
+            className="flex flex-col items-center gap-2 text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:text-[0.8125rem]"
           >
-            {/* Geometriai jelölés, nem szöveg: a felirat kap egy vizuális
-                horgonyt mindkét oldalról, a copy pedig optikailag középre áll. */}
-            <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
-            {hero.eyebrow}
-            <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
+            <span className="flex items-center gap-3 whitespace-nowrap">
+              {/* Geometriai jelölés, nem szöveg: a cégnév kap egy vizuális
+                  horgonyt mindkét oldalról, a copy pedig optikailag középre áll. */}
+              <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
+              {eyebrowPrimary}
+              <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
+            </span>
+            <span className="block whitespace-nowrap">{eyebrowSecondary}</span>
           </p>
 
           {/*
@@ -251,14 +272,19 @@ export default function Hero() {
       </div>
 
       {/*
-        Szakaszhatár — hajszálvékony, középen Berryre erősödő fényvonal a Hero
-        alján. Ettől a Hero -> Rólunk váltás tudatos metszésnek hat, nem
-        véletlen színváltásnak. Tisztán dekoratív.
+        SZAKASZHATÁR — v1.5.3.
+
+        Itt korábban egy önálló `.jg-seam` hajszálvonal ült a Hero alsó élén.
+        A vonal nem tűnt el: a Rólunk szakasz tetején lévő SectionTransition
+        legfelső sorába költözött, hogy a Hero -> Rólunk határt egyetlen
+        elválasztó írja le, ne egy vonal és egy lágy sáv egymás mellett.
+        Ugyanaz a vonal, ugyanazon a határon — egy pixellel lejjebb, már a
+        fogadó szakasz első sorában.
+
+        Ez oldja fel a bejelentett „fehér csíkot" is: a probléma nem egy téves
+        elem volt, hanem a mérve 216 fokozatnyi, átmenet nélküli
+        világosságugrás Deep -> Porcelain között.
       */}
-      <div
-        aria-hidden="true"
-        className="jg-seam pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px"
-      />
     </section>
   );
 }

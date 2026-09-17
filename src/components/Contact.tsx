@@ -88,6 +88,7 @@ function PrimaryContact({
 export default function Contact() {
   return (
     <Section
+      transitionFrom="canvas"
       id="kapcsolat"
       number={contact.sectionNumber}
       label={contact.sectionLabel}

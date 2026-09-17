@@ -1,5 +1,6 @@
 import LegalAccordion, { type LegalPanel } from "./LegalAccordion";
 import { imprint, legal } from "@/content/homepage";
+import SectionTransition from "./SectionTransition";
 
 /**
  * LegalRiskBlock — a részletes Jogi tájékoztató, a Panaszkezelés és az
@@ -99,9 +100,16 @@ export default function LegalRiskBlock() {
     <section
       id="jogi-tajekoztato"
       aria-labelledby="jogi-tajekoztato-cim"
-      className="bg-canvas"
+      className="relative bg-canvas"
     >
-      <div className="mx-auto w-full max-w-[1280px] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+      {/*
+        v1.5.3 — a Kapcsolat (Deep) felől érkező lágy átmenet. Ez a szakasz
+        nem a közös Section keretet használja, ezért a fedőréteget közvetlenül
+        rendereli — ugyanabból az egy komponensből, mint a többi határ.
+      */}
+      <SectionTransition from="deep" toDark={false} />
+
+      <div className="jg-safe-x relative mx-auto w-full max-w-[1280px] py-16 sm:py-20 lg:py-28">
         {/* A jogi szakasz szándékosan SZŰKEBB olvasási sávot kap, mint a
             marketingszakaszok: így jelen van és teljesen olvasható, de nem
             uralja az oldal vizuális élményét. */}

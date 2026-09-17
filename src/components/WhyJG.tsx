@@ -24,6 +24,7 @@ import { whyJg } from "@/content/homepage";
 export default function WhyJG() {
   return (
     <Section
+      transitionFrom="surface"
       id="miert-a-jg"
       number={whyJg.sectionNumber}
       label={whyJg.sectionLabel}

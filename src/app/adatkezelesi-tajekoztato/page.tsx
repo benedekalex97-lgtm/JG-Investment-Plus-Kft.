@@ -63,7 +63,7 @@ export default function AdatkezelesiTajekoztatoPage() {
       <Header />
 
       <main id="fotartalom" className="bg-canvas">
-        <article className="mx-auto w-full max-w-[800px] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <article className="jg-safe-x mx-auto w-full max-w-[800px] py-16 sm:py-20 lg:py-24">
           {/*
             Visszafogott, szöveges "felső" visszalink a H1 előtt — a "/#top"
             cél determinisztikus: a Hero id="top" elemére navigál, nem a

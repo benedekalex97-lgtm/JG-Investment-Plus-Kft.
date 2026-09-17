@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { footer, meta } from "@/content/homepage";
+import SectionTransition from "./SectionTransition";
 
 /**
  * Footer — a SOT 10. szakaszának kötelező rövid változata, teljes szöveggel.
@@ -20,20 +21,28 @@ export default function Footer() {
   return (
     <footer className="on-dark relative bg-surface-sink">
       {/*
-        v1.4 — a footer valódi LEZÁRÁS, nem sötét doboz. Hajszálvékony,
-        középen Berryre erősödő fényvonal a felső élen (.jg-seam), fölötte
-        egy nagyon gyenge Aubergine atmoszféra: a szem lezárásként olvassa,
-        nem egy újabb szakaszként. Mindkettő dekoratív.
+        v1.4 — a footer valódi LEZÁRÁS, nem sötét doboz: nagyon gyenge
+        Aubergine atmoszféra, amitől a szem lezárásként olvassa, nem egy újabb
+        szakaszként. Dekoratív.
       */}
-      <div
-        aria-hidden="true"
-        className="jg-seam pointer-events-none absolute inset-x-0 top-0 h-px"
-      />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_46%_at_18%_0%,rgb(97_70_94/22%)_0%,transparent_68%)]"
       />
-      <div className="relative mx-auto w-full max-w-[1280px] px-5 py-16 sm:px-6 lg:px-8 lg:py-24">
+
+      {/*
+        v1.5.3 — a Jogi tájékoztató (Porcelain) felől érkező lágy átmenet.
+
+        A v1.4-es felső `.jg-seam` hajszálvonal HELYÉBE lép, nem mellé. A vonal
+        egy VILÁGOS (Berry Light) vonal, sötét felületre tervezve; itt viszont
+        a sáv teteje Porcelain, és mérve rgb(220,183,203)-ra jönne ki — egy
+        feltűnő rózsaszín hajszálvonal világos alapon. Ezért ezen a határon a
+        lágy sáv önmagában írja le a váltást. Az indoklás részletesen a
+        SectionTransition fejlécében.
+      */}
+      <SectionTransition from="canvas" toDark />
+
+      <div className="jg-safe-x jg-safe-b relative mx-auto w-full max-w-[1280px] py-16 lg:py-24 [--jg-safe-b-base:4rem] lg:[--jg-safe-b-base:6rem]">
         {/*
           Kétoszlopos hierarchia: balra a márka és a státusz, jobbra a
           hosszabb jogi szöveg. Mobilon egymás alatt, logikus sorrendben.
