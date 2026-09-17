@@ -10,13 +10,25 @@ import { services } from "@/content/homepage";
  * hoverre Berry színre vált — nincs négy azonos, vastag kártyadoboz.
  * A sorhossz rövid, a szolgáltatáscím nagy.
  *
- * v1.4 — A STAGGER JAVÍTÁSA. A v1.3 a `sm:mt-14` grid-margóval tolta el a
- * jobb oszlopot. Ez azonban BELESZÁMÍT a grid sor magasságába: a mérés
- * szerint a sor 56 px-szel felfúvódott, az eltolt <li> pedig 331 px helyett
- * 275 px-re nyomódott össze (align-items: stretch). Ezért a margót egy
- * `translate-y` VIZUÁLIS eltolás váltja, ami nem befolyásolja a layoutot, és
- * 56 px helyett a kért 32–40 px sávban, 36 px-en áll. A rács alsó paddingje
- * kompenzálja az eltolást, hogy a második sor ne lógjon rá a záró közlésre.
+ * v1.4 — A STAGGER JAVÍTÁSA (időközben visszavonva, ld. lent). A v1.3 a
+ * `sm:mt-14` grid-margóval tolta el a jobb oszlopot. Ez azonban BELESZÁMÍT a
+ * grid sor magasságába: a mérés szerint a sor 56 px-szel felfúvódott, az
+ * eltolt <li> pedig 331 px helyett 275 px-re nyomódott össze
+ * (align-items: stretch). A v1.4 ezt egy `translate-y` VIZUÁLIS eltolással
+ * váltotta ki (nem befolyásolta a layoutot, 36 px-en állt).
+ *
+ * v1.1 (POST-LAUNCH UI & STRUCTURE POLISH) — A STAGGER TELJES ELTÁVOLÍTÁSA.
+ * A `translate-y` megoldás technikailag helyes volt, de vizuálisan pontosan
+ * azt idézte elő, aminek elkerülésére szánták: a jobb oszlop (02, 04) 36
+ * px-szel lejjebb indult, mint a bal oszlop (01, 03) — desktopon úgy
+ * hatott, mintha a négy blokk nem egy közös rácsra illeszkedne. A cél most
+ * a PONTOS közös grid-igazítás: 01 és 02 azonos felső grid-vonalról, 03 és
+ * 04 azonos második sor grid-vonalról induljon. A stagger (és a hozzá
+ * tartozó `sm:pb-9` kompenzáció, ami csak az eltolt elem alsó túllógását
+ * védte) ezért teljesen megszűnt; a `gap-x-16 gap-y-14` önmagában adja a
+ * két oszlop és a két sor közötti, mindkét irányban egyenletes távolságot.
+ * A négy szövegdoboz szándékosan NEM egyenlő magasságú (a tartalom
+ * természetes hossza dönti el), csak a KEZDŐPONTJUK közös.
  *
  * Generikus ikon, pénzérme, grafikon vagy kézfogás NINCS: az egyetlen
  * grafikai elem a sorszám és a vonal.
@@ -35,20 +47,13 @@ export default function Services() {
       lead={services.lead}
       tone="surface"
     >
-      {/*
-        A rács alsó paddingje pontosan a vizuális eltolás mértéke: így a
-        második sor eltolt eleme nem lóg rá az alatta lévő közlésre, a grid
-        sorainak magassága viszont érintetlen marad.
-      */}
-      <ul className="grid gap-x-16 gap-y-14 sm:grid-cols-2 sm:pb-9">
+      <ul className="grid gap-x-16 gap-y-14 sm:grid-cols-2">
         {services.items.map((item, index) => (
           <Reveal
             as="li"
             key={item.title}
             delay={index * 80}
-            /* Eltolt rács: a jobb oszlop desktopon 36 px-szel lejjebb indul.
-               TRANSFORM, nem margó — nem fújja fel a grid sormagasságát. */
-            className={`group ${index % 2 === 1 ? "sm:translate-y-9" : ""}`}
+            className="group"
           >
             <span
               aria-hidden="true"
