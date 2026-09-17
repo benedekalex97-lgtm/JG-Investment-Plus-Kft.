@@ -16,27 +16,58 @@
  * egészében, kattintás nélkül olvashatóan — ugyanazzal a lapos, összecsukás
  * nélküli szerkezettel, mint az /adatkezelesi-tajekoztato oldal.
  *
+ * v1.1 KIEGÉSZÍTÉS (POST-LAUNCH UI POLISH v1.1 — LEGAL CONSOLIDATION).
+ * A `complaints` (Panaszkezelés és jogorvoslat) és az `imprint` (Impresszum)
+ * IDE, erre az oldalra költözött a homepage-ről (korábban a LegalRiskBlock
+ * komponens rendere külön, sötét homepage-blokkban). A homepage-en emiatt
+ * ez a két blokk TELJES EGÉSZÉBEN megszűnt, a LegalRiskBlock komponenst
+ * töröltem (ld. src/app/page.tsx). A footer mindkettőt most már erre az
+ * oldalra mutató horgonyként kezeli: /jogi-tajekoztato#panaszkezeles és
+ * /jogi-tajekoztato#impresszum. A szöveg karakterre változatlan — a régi és
+ * az új hely tartalmát külön szkripttel összevetve bizonyítva.
+ *
  * MI NEM KERÜLT ÁT:
  *   – a `sectionLabel` mező (a homepage-es Section-eyebrow felirata) törölve,
  *     mert az új oldal az adatkezelési tájékoztató mintáját követi (H1 közvetlen
- *     bevezetővel, eyebrow-felirat nélkül) — ez UI-metaadat, nem jogi szöveg;
- *   – a `complaints` (Panaszkezelés) a homepage-en MARADT: a footer továbbra is
- *     önálló, homepage-horgonyra mutató linkként kezeli (#panaszkezeles),
- *     függetlenül ettől az oldaltól — ld. src/content/homepage.ts `complaints`
- *     export.
+ *     bevezetővel, eyebrow-felirat nélkül) — ez UI-metaadat, nem jogi szöveg.
  *
  * MI VÁLTOZOTT A MEGJELENÉSBEN (a szövegen NEM):
  *   – a „Kockázatok" bekezdés a homepage-en kiemelt, Berry szegélyű dobozban
  *     állt; az új oldalon a többi szakasszal azonos, sima bekezdésként
  *     jelenik meg — ez a kért vizuális/strukturális KONZISZTENCIA az
  *     adatkezelési tájékoztató oldallal (ott sincs kiemelt doboz egyetlen
- *     szakaszhoz sem). A szöveg maga egyetlen karakterben sem változott.
+ *     szakaszhoz sem). A szöveg maga egyetlen karakterben sem változott;
+ *   – a Panaszkezelés és az Impresszum a homepage-en SÖTÉT felületen állt
+ *     (ld. a törölt LegalRiskBlock korábbi verzióját); ezen az oldalon a
+ *     többi szakasszal azonos, VILÁGOS (canvas) felületen jelenik meg —
+ *     ugyanazok a világos-kontextusú tokenek (text-text-primary,
+ *     text-text-secondary, text-accent), amiket az 1–5. szakasz is használ.
  *
  * MÓDOSÍTÁSI SZABÁLY: a jogi tartalom módosítása kizárólag a forrás DOCX
  * frissítése és jóváhagyása után, ennek a fájlnak a cseréjével történhet.
  */
 
-export const legalNotice = {
+import type { ContactEntry } from "./homepage";
+
+export const legalNotice: {
+  heading: string;
+  lead: string;
+  status: { heading: string; paragraphs: readonly string[] };
+  scope: { heading: string; paragraphs: readonly string[] };
+  limits: { heading: string; items: readonly string[] };
+  riskWarning: { heading: string; body: string };
+  disclaimer: { heading: string; body: string };
+  complaints: {
+    heading: string;
+    lead: string;
+    items: readonly ContactEntry[];
+    closing: string;
+  };
+  imprint: {
+    heading: string;
+    items: readonly { readonly label: string; readonly value: string }[];
+  };
+} = {
   heading: "Jogi tájékoztató",
   lead: "Az alábbi részletes tájékoztatás teljes egészében elérhető. A témakörök alapértelmezés szerint összecsukva jelennek meg, hogy a szakasz áttekinthető maradjon; a kockázati figyelmeztetés mindig nyitva van.",
   status: {
@@ -73,5 +104,72 @@ export const legalNotice = {
   disclaimer: {
     heading: "Jogi nyilatkozat",
     body: "A weboldalon található információk általános tájékoztatási célt szolgálnak. Nem minősülnek pénzügyi eszköz jegyzésére, vételére vagy eladására vonatkozó ajánlatnak vagy ajánlattételi felhívásnak, személyre szóló befektetési tanácsnak, befektetési vagy pénzügyi elemzésnek, befektetéssel kapcsolatos kutatásnak, továbbá pénzügyi, adó- vagy jogi tanácsadásnak. A weboldal használata önmagában nem hoz létre szerződéses jogviszonyt.",
+  },
+  complaints: {
+    heading: "Panaszkezelés és jogorvoslat",
+    lead: "Amennyiben a K&H Értékpapír szolgáltatásával vagy a JG Investment Plus Kft. függő ügynöki tevékenységével kapcsolatban panasza vagy észrevétele van, azt a Patria Finance Magyarországi Fióktelepe hivatalos elérhetőségein jelentheti be.",
+    items: [
+      { label: "E-mail", value: "info@khertekpapir.hu", href: "mailto:info@khertekpapir.hu" },
+      { label: "Telefon", value: "+36 1 455 1500", href: "tel:+3614551500" },
+      {
+        label: "Személyes ügyfélszolgálat",
+        value: "1095 Budapest, Lechner Ödön fasor 9. – előzetes időpontfoglalással",
+      },
+      {
+        label: "Aktuális panaszkezelési oldal és szabályzat",
+        value: "www.khertekpapir.hu/ugyfelvedelem/panaszkezeles",
+        href: "https://www.khertekpapir.hu/ugyfelvedelem/panaszkezeles",
+      },
+    ],
+    closing:
+      "A panaszkezelés részletes szabályait, az aktuális nyomtatványokat és a jogorvoslati lehetőségeket a K&H Értékpapír mindenkor hatályos Panaszkezelési szabályzata tartalmazza.",
+  },
+  imprint: {
+    heading: "Impresszum",
+    items: [
+      { label: "Szolgáltató neve", value: "JG Investment Plus Korlátolt Felelősségű Társaság" },
+      { label: "Rövidített név", value: "JG Investment Plus Kft." },
+      { label: "Székhely", value: "2336 Dunavarsány, Nagyvarsányi utca 133." },
+      { label: "Cégjegyzékszám", value: "13-09-236124" },
+      { label: "Adószám", value: "32643804-2-13" },
+      { label: "E-mail", value: "info@jginvst.com" },
+      {
+        label: "Függő ügynöki jogállás",
+        value:
+          "A Patria Finance Magyarországi Fióktelepe Bszt. 111. § (2) bekezdés a) pontja szerinti függő ügynöke",
+      },
+      {
+        /*
+          MNB-HATÁROZAT SZÁMA — v1.4.1.
+
+          Szándékosan NEM „engedélyszám": a függő ügynöki jogállás nyilvántartásba
+          vételéről szóló HATÁROZAT azonosítója, nem a JG saját tevékenységi
+          engedélye. A megnevezés ezért semleges és nem keletkeztet új
+          jogosultsági állítást.
+
+          Elhelyezés: kizárólag az Impresszum hivatalos intézményi adatai között,
+          közvetlenül a függő ügynöki jogállás után. NEM kerül a Heróba, a
+          státuszközlésbe, a Rólunk vagy a Szolgáltatások marketingcopyba, a
+          „Miért minket?" szakaszba, illetve a CTA mellé.
+
+          FORRÁS: az MNB Intézménykereső a futtatókörnyezetből NEM volt elérhető
+          (az egress-proxy blokkolja az intezmenykereso.mnb.hu hosztot), ezért az
+          adat kizárólag a megrendelő által átadott értékből származik, és a
+          publikálás előtt hivatalos forrásból megerősítendő.
+        */
+        label: "MNB-határozat száma",
+        value: "H-EN-III-636/2025",
+      },
+      {
+        label: "Megbízó befektetési vállalkozás",
+        value: "Patria Finance Magyarországi Fióktelepe – a „K&H Értékpapír” márkanév használója",
+      },
+      { label: "Megbízó székhelye", value: "1095 Budapest, Lechner Ödön fasor 9." },
+      { label: "Megbízó cégjegyzékszáma", value: "01-17-001469" },
+      {
+        label: "Felügyeleti és nyilvántartási információ",
+        value: "Magyar Nemzeti Bank Intézménykereső; K&H Értékpapír – Közvetítők jegyzéke",
+      },
+    ],
   },
 } as const;

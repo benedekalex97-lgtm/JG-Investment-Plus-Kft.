@@ -31,13 +31,13 @@ export default function Footer() {
       />
 
       {/*
-        v1.1 — POST-LAUNCH UI & STRUCTURE POLISH: a közvetlen előd immár a
-        Panaszkezelés/Impresszum blokk (LegalRiskBlock), ami a részletes Jogi
-        tájékoztató kiszervezése óta SÖTÉT felület (korábban Porcelain volt,
-        amikor még ott állt a teljes Jogi tájékoztató szöveg is). A sáv ezért
-        `deep`-ről, nem `canvas`-ról indul — mindkét oldala azonos tónusú,
-        tehát a Kapcsolat → Panaszkezelés/Impresszum → Footer zóna egyetlen,
-        folytonos sötét záró-egységként olvasódik, érzékelhető váltás nélkül.
+        v1.1 — LEGAL CONSOLIDATION: a Panaszkezelés/Impresszum blokk
+        (korábban LegalRiskBlock) átköltözött a /jogi-tajekoztato oldalra és
+        a komponens törölve — a Footer közvetlen előde ismét a Kapcsolat
+        szakasz (Section tone="deep"). A sáv ezért továbbra is `deep`-ről
+        indul, csak most eggyel közvetlenebbül: Kapcsolat → Footer egyetlen,
+        folytonos sötét záró-zónaként olvasódik, érzékelhető váltás nélkül
+        (mindkét oldal azonos tónuscsaládba tartozik).
       */}
       <SectionTransition from="deep" toDark />
 

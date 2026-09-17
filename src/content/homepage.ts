@@ -232,6 +232,14 @@ export const services = {
   roleNote: {
     body: "A tényleges befektetési szolgáltatást a K&H Értékpapír nyújtja. A JG Investment Plus Kft. tájékoztatása nem minősül befektetési tanácsadásnak, személyre szóló ajánlásnak vagy adótanácsadásnak.",
   },
+  /**
+   * v1.1 — POST-LAUNCH UI POLISH v1.1: kontextuális CTA a szakasz végén.
+   * Kizárólag BEJÖVŐ kapcsolatfelvételre hív fel (a #kapcsolat szakaszra
+   * navigál, ahol a közvetlen telefonos/e-mailes elérhetőségek vannak) —
+   * nem ígér visszahívást, űrlapot vagy időpontfoglalást, mert ilyen
+   * folyamat jelenleg nem létezik.
+   */
+  cta: { label: "Egyeztessen velünk", href: "/#kapcsolat" },
 } as const;
 
 /**
@@ -257,6 +265,7 @@ export const whyJg: {
     readonly body: string;
     readonly complianceReview: boolean;
   }[];
+  cta: { readonly label: string; readonly href: string };
 } = {
   sectionNumber: "03",
   sectionLabel: "Miért minket?",
@@ -281,6 +290,13 @@ export const whyJg: {
       complianceReview: true,
     },
   ],
+  /**
+   * v1.1 — POST-LAUNCH UI POLISH v1.1: kontextuális CTA a szakasz végén.
+   * Ugyanaz a cél és ugyanaz az elv, mint a `services.cta`-nál: kizárólag
+   * bejövő kapcsolatfelvételre hív fel, nem ígér visszahívást, űrlapot vagy
+   * időpontfoglalást.
+   */
+  cta: { label: "Lépjen kapcsolatba velünk", href: "/#kapcsolat" },
 };
 
 /*
@@ -394,92 +410,19 @@ export const contact: {
 };
 
 /**
- * SOT 6. Panaszkezelés és jogorvoslat
+ * SOT 6. Panaszkezelés és Impresszum — v1.1 (LEGAL CONSOLIDATION) ÁTKÖLTÖZÖTT
  *
- * v1.1 — POST-LAUNCH UI & STRUCTURE POLISH. A korábbi `legal` export
- * (Szerepek és felelősség / Tevékenységi keretek / Tevékenységi korlátok /
- * Kockázatok / Jogi nyilatkozat) átkerült a src/content/legal-notice.ts
- * fájlba és az önálló `/jogi-tajekoztato` oldalra — a szöveg karakterre
- * változatlan, ld. ott a részletes indoklást.
+ * A korábbi `complaints` és `imprint` export innen (és a homepage-en élő
+ * LegalRiskBlock komponensből) átkerült a src/content/legal-notice.ts
+ * fájlba: mostantól a `legalNotice.complaints` és `legalNotice.imprint`
+ * alatt élnek, a /jogi-tajekoztato oldalon renderelve. A szöveg karakterre
+ * változatlan. A LegalRiskBlock komponens törölve (ld. src/app/page.tsx);
+ * a footer mindkettőt az új oldal horgonyaira mutatja
+ * (/jogi-tajekoztato#panaszkezeles, /jogi-tajekoztato#impresszum).
  *
- * A Panaszkezelés VÁLTOZATLANUL a homepage-en marad (LegalRiskBlock,
- * #panaszkezeles horgony): a footer önálló linkként kezeli, függetlenül az
- * új Jogi tájékoztató oldaltól.
+ * A `ContactEntry` típus exportja alant VÁLTOZATLANUL megmaradt: a
+ * `contact` mező (Kapcsolat szakasz) és a legal-notice.ts importálja.
  */
-export const complaints: {
-  heading: string;
-  lead: string;
-  items: readonly ContactEntry[];
-  closing: string;
-} = {
-  heading: "Panaszkezelés és jogorvoslat",
-  lead: "Amennyiben a K&H Értékpapír szolgáltatásával vagy a JG Investment Plus Kft. függő ügynöki tevékenységével kapcsolatban panasza vagy észrevétele van, azt a Patria Finance Magyarországi Fióktelepe hivatalos elérhetőségein jelentheti be.",
-  items: [
-    { label: "E-mail", value: "info@khertekpapir.hu", href: "mailto:info@khertekpapir.hu" },
-    { label: "Telefon", value: "+36 1 455 1500", href: "tel:+3614551500" },
-    {
-      label: "Személyes ügyfélszolgálat",
-      value: "1095 Budapest, Lechner Ödön fasor 9. – előzetes időpontfoglalással",
-    },
-    {
-      label: "Aktuális panaszkezelési oldal és szabályzat",
-      value: "www.khertekpapir.hu/ugyfelvedelem/panaszkezeles",
-      href: "https://www.khertekpapir.hu/ugyfelvedelem/panaszkezeles",
-    },
-  ],
-  closing:
-    "A panaszkezelés részletes szabályait, az aktuális nyomtatványokat és a jogorvoslati lehetőségeket a K&H Értékpapír mindenkor hatályos Panaszkezelési szabályzata tartalmazza.",
-};
-
-/** SOT 9. Impresszum */
-export const imprint = {
-  heading: "Impresszum",
-  items: [
-    { label: "Szolgáltató neve", value: "JG Investment Plus Korlátolt Felelősségű Társaság" },
-    { label: "Rövidített név", value: "JG Investment Plus Kft." },
-    { label: "Székhely", value: "2336 Dunavarsány, Nagyvarsányi utca 133." },
-    { label: "Cégjegyzékszám", value: "13-09-236124" },
-    { label: "Adószám", value: "32643804-2-13" },
-    { label: "E-mail", value: "info@jginvst.com" },
-    {
-      label: "Függő ügynöki jogállás",
-      value:
-        "A Patria Finance Magyarországi Fióktelepe Bszt. 111. § (2) bekezdés a) pontja szerinti függő ügynöke",
-    },
-    {
-      /*
-        MNB-HATÁROZAT SZÁMA — v1.4.1.
-
-        Szándékosan NEM „engedélyszám": a függő ügynöki jogállás nyilvántartásba
-        vételéről szóló HATÁROZAT azonosítója, nem a JG saját tevékenységi
-        engedélye. A megnevezés ezért semleges és nem keletkeztet új
-        jogosultsági állítást.
-
-        Elhelyezés: kizárólag az Impresszum hivatalos intézményi adatai között,
-        közvetlenül a függő ügynöki jogállás után. NEM kerül a Heróba, a
-        státuszközlésbe, a Rólunk vagy a Szolgáltatások marketingcopyba, a
-        „Miért minket?" szakaszba, illetve a CTA mellé.
-
-        FORRÁS: az MNB Intézménykereső a futtatókörnyezetből NEM volt elérhető
-        (az egress-proxy blokkolja az intezmenykereso.mnb.hu hosztot), ezért az
-        adat kizárólag a megrendelő által átadott értékből származik, és a
-        publikálás előtt hivatalos forrásból megerősítendő.
-      */
-      label: "MNB-határozat száma",
-      value: "H-EN-III-636/2025",
-    },
-    {
-      label: "Megbízó befektetési vállalkozás",
-      value: "Patria Finance Magyarországi Fióktelepe – a „K&H Értékpapír” márkanév használója",
-    },
-    { label: "Megbízó székhelye", value: "1095 Budapest, Lechner Ödön fasor 9." },
-    { label: "Megbízó cégjegyzékszáma", value: "01-17-001469" },
-    {
-      label: "Felügyeleti és nyilvántartási információ",
-      value: "Magyar Nemzeti Bank Intézménykereső; K&H Értékpapír – Közvetítők jegyzéke",
-    },
-  ],
-} as const;
 
 /** SOT 10. Lábléc – kötelező rövid változat */
 export const footer: {
@@ -495,8 +438,15 @@ export const footer: {
     "A „K&H Értékpapír” a Patria Finance Magyarországi Fióktelepe által használt márkanév; az ügyfelek tényleges befektetési szolgáltatója a Fióktelep.",
   disclaimerLine:
     "A weboldal általános tájékoztatást tartalmaz; nem minősül személyre szóló befektetési tanácsadásnak, ajánlatnak, befektetési vagy pénzügyi elemzésnek, illetve adó- vagy jogi tanácsadásnak. A tőkepiaci befektetések kockázattal járnak, és tőkevesztést okozhatnak. A múltbeli hozam nem jelent garanciát a jövőbeni teljesítményre.",
+  /*
+   * v1.1 — LEGAL CONSOLIDATION: az Impresszum és a Panaszkezelés horgonya a
+   * homepage-ről (#impresszum / #panaszkezeles) a Jogi tájékoztató oldal
+   * saját horgonyaira váltott, mert mindkét tartalom oda költözött — ld.
+   * src/content/legal-notice.ts. A sorrend és a másik három link
+   * változatlan.
+   */
   links: [
-    { label: "Impresszum", href: "/#impresszum" },
+    { label: "Impresszum", href: "/jogi-tajekoztato#impresszum" },
     /**
      * v1.1 — POST-LAUNCH UI & STRUCTURE POLISH: a részletes Jogi tájékoztató
      * (korábban a homepage saját #jogi-tajekoztato szakasza) önálló oldalra
@@ -510,7 +460,7 @@ export const footer: {
      * oldalon érhető el — ld. src/content/privacy-policy.ts.
      */
     { label: "Adatkezelési tájékoztató", href: "/adatkezelesi-tajekoztato" },
-    { label: "Panaszkezelés", href: "/#panaszkezeles" },
+    { label: "Panaszkezelés", href: "/jogi-tajekoztato#panaszkezeles" },
     {
       label: "K&H Értékpapír dokumentumai",
       href: "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok",

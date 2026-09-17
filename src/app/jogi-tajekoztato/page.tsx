@@ -22,6 +22,21 @@ import { legalNotice } from "@/content/legal-notice";
  * homepage első képernyőjét — ez az ok egy önálló, dedikált jogi oldalon
  * nem áll fenn, ezért itt minden szakasz kattintás nélkül, azonnal
  * olvasható, ugyanúgy, mint az adatkezelési tájékoztató oldalon.
+ *
+ * v1.1 — POST-LAUNCH UI POLISH v1.1 (LEGAL CONSOLIDATION). A Panaszkezelés
+ * és az Impresszum a homepage-ről (törölt LegalRiskBlock komponens) IDE
+ * költözött, a meglévő 1–5. szakasszal AZONOS, világos vizuális rendszerrel
+ * (nem a homepage-en használt sötét tónussal) — 6. és 7. szakaszként, a
+ * meglévő számozott mintát folytatva. Stabil horgonyaik (#panaszkezeles,
+ * #impresszum) VÁLTOZATLANOK maradtak, hogy a footer és a külső hivatkozások
+ * törés nélkül működjenek, csak a cél oldala változott
+ * (/jogi-tajekoztato#panaszkezeles, /jogi-tajekoztato#impresszum).
+ *
+ * A lead bekezdés utáni két gyorsnavigációs link (Panaszkezelés, Impresszum)
+ * a meglévő, már használt "szekunder gomb" mintát viseli (ugyanaz a
+ * className, mint a lap alján lévő "← Vissza a főoldalra" gombé) — nem új
+ * gomb-design, csak egy már létező stílus újrafelhasználása két belső
+ * horgonyra.
  */
 
 export const metadata: Metadata = {
@@ -90,6 +105,29 @@ export default function JogiTajekoztatoPage() {
             {legalNotice.lead}
           </p>
 
+          {/*
+            Gyorsnavigáció a Panaszkezeléshez és az Impresszumhoz — a lap
+            elején, hogy a footerből ide érkezők (vagy bárki, aki kifejezetten
+            emiatt nyitja meg az oldalt) ne kelljen végiggörgetnie az 1–5.
+            szakaszt. Szemantikailag navigáció, ezért valódi linkek, nem
+            gombok. A meglévő, a lap alján is használt szekunder-gomb
+            stílust viseli — nincs új szín vagy komponens.
+          */}
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a
+              href="#panaszkezeles"
+              className="inline-flex min-h-12 items-center justify-center rounded-md border border-border-strong bg-transparent px-6 text-base font-medium text-text-primary transition-colors hover:border-ink"
+            >
+              Panaszkezelés
+            </a>
+            <a
+              href="#impresszum"
+              className="inline-flex min-h-12 items-center justify-center rounded-md border border-border-strong bg-transparent px-6 text-base font-medium text-text-primary transition-colors hover:border-ink"
+            >
+              Impresszum
+            </a>
+          </div>
+
           {/* 1. Szerepek és felelősség */}
           <h2
             id={slugify(legalNotice.status.heading)}
@@ -152,6 +190,69 @@ export default function JogiTajekoztatoPage() {
           <p className="mt-4 text-base leading-relaxed text-text-primary">
             {legalNotice.disclaimer.body}
           </p>
+
+          {/*
+            6. Panaszkezelés — a homepage-ről költözött ide (törölt
+            LegalRiskBlock). Stabil #panaszkezeles horgony, VÁLTOZATLAN
+            szöveggel, a lap 1–5. szakaszával azonos világos stílusban.
+          */}
+          <h2
+            id="panaszkezeles"
+            className="font-display mt-14 scroll-mt-24 border-t border-border-strong pt-8 text-2xl leading-snug text-text-primary sm:text-[1.75rem]"
+          >
+            6. {legalNotice.complaints.heading}
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {legalNotice.complaints.lead}
+          </p>
+          <ul className="mt-4 space-y-3">
+            {legalNotice.complaints.items.map((item) => (
+              <li
+                key={item.label}
+                className="flex flex-col gap-0.5 text-base leading-relaxed text-text-primary sm:flex-row sm:items-baseline sm:gap-4"
+              >
+                <span className="text-sm font-medium text-text-secondary sm:w-56 sm:shrink-0">
+                  {item.label}
+                </span>
+                {item.href ? (
+                  <a
+                    href={item.href}
+                    className="inline-flex min-h-11 items-center break-all font-medium text-accent underline underline-offset-4"
+                  >
+                    {item.value}
+                  </a>
+                ) : (
+                  <span>{item.value}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {legalNotice.complaints.closing}
+          </p>
+
+          {/*
+            7. Impresszum — szintén a homepage-ről költözött ide. Stabil
+            #impresszum horgony, VÁLTOZATLAN szöveggel.
+          */}
+          <h2
+            id="impresszum"
+            className="font-display mt-14 scroll-mt-24 border-t border-border-strong pt-8 text-2xl leading-snug text-text-primary sm:text-[1.75rem]"
+          >
+            7. {legalNotice.imprint.heading}
+          </h2>
+          <dl className="mt-4 grid gap-3 md:grid-cols-2">
+            {legalNotice.imprint.items.map((item) => (
+              <div key={item.label}>
+                <dt className="text-sm font-medium text-text-secondary">
+                  {item.label}
+                </dt>
+                <dd className="text-base leading-relaxed text-text-primary">
+                  {item.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
 
           {/*
             Jól látható záró visszalink, közvetlenül a Footer előtt — ugyanaz

@@ -4,7 +4,6 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import LegalRiskBlock from "@/components/LegalRiskBlock";
 import OfficialDocuments from "@/components/OfficialDocuments";
 import Services from "@/components/Services";
 import WhyJG from "@/components/WhyJG";
@@ -30,16 +29,21 @@ export const metadata: Metadata = {
  * Főoldal — v1.2, a jóváhagyott hero-referencia (Lovable) szerkezete szerint.
  *
  *   Hero  →  01 Rólunk  →  02 Szolgáltatások  →  03 Miért mi?
- *   →  04 Hivatalos dokumentumok  →  05 Kapcsolat  →  Jogi tájékoztató
+ *   →  04 Hivatalos dokumentumok  →  05 Kapcsolat
  *
  * A v1.1-ben általunk hozzáadott külön FOLYAMAT szakasz és a konverziós
  * CTA-sáv eltávolítva: egyik sem része a referenciaoldal szövegének. A
- * konverziós útvonalat a header-CTA, a hero-CTA és a Kapcsolat szakasz
- * biztosítja.
+ * konverziós útvonalat a header-CTA, a hero-CTA, a Services/WhyJG utáni
+ * kontextuális CTA-k és a Kapcsolat szakasz biztosítja.
  *
- * A jogi hierarchia változatlan: rövid státuszközlés a Heróban → egyetlen
- * közös közlés a szolgáltatások alatt → részletes Jogi tájékoztató az oldal
- * alján. Semmi nincs elrejtve.
+ * v1.1 — POST-LAUNCH UI POLISH v1.1 (LEGAL CONSOLIDATION): a korábbi,
+ * homepage-en álló `<LegalRiskBlock />` (Panaszkezelés + Impresszum) törölve
+ * — mindkét tartalom átköltözött a /jogi-tajekoztato oldalra, ld.
+ * src/content/legal-notice.ts. A Kapcsolat szakasz után így közvetlenül a
+ * Footer következik; a jogi hierarchia rövid, homepage-en kötelező része
+ * (Heró státuszközlés → Services alatti közös közlés) változatlan, csak a
+ * részletes jogi dokumentum és a Panaszkezelés/Impresszum él most kizárólag
+ * a dedikált jogi oldalon.
  */
 export default function Home() {
   return (
@@ -61,7 +65,6 @@ export default function Home() {
         <WhyJG />
         <OfficialDocuments />
         <Contact />
-        <LegalRiskBlock />
       </main>
 
       <Footer />
