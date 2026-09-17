@@ -31,6 +31,17 @@ function splitDefinition(text: string): [string, string] {
   return [text.slice(0, idx), text.slice(idx + 2)];
 }
 
+/**
+ * A hosting.noticeText mondatot három részre bontja a benne szereplő
+ * hosting.noticeLinkLabel kifejezés mentén, hogy az kattintható linkként
+ * jelenhessen meg a mondat közepén, a mondat szövegének módosítása nélkül.
+ */
+function splitAroundLabel(text: string, label: string): [string, string, string] {
+  const at = text.indexOf(label);
+  if (at === -1) return [text, "", ""];
+  return [text.slice(0, at), label, text.slice(at + label.length)];
+}
+
 function BulletList({ items }: { items: readonly string[] }) {
   return (
     <ul className="mt-3 space-y-3">
@@ -202,6 +213,74 @@ export default function AdatkezelesiTajekoztatoPage() {
               {paragraph}
             </p>
           ))}
+
+          {/*
+            6. Weboldal technikai kiszolgálása — v1.0 kiegészítés.
+
+            Ez a szakasz NEM a DOCX-forrásból származik (ld. a
+            privacy-policy.ts fejlécének megjegyzését): a production hosting
+            platform a Vercel lesz, ezért a weboldal-üzemeltetés technikai
+            tényét itt, a DOCX-eredetű jogi törzsszöveg UTÁN, önálló,
+            számozott szakaszként közöljük — additív kiegészítésként, a
+            meglévő szakaszok tartalmának módosítása nélkül.
+          */}
+          <h2
+            id={slugify(privacyPolicy.hosting.heading)}
+            className="font-display mt-14 scroll-mt-24 border-t border-border-strong pt-8 text-2xl leading-snug text-text-primary sm:text-[1.75rem]"
+          >
+            6. {privacyPolicy.hosting.heading}
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.hosting.intro}
+          </p>
+
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            <span className="font-medium">Szolgáltató:</span>
+            <br />
+            {privacyPolicy.hosting.provider.name}
+            {privacyPolicy.hosting.provider.addressLines.map((line) => (
+              <span key={line}>
+                <br />
+                {line}
+              </span>
+            ))}
+          </p>
+
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.hosting.dataIntro}
+          </p>
+          <BulletList items={privacyPolicy.hosting.dataItems} />
+
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.hosting.notUsedIntro}
+          </p>
+          <BulletList items={privacyPolicy.hosting.notUsedItems} />
+
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {(() => {
+              const [before, label, after] = splitAroundLabel(
+                privacyPolicy.hosting.noticeText,
+                privacyPolicy.hosting.noticeLinkLabel,
+              );
+              return (
+                <>
+                  {before}
+                  {label ? (
+                    <a
+                      href={privacyPolicy.hosting.noticeUrl}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="font-medium text-accent underline underline-offset-4 hover:text-text-primary"
+                    >
+                      {label}
+                      <span className="sr-only"> (új lapon nyílik meg)</span>
+                    </a>
+                  ) : null}
+                  {after}
+                </>
+              );
+            })()}
+          </p>
 
           <p className="mt-14 border-t border-border-strong pt-8 text-sm text-text-secondary">
             {privacyPolicy.effectiveDate}

@@ -17,6 +17,18 @@
  *
  * MÓDOSÍTÁSI SZABÁLY: a jogi tartalom módosítása kizárólag a forrás DOCX
  * frissítése és jóváhagyása után, ennek a fájlnak a cseréjével történhet.
+ *
+ * v1.0 KIEGÉSZÍTÉS — WEBOLDAL TECHNIKAI KISZOLGÁLÁSA (`hosting` mező, lent).
+ * Ez a szakasz NEM a DOCX-ből származik: a fentiek szerinti szabály csak a
+ * DOCX-eredetű jogi törzsszövegre vonatkozik (definitions / legalBases /
+ * rights / remedy / closing), azt a `hosting` mező hozzáadása nem érinti és
+ * nem módosítja. A `hosting` mező a weboldal saját, technikai kiegészítése:
+ * a production hosting szolgáltatás (Vercel Inc.) által a weboldal
+ * kiszolgálása során kezelhető technikai adatok bizonyított, hivatalos
+ * forrásból (Vercel Privacy Notice) alátámasztott felsorolása. Nem állít
+ * GDPR-szerepet (adatfeldolgozó/al-adatfeldolgozó), nem határoz meg
+ * megőrzési időt és nem tesz adattovábbítási garanciát — csak a bizonyított
+ * technikai tényt közli.
  */
 
 export type PrivacyLegalBasisItem = {
@@ -142,6 +154,48 @@ export const privacyPolicy = {
     body: [
     "Részletes adatkezelési tájékoztatás, ahol többek között az adatkezelés célja(i), jogalapja, őrzési ideje, az adatvédelmi tisztviselő elérhetősége, stb. is megismerhető, az Adatkezelő Adatkezelési tájékoztatójában megtalálható.",
   ],
+  },
+
+  /**
+   * WEBOLDAL TECHNIKAI KISZOLGÁLÁSA — v1.0 kiegészítés, NEM DOCX-forrás.
+   * Ld. a fájl fejlécének megjegyzését. A production hosting platform a
+   * Vercel lesz; ez a szakasz kizárólag a bizonyított technikai tényt
+   * közli, GDPR-szerep (adatfeldolgozó stb.), megőrzési idő vagy
+   * adattovábbítási garancia megjelölése nélkül.
+   */
+  hosting: {
+    heading: "Weboldal technikai kiszolgálása",
+    intro:
+      "A weboldal technikai tárhely- és kiszolgálási infrastruktúráját a Vercel Inc. biztosítja.",
+    provider: {
+      name: "Vercel Inc.",
+      addressLines: [
+        "440 N Barranca Ave #4133",
+        "Covina, CA 91723",
+        "United States",
+      ],
+    },
+    dataIntro:
+      "A weboldal meglátogatása során a szolgáltatás működtetéséhez szükséges technikai adatok kerülhetnek kezelésre, így különösen:",
+    dataItems: [
+      "IP-cím",
+      "IP-cím alapján meghatározott hozzávetőleges helyadat",
+      "böngésző- és eszközinformációk",
+      "rendszerkonfigurációs adatok",
+      "kérési és naplóadatok",
+      "a szolgáltatás működésével és teljesítményével kapcsolatos technikai adatok",
+    ],
+    notUsedIntro: "A JG Investment Plus Kft. weboldala jelenleg nem használ:",
+    notUsedItems: [
+      "webes adatbekérő űrlapot",
+      "analitikai szolgáltatást",
+      "marketing trackinget",
+      "marketing cookie-t",
+    ],
+    noticeText:
+      "A Vercel saját adatkezelésére vonatkozó részletes és mindenkor hatályos tájékoztatás a Vercel Privacy Notice oldalán érhető el.",
+    noticeLinkLabel: "Vercel Privacy Notice",
+    noticeUrl: "https://vercel.com/legal/privacy-notice",
   },
 
   effectiveDate: "hatályos: 2026. március 1-től",
