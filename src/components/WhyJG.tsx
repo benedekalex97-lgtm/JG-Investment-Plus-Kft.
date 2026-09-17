@@ -81,6 +81,21 @@ export default function WhyJG() {
           </Reveal>
         ))}
       </ul>
+
+      {/*
+        v1.1 — POST-LAUNCH UI POLISH v1.1: kontextuális CTA a szakasz végén.
+        Sötét (deep) felület — a Hero és a Header CTA-jával AZONOS
+        `hero-cta-primary` osztály és színpár (Porcelain háttér, Ink
+        felirat), új szín vagy stílus nélkül.
+      */}
+      <Reveal delay={whyJg.pillars.length * 100} className="mt-10 sm:mt-12">
+        <a
+          href={whyJg.cta.href}
+          className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-porcelain px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
+        >
+          {whyJg.cta.label}
+        </a>
+      </Reveal>
     </Section>
   );
 }

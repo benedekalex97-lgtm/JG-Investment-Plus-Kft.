@@ -88,6 +88,24 @@ export default function Services() {
           {services.roleNote.body}
         </p>
       </Reveal>
+
+      {/*
+        v1.1 — POST-LAUNCH UI POLISH v1.1: kontextuális CTA a szakasz végén.
+        Meglévő tokenek: Aubergine háttér + Porcelain felirat (a design
+        rendszer saját, eddig csak háttér/keret/fókusz szerepben használt
+        accent/accent-hover párja) — világos (surface) szakaszon ez ad
+        kellő, de nem harsány súlyt, új szín vagy gradiens nélkül. Ugyanaz a
+        forma (rounded-md, min-h-14, hover:-translate-y-px), mint a Hero és
+        a Header CTA-ján, csak a világos háttérhez illő színpárral.
+      */}
+      <Reveal delay={160} className="mt-10 sm:mt-12">
+        <a
+          href={services.cta.href}
+          className="inline-flex min-h-14 items-center justify-center rounded-md bg-accent px-10 text-center text-sm font-semibold tracking-[0.1em] text-porcelain transition duration-200 hover:-translate-y-px hover:bg-accent-hover sm:text-[0.9375rem]"
+        >
+          {services.cta.label}
+        </a>
+      </Reveal>
     </Section>
   );
 }
