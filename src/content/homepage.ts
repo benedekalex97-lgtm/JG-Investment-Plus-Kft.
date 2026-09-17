@@ -88,7 +88,7 @@ export const hero = {
    */
   headlineHighlight: "Átláthatóság.",
   intro:
-    "Tájékoztatás a K&H Értékpapírnál elérhető befektetési szolgáltatásokról és pénzügyi eszközökről — személyes kapcsolattartással, érthető folyamatokkal.",
+    "Tájékoztatás a K&H Értékpapírnál elérhető befektetési szolgáltatásokról és pénzügyi eszközökről, személyes kapcsolattartással és érthető folyamatokkal.",
   primaryCta: { label: "KAPCSOLATFELVÉTEL", href: "/#kapcsolat" },
 } as const;
 
@@ -115,11 +115,19 @@ export const statusNotice = {
 /**
  * SOT 2. Rólunk — 01
  *
- * A szövegezés forrása a jóváhagyott hero-referencia (Lovable) oldal. Az
- * infosáv utolsó két tétele (felügyeleti hatóság, befektetővédelem) tényszerű
- * közlésként jelenik meg, NEM marketingígéretként — és compliance-review
- * tételként van megjelölve (`complianceReview: true`). Hivatalos forrás
- * hiányában NEM rendelünk hozzájuk kitalált hivatkozást.
+ * A szövegezés forrása a jóváhagyott hero-referencia (Lovable) oldal.
+ *
+ * v1.4.1: az infosávból KIKERÜLT a „Befektetővédelem — Cseh Befektetővédelmi
+ * Alap — 20 000 EUR" tétel. NEM azért, mert tartalmilag hibásnak minősítettük,
+ * hanem mert ezen a helyen túl korán és túl nagy bizalmi súllyal jelent meg.
+ * A befektetővédelmi tájékoztatás VÁLTOZATLANUL megmarad a „Miért minket?"
+ * III. pillérében; új befektetővédelmi állítás sehol nem keletkezett, és a
+ * helyére NEM került pótlólagos marketingállítás.
+ *
+ * A megmaradó „Felügyeleti hatóság" tétel tényszerű közlésként jelenik meg,
+ * NEM marketingígéretként, és compliance-review tételként van megjelölve
+ * (`complianceReview: true`). Hivatalos forrás hiányában NEM rendelünk hozzá
+ * kitalált hivatkozást.
  */
 export const about: {
   sectionNumber: string;
@@ -133,11 +141,11 @@ export const about: {
   sectionLabel: "Rólunk",
   heading: "Kik vagyunk?",
   paragraphs: [
-    "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynökeként közvetlen kapcsolatot biztosít ügyfeleink és Magyarország egyik vezető bankcsoporti hátterű brókercége között. Társaságunk tevékenysége a Bszt. 111. §-a alapján folyik, a K&H Értékpapír dokumentumai között közzétett, mindenkor hatályos együttműködési hirdetmény keretein belül.",
+    "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynökeként közvetlen kapcsolatot biztosít ügyfeleink és Magyarország egyik vezető bankcsoporti hátterű brókercége között. Tevékenységünket a Bszt. 111. §-a alapján, a K&H Értékpapír dokumentumai között közzétett, mindenkor hatályos együttműködési hirdetmény keretei között végezzük.",
     "Munkánk középpontjában az átlátható, szakmailag megalapozott tájékoztatás áll.",
   ],
   quote:
-    "A pénzügyi döntések nem csupán számokról szólnak — hanem értékekről, célokról és felelős gondolkodásról is.",
+    "A pénzügyi döntések nem csupán számokról szólnak, hanem értékekről, célokról és felelős gondolkodásról is.",
   facts: [
     {
       label: "Megbízó befektetési szolgáltató",
@@ -154,11 +162,6 @@ export const about: {
       value: "Magyar Nemzeti Bank (MNB)",
       complianceReview: true,
     },
-    {
-      label: "Befektetővédelem",
-      value: "Cseh Befektetővédelmi Alap — 20 000 EUR",
-      complianceReview: true,
-    },
   ],
 };
 
@@ -173,23 +176,23 @@ export const services = {
   sectionNumber: "02",
   sectionLabel: "Szolgáltatások",
   heading: "Miben segítünk?",
-  lead: "Az alábbi témakörökben nyújtunk általános, nem személyre szóló tájékoztatást — az ügyfél döntési folyamatának előkészítéseként.",
+  lead: "Az alábbi témakörökben nyújtunk általános, nem személyre szóló tájékoztatást, amely az ügyfél döntési folyamatát készíti elő.",
   items: [
     {
       title: "Pénzügyi lehetőségek bemutatása",
-      body: "Vállalkozók és magánszemélyek számára elérhető tőkepiaci eszközök és megtakarítási konstrukciók általános ismertetése — például részvények, kötvények, ETF-ek, befektetési alapok és TBSZ-számlák — kizárólag tájékoztató jelleggel, egyedi ajánlás nélkül.",
+      body: "Vállalkozók és magánszemélyek számára elérhető tőkepiaci eszközök és megtakarítási konstrukciók (például részvények, kötvények, ETF-ek, befektetési alapok és TBSZ-számlák) általános ismertetése, kizárólag tájékoztató jelleggel, egyedi ajánlás nélkül.",
     },
     {
       title: "Megtakarítási és adózási lehetőségek",
-      body: "Különböző megtakarítási formák — TBSZ, NYESZ, rendszeres befektetési tervek — működésének, valamint a vonatkozó adójogszabályi környezetnek az általános bemutatása. Nem minősül adótanácsadásnak.",
+      body: "Különböző megtakarítási formák (TBSZ, NYESZ, rendszeres befektetési tervek) működésének, valamint a vonatkozó adójogszabályi környezetnek az általános bemutatása. Nem minősül adótanácsadásnak.",
     },
     {
       title: "Digitális pénzügyi megoldások",
-      body: "A K&H Webtrader és Mobiltrader platform lehetőségeinek, funkcióinak és a számlanyitás folyamatának bemutatása — segítség az online tőkepiaci jelenlét megkezdéséhez.",
+      body: "A K&H Webtrader és Mobiltrader platform lehetőségeinek, funkcióinak és a számlanyitás folyamatának bemutatása. Segítség az online tőkepiaci jelenlét megkezdéséhez.",
     },
     {
       title: "Kapcsolattartás és pénzügyi edukáció",
-      body: "Folyamatos kommunikáció, pénzügyi szemléletformálás és tapasztalatcsere hosszú távú együttműködés keretében. Segítség abban, hogy az ügyfél megalapozottabb kérdésekkel fordulhasson a befektetési szolgáltatóhoz.",
+      body: "Folyamatos kommunikáció, pénzügyi szemléletformálás és tapasztalatcsere hosszú távú együttműködésben. Segítség abban, hogy az ügyfél megalapozottabb kérdésekkel fordulhasson a befektetési szolgáltatóhoz.",
     },
   ],
   /** EGYETLEN közös közlés a négy blokk alatt — nem ismétlődik kártyánként. */
@@ -370,7 +373,7 @@ export const legal: {
 } = {
   sectionLabel: "Jogi tájékoztató",
   heading: "Jogi tájékoztató",
-  lead: "Az alábbi részletes tájékoztatás teljes egészében elérhető. A témakörök alapértelmezés szerint összecsukva jelennek meg, hogy áttekinthető maradjon; a kockázati figyelmeztetés mindig nyitva van.",
+  lead: "Az alábbi részletes tájékoztatás teljes egészében elérhető. A témakörök alapértelmezés szerint összecsukva jelennek meg, hogy a szakasz áttekinthető maradjon; a kockázati figyelmeztetés mindig nyitva van.",
   status: {
     heading: "Szerepek és felelősség",
     paragraphs: [
@@ -443,6 +446,28 @@ export const imprint = {
         "A Patria Finance Magyarországi Fióktelepe Bszt. 111. § (2) bekezdés a) pontja szerinti függő ügynöke",
     },
     {
+      /*
+        MNB-HATÁROZAT SZÁMA — v1.4.1.
+
+        Szándékosan NEM „engedélyszám": a függő ügynöki jogállás nyilvántartásba
+        vételéről szóló HATÁROZAT azonosítója, nem a JG saját tevékenységi
+        engedélye. A megnevezés ezért semleges és nem keletkeztet új
+        jogosultsági állítást.
+
+        Elhelyezés: kizárólag az Impresszum hivatalos intézményi adatai között,
+        közvetlenül a függő ügynöki jogállás után. NEM kerül a Heróba, a
+        státuszközlésbe, a Rólunk vagy a Szolgáltatások marketingcopyba, a
+        „Miért minket?" szakaszba, illetve a CTA mellé.
+
+        FORRÁS: az MNB Intézménykereső a futtatókörnyezetből NEM volt elérhető
+        (az egress-proxy blokkolja az intezmenykereso.mnb.hu hosztot), ezért az
+        adat kizárólag a megrendelő által átadott értékből származik, és a
+        publikálás előtt hivatalos forrásból megerősítendő.
+      */
+      label: "MNB-határozat száma",
+      value: "H-EN-III-636/2025",
+    },
+    {
       label: "Megbízó befektetési vállalkozás",
       value: "Patria Finance Magyarországi Fióktelepe – a „K&H Értékpapír” márkanév használója",
     },
@@ -466,7 +491,7 @@ export const footer: {
   statusLine:
     "JG Investment Plus Kft. · A K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke.",
   brandLine:
-    "A „K&H Értékpapír” a Patria Finance Magyarországi Fióktelepe mint az ügyfelek tényleges befektetési szolgáltatója által használt márkanév.",
+    "A „K&H Értékpapír” a Patria Finance Magyarországi Fióktelepe által használt márkanév; az ügyfelek tényleges befektetési szolgáltatója a Fióktelep.",
   disclaimerLine:
     "A weboldal általános tájékoztatást tartalmaz; nem minősül személyre szóló befektetési tanácsadásnak, ajánlatnak, befektetési vagy pénzügyi elemzésnek, illetve adó- vagy jogi tanácsadásnak. A tőkepiaci befektetések kockázattal járnak, és tőkevesztést okozhatnak. A múltbeli hozam nem jelent garanciát a jövőbeni teljesítményre.",
   links: [

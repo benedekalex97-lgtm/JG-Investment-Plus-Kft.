@@ -16,6 +16,11 @@ import { about } from "@/content/homepage";
  *
  * v1.4: az idézet Berry jelzővonala felülről lefelé halványodó gradiensre
  * váltott, a facts rail pedig a `.jg-inset-panel` mélységet kapta.
+ *
+ * v1.4.1: a facts rail NÉGY helyett HÁROM adatpontot tartalmaz (a
+ * befektetővédelmi tétel kikerült), ezért a rács 2×2-ről három egyenlő
+ * oszlopra vált, a keretlogika pedig indexalapúra. Új adat nem került a
+ * helyére.
  */
 export default function About() {
   return (
@@ -67,11 +72,28 @@ export default function About() {
           alsó belső mélyedést ad — a sáv így a lapba SÜLLYESZTVE hat, nem
           ráragasztott dashboard-kártyaként. Ikon, pecsét és badge nincs.
         */}
-        <dl className="jg-inset-panel on-dark grid overflow-hidden rounded-xl sm:grid-cols-2">
+        {/*
+          v1.4.1 — HÁROM adatpont (a befektetővédelmi tétel kikerült).
+
+          A korábbi 2×2 rács három elemmel lyukat hagyna a jobb alsó cellában.
+          A `nth-child` alapú keretlogika is eltörne: a második elem a felső
+          sorban maradna, de `nth-last-child(-n+2)`-ként elveszítené az alsó
+          keretét. Ezért a kereteket most az INDEX és a tényleges elemszám
+          alapján számoljuk ki, a rács pedig három egyenlő oszlopra vált —
+          így a sáv zárt, szimmetrikus marad, és NEM kellett pótlólagos
+          adatot kitalálni a szimmetria kedvéért.
+
+          A leghosszabb érték („K&H Értékpapír (Patria Finance Magyarországi
+          Fióktelepe)") miatt a cellák vízszintes paddingje szűkebb, a
+          szövegméret pedig egy hajszállal kisebb, mint a v1.4-ben.
+        */}
+        <dl className="jg-inset-panel on-dark grid overflow-hidden rounded-xl sm:grid-cols-3">
           {about.facts.map((fact, index) => (
             <div
               key={fact.label}
-              className="border-b border-white/10 px-6 py-8 last:border-b-0 sm:border-r sm:[&:nth-child(2n)]:border-r-0 sm:[&:nth-last-child(-n+2)]:border-b-0 sm:px-9 sm:py-9"
+              className={`border-white/10 px-6 py-8 sm:px-7 sm:py-9 ${
+                index < about.facts.length - 1 ? "border-b sm:border-r sm:border-b-0" : ""
+              }`}
             >
               {/*
                 Finom GEOMETRIAI jelölés, nem sorszám. Tudatos döntés: egy
@@ -88,7 +110,7 @@ export default function About() {
               <dt className="mt-3.5 text-[0.6875rem] font-semibold tracking-[0.14em] text-cool-silver uppercase">
                 {fact.label}
               </dt>
-              <dd className="mt-2.5 text-[0.9375rem] leading-relaxed text-porcelain">
+              <dd className="mt-2.5 text-[0.9375rem] leading-[1.6] text-balance text-porcelain">
                 {fact.value}
               </dd>
             </div>
