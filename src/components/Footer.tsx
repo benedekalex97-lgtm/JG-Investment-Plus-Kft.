@@ -31,16 +31,15 @@ export default function Footer() {
       />
 
       {/*
-        v1.5.3 — a Jogi tájékoztató (Porcelain) felől érkező lágy átmenet.
-
-        A v1.4-es felső `.jg-seam` hajszálvonal HELYÉBE lép, nem mellé. A vonal
-        egy VILÁGOS (Berry Light) vonal, sötét felületre tervezve; itt viszont
-        a sáv teteje Porcelain, és mérve rgb(220,183,203)-ra jönne ki — egy
-        feltűnő rózsaszín hajszálvonal világos alapon. Ezért ezen a határon a
-        lágy sáv önmagában írja le a váltást. Az indoklás részletesen a
-        SectionTransition fejlécében.
+        v1.1 — POST-LAUNCH UI & STRUCTURE POLISH: a közvetlen előd immár a
+        Panaszkezelés/Impresszum blokk (LegalRiskBlock), ami a részletes Jogi
+        tájékoztató kiszervezése óta SÖTÉT felület (korábban Porcelain volt,
+        amikor még ott állt a teljes Jogi tájékoztató szöveg is). A sáv ezért
+        `deep`-ről, nem `canvas`-ról indul — mindkét oldala azonos tónusú,
+        tehát a Kapcsolat → Panaszkezelés/Impresszum → Footer zóna egyetlen,
+        folytonos sötét záró-egységként olvasódik, érzékelhető váltás nélkül.
       */}
-      <SectionTransition from="canvas" toDark />
+      <SectionTransition from="deep" toDark />
 
       <div className="jg-safe-x jg-safe-b relative mx-auto w-full max-w-[1280px] py-16 lg:py-24 [--jg-safe-b-base:4rem] lg:[--jg-safe-b-base:6rem]">
         {/*
