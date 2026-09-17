@@ -48,13 +48,45 @@ const inter = Inter({
  */
 const isProductionEnvironment = process.env.VERCEL_ENV === "production";
 
+/*
+ * v1.0 — PRODUCTION CANONICAL HOST.
+ *
+ * A jelenlegi, hivatalos production hostname a Vercel-projekt stabil
+ * vercel.app domainje — ez NEM egy feature preview URL és NEM egy
+ * commit-specifikus deployment URL, hanem a projekt "Production Branch"-éhez
+ * (main) tartozó, állandó cím. Ha később egyedi domain érkezik, ezt az
+ * értéket egy külön, célzott commitban kell majd az új domainre cserélni —
+ * ez a mostani érték nem végleges, csak a jelenlegi valóságot tükrözi.
+ *
+ * A `metadataBase` innen ad abszolút alapot minden relatív URL-nek
+ * (canonical, Open Graph); enélkül a Next.js a build-környezet URL-jét
+ * (pl. egy preview deployment címét) használná alapértelmezésként, ami
+ * helytelen canonicalt eredményezne.
+ */
+const PRODUCTION_URL = "https://jg-investment-plus-kft.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(PRODUCTION_URL),
   title: "JG Investment Plus Kft. · A K&H Értékpapír függő ügynöke",
   description:
     "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a JG Investment Plus Kft. nem nyújt befektetési tanácsadást.",
   robots: isProductionEnvironment
     ? { index: true, follow: true }
     : { index: false, follow: false },
+  /*
+   * Minimális Open Graph — kizárólag a már jóváhagyott title/description
+   * értékekből, új marketingcopy és OG image nélkül. Azok az oldalak, amelyek
+   * nem definiálnak saját openGraph mezőt (pl. az adatkezelési tájékoztató),
+   * ezt öröklik alapértelmezésként — ez nem szándékolt pontatlanság, csak a
+   * jelenlegi minimális, egy szintű OG-lefedettség.
+   */
+  openGraph: {
+    title: "JG Investment Plus Kft. · A K&H Értékpapír függő ügynöke",
+    description:
+      "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a JG Investment Plus Kft. nem nyújt befektetési tanácsadást.",
+    type: "website",
+    locale: "hu_HU",
+  },
 };
 
 export const viewport: Viewport = {

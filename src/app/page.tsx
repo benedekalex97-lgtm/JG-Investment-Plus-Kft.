@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import About from "@/components/About";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
@@ -8,6 +9,22 @@ import OfficialDocuments from "@/components/OfficialDocuments";
 import Services from "@/components/Services";
 import WhyJG from "@/components/WhyJG";
 import { nav } from "@/content/homepage";
+
+/*
+ * v1.0 — a főoldal SAJÁT canonicalja, itt és nem a gyökér layoutban.
+ *
+ * A `metadataBase` (layout.tsx) minden oldalra érvényes, de a canonical URL
+ * oldalanként más: a főoldalé "/", az adatkezelési tájékoztatóé viszont
+ * "/adatkezelesi-tajekoztato" kellene, hogy legyen. Ha a canonicalt a
+ * layoutban állítanánk be, minden aloldal (a privacy oldal is) örökölné a
+ * főoldal "/" canonicaljét — ez téves duplikált-tartalom jelzés lenne a
+ * keresőmotorok felé. Ezért a canonical kizárólag itt, a főoldal saját
+ * metadata exportjában él; a privacy oldal emiatt nem kap (téves) örökölt
+ * canonicalt.
+ */
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 /**
  * Főoldal — v1.2, a jóváhagyott hero-referencia (Lovable) szerkezete szerint.
