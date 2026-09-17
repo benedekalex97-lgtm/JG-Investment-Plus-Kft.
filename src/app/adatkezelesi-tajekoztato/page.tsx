@@ -282,6 +282,17 @@ export default function AdatkezelesiTajekoztatoPage() {
             })()}
           </p>
 
+          {/*
+            A hosting-szakasz saját, visszafogott közzétételi dátuma — kisebb
+            méret és másodlagos szín (meglévő tokenek, nincs új tipográfia),
+            hogy vizuálisan alárendelt maradjon a szakasz törzsszövegéhez
+            képest. Szándékosan MÉG a lenti, DOCX-eredetű `effectiveDate` sor
+            ELŐTT jelenik meg, és nem érinti azt.
+          */}
+          <p className="mt-4 text-sm text-text-secondary">
+            {privacyPolicy.hosting.publishedDate}
+          </p>
+
           <p className="mt-14 border-t border-border-strong pt-8 text-sm text-text-secondary">
             {privacyPolicy.effectiveDate}
           </p>

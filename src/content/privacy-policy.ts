@@ -196,6 +196,13 @@ export const privacyPolicy = {
       "A Vercel saját adatkezelésére vonatkozó részletes és mindenkor hatályos tájékoztatás a Vercel Privacy Notice oldalán érhető el.",
     noticeLinkLabel: "Vercel Privacy Notice",
     noticeUrl: "https://vercel.com/legal/privacy-notice",
+    /**
+     * A weboldal-specifikus technikai kiegészítés (ez a `hosting` szakasz)
+     * közzétételi dátuma — NEM azonos a lenti `effectiveDate`-tel, ami a
+     * DOCX-eredetű jogi törzsszöveg hatályossági dátuma. A kettő szándékosan
+     * különálló: az `effectiveDate` sorát ez a mező nem módosítja.
+     */
+    publishedDate: "Weboldal-specifikus technikai kiegészítés közzététele: 2026. szeptember 17.",
   },
 
   effectiveDate: "hatályos: 2026. március 1-től",
