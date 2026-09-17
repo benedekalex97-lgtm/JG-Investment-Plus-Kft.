@@ -76,22 +76,26 @@ export default function Hero() {
       A Hero mély, sötét felületen áll (.on-dark → a fókuszgyűrű Porcelainre
       vált, ld. globals.css). Rétegek alulról:
         1) Deep alapfelület
-        2) hero-vignette — lágy Aubergine mélység a sarkokban
-        3) hero-grid — nagyon halvány tőkepiaci rácsháló, maszkolva
-        4) HeroMarketMotion canvas — a mozgó gyertyák
-        5) hero-veil — SÖTÉT kontrasztvédő overlay a copy mögött
-        6) a copy és a CTA
-      Az 1–5. réteg mind dekoratív: aria-hidden és pointer-events: none.
+        2) hero-vignette — lágy Aubergine mélység és peremsötétítés
+        3) HeroMarketMotion canvas — a perspektivikus gyertyatér: padlósík,
+           horizont, tükröződések és a mozgó gyertyák EGY vetítésben
+        4) hero-veil — SÖTÉT kontrasztvédő overlay a copy mögött
+        5) a copy és a CTA
+      Az 1–4. réteg mind dekoratív: aria-hidden és pointer-events: none.
+
+      v1.5: a korábbi külön `.hero-grid` CSS-réteg MEGSZŰNT. A rácsháló egy
+      másik síkban élt, mint a gyertyák, ezért sosem tudott velük egyezni.
+      A padlósíkot most ugyanaz a perspektivikus vetítés rajzolja a
+      canvasra, amelyik a gyertyákat is — így a mező valóban EGY tér.
     */
     <section
       id="top"
       aria-labelledby="hero-cim"
       className="on-dark relative overflow-hidden bg-surface-deep"
     >
-      {/* Réteg 1–3: statikus mélység. */}
+      {/* Réteg 1–2: statikus mélység és peremsötétítés. */}
       <div aria-hidden="true" className="absolute inset-0 bg-surface-deep" />
       <div aria-hidden="true" className="hero-vignette pointer-events-none absolute inset-0" />
-      <div aria-hidden="true" className="hero-grid pointer-events-none absolute inset-0" />
 
       {/*
         Réteg 4: animation-mount — az absztrakt japángyertya-animáció canvasa.
@@ -108,10 +112,10 @@ export default function Hero() {
         <HeroMarketMotion />
       </div>
 
-      {/* Réteg 5: sötét kontrasztvédő overlay — ld. .hero-veil a globals.css-ben. */}
+      {/* Réteg 4: sötét kontrasztvédő overlay — ld. .hero-veil a globals.css-ben. */}
       <div aria-hidden="true" className="hero-veil pointer-events-none absolute inset-0" />
 
-      {/* Réteg 6: valódi HTML copy és CTA. */}
+      {/* Réteg 5: valódi HTML copy és CTA. */}
       <div className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-col px-5 sm:px-6 lg:px-8">
         {/*
           data-hero-copy: ez a doboz jelöli ki a Hero olvasási zónáját.

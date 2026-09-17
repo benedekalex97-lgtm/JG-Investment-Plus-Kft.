@@ -440,41 +440,17 @@ body {
 }
 
 /*
-  .hero-grid — v1.4: PERSPEKTIVIKUS, de szándékosan NEM „synthwave floor".
+  A v1.4-es `.hero-grid` CSS-réteg a v1.5-ben MEGSZŰNT.
 
-  A v1.3-ban ez két egyenletes, 88 px-es repeating-gradient volt: egy lapos
-  négyzetháló, ami semmilyen térérzetet nem adott. Egy valódi 3D-transzformált
-  rácssík (perspective + rotateX) megadná a mélységet, de azonnal sci-fi
-  dashboard/retro-grid hatást keltene — ezt a brief kizárja.
-
-  Ezért a perspektívát TÉRKÖZZEL és INTENZITÁSSAL modellezzük: a vízszintes
-  vonalak a horizont (~43%) alatt lefelé haladva egyre RITKÁBBAK és egyre
-  kontrasztosabbak (2.6% -> 8.4% alfa), pontosan úgy, ahogy egy távolodó sík
-  vonalai a horizont felé sűrűsödnek és halványulnak. A függőleges vonalak
-  párhuzamosak maradnak, így nincs eltűnési pont és nincs retro-hatás.
-
-  A teljes réteg dekoratív (aria-hidden), és a copy zónája fölött a maszk
-  teljesen kioltja.
+  Az a rácsháló egy külön síkban élt: a perspektíváját térközzel és
+  intenzitással utánozta, de semmilyen kapcsolata nem volt a canvasra
+  rajzolt gyertyák geometriájával, ezért a kettő sosem tudott egyetlen
+  térként olvasódni. A v1.5-ben a padlósíkot ugyanaz az egypontos
+  perspektivikus vetítés rajzolja, amelyik a gyertyákat is elhelyezi
+  (ld. drawGround() a HeroMarketMotion-ben) — így a mélységi vonalak, a
+  gyertyák talppontjai és a tükröződések mind ugyanarra a horizontra
+  konvergálnak.
 */
-.hero-grid {
-  background-image:
-    linear-gradient(to bottom,
-      transparent 43.0%, rgb(190 193 199 / 2.6%) 43.0%, rgb(190 193 199 / 2.6%) calc(43.0% + 1px), transparent calc(43.0% + 1px),
-      transparent 45.3%, rgb(190 193 199 / 3.2%) 45.3%, rgb(190 193 199 / 3.2%) calc(45.3% + 1px), transparent calc(45.3% + 1px),
-      transparent 48.03%, rgb(190 193 199 / 3.8%) 48.03%, rgb(190 193 199 / 3.8%) calc(48.03% + 1px), transparent calc(48.03% + 1px),
-      transparent 51.26%, rgb(190 193 199 / 4.3%) 51.26%, rgb(190 193 199 / 4.3%) calc(51.26% + 1px), transparent calc(51.26% + 1px),
-      transparent 55.08%, rgb(190 193 199 / 4.9%) 55.08%, rgb(190 193 199 / 4.9%) calc(55.08% + 1px), transparent calc(55.08% + 1px),
-      transparent 59.62%, rgb(190 193 199 / 5.5%) 59.62%, rgb(190 193 199 / 5.5%) calc(59.62% + 1px), transparent calc(59.62% + 1px),
-      transparent 64.99%, rgb(190 193 199 / 6.1%) 64.99%, rgb(190 193 199 / 6.1%) calc(64.99% + 1px), transparent calc(64.99% + 1px),
-      transparent 71.36%, rgb(190 193 199 / 6.7%) 71.36%, rgb(190 193 199 / 6.7%) calc(71.36% + 1px), transparent calc(71.36% + 1px),
-      transparent 78.91%, rgb(190 193 199 / 7.2%) 78.91%, rgb(190 193 199 / 7.2%) calc(78.91% + 1px), transparent calc(78.91% + 1px),
-      transparent 87.85%, rgb(190 193 199 / 7.8%) 87.85%, rgb(190 193 199 / 7.8%) calc(87.85% + 1px), transparent calc(87.85% + 1px),
-      transparent 98.45%, rgb(190 193 199 / 8.4%) 98.45%, rgb(190 193 199 / 8.4%) calc(98.45% + 1px), transparent calc(98.45% + 1px),
-      transparent 100%),
-    repeating-linear-gradient(to right, rgb(190 193 199 / 4.5%) 0 1px, transparent 1px 108px);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 38%, black 70%, black 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, transparent 38%, black 70%, black 100%);
-}
 
 /*
   .hero-vignette — v1.4: három szerep egy rétegben.
@@ -482,8 +458,12 @@ body {
        gyenge megvilágítás) — ettől a copy zóna „megvilágítottnak" hat, nem
        csak lefátyolozottnak;
     2) két átlós Aubergine mélység a sarkokban (a v1.3-ból, visszafogva);
-    3) HATÁROZOTT peremsötétítés mind a négy szél felé, hogy a gyertyamező a
-       Hero közepén koncentrálódjon és a szakaszhatárok tiszták legyenek.
+    3) peremsötétítés a négy szél felé, hogy a szakaszhatárok tiszták
+       legyenek. v1.5: az ALSÓ sötétítés 74% -> 38%, mert a Hero alsó
+       harmada most a canvasra rajzolt PADLÓSÍK (mélységi vonalak és
+       tükröződések); az OLDALSÓ pedig 62% -> 34%, mert a gyertyafolyosók
+       éppen a képszélek mentén futnak, és a korábbi erős peremsötétítés
+       az előtér legnagyobb gyertyáit nyomta el.
   Nincs glow, nincs bloom, nincs telített szín.
 */
 .hero-vignette {
@@ -491,8 +471,8 @@ body {
     radial-gradient(ellipse 54% 42% at 50% 22%, rgb(114 84 111 / 26%) 0%, transparent 70%),
     radial-gradient(ellipse 58% 66% at 6% 10%, rgb(73 52 71 / 40%) 0%, transparent 62%),
     radial-gradient(ellipse 56% 64% at 95% 88%, rgb(73 52 71 / 34%) 0%, transparent 60%),
-    linear-gradient(to right, rgb(21 17 22 / 62%) 0%, transparent 16%, transparent 84%, rgb(21 17 22 / 62%) 100%),
-    linear-gradient(to bottom, rgb(21 17 22 / 52%) 0%, transparent 22%, transparent 72%, rgb(21 17 22 / 74%) 100%);
+    linear-gradient(to right, rgb(21 17 22 / 34%) 0%, transparent 11%, transparent 89%, rgb(21 17 22 / 34%) 100%),
+    linear-gradient(to bottom, rgb(21 17 22 / 52%) 0%, transparent 22%, transparent 78%, rgb(21 17 22 / 38%) 100%);
 }
 
 /*
@@ -507,7 +487,7 @@ body {
       radial-gradient(ellipse 78% 34% at 50% 20%, rgb(114 84 111 / 24%) 0%, transparent 72%),
       radial-gradient(ellipse 72% 46% at 2% 8%, rgb(73 52 71 / 34%) 0%, transparent 64%),
       radial-gradient(ellipse 70% 44% at 98% 90%, rgb(73 52 71 / 30%) 0%, transparent 62%),
-      linear-gradient(to bottom, rgb(21 17 22 / 30%) 0%, transparent 16%, transparent 80%, rgb(21 17 22 / 58%) 100%);
+      linear-gradient(to bottom, rgb(21 17 22 / 30%) 0%, transparent 16%, transparent 82%, rgb(21 17 22 / 30%) 100%);
   }
 }
 

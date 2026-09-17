@@ -3,141 +3,134 @@
 import { useEffect, useRef } from "react";
 
 /* ==========================================================================
-   HERO MARKET MOTION — rendezett, összefüggő japángyertya-háttér
+   HERO MARKET MOTION — v1.5: FILMSZERŰ, TÉRBELI GYERTYAKORRIDOR
    --------------------------------------------------------------------------
    Mi EZ:
-     – dekoratív, absztrakt piaci hangulatkép: több mélységi rétegben, EGY
-       közös „master market path" mentén rendezett japángyertya-sor, ami
-       lassan, egységes irányban sodródik;
+     – dekoratív, absztrakt pénzügyi TÉR: japángyertyák egy perspektivikus
+       folyosó két oldalán, tükröződő padló fölött lebegve, a horizont felé
+       sűrűsödve és a mélységi ködbe veszve;
      – saját, függőség nélküli 2D Canvas rajzolás (nincs charting library,
-       nincs animációs library, nincs WebGL, nincs Rive).
+       nincs animációs library, nincs WebGL, nincs Rive, nincs videó).
 
    Mi NEM ez:
      – nem valós árfolyam, nem valós instrumentum, nem historikus adat;
      – nem kereskedési jelzés, nem hozam-, teljesítmény- vagy pozícióábra;
-     – nincs piros–zöld tőzsdei színpár: a gyertyák színét KIZÁRÓLAG a
-       mélységi rétegük adja, az irányuk (hosszabb felső vagy alsó kanóc) csak
-       formai változatosság. A ritka Signal Berry kiemelés is szándékosan
-       mindkét irányú gyertyán megjelenik, hogy ne lehessen
-       "nyereséges"/"vesztes" jelentést tulajdonítani neki. A Signal Berry
-       lila–vörös, NEM tőzsdei vörös.
+     – nincs tengely, nincs árfolyamszám, nincs ticker, nincs piros–zöld
+       tőzsdei színpár. A gyertyák színét a mélységük és egy ritka márkakiemelés
+       adja, az irányuk (hosszabb felső vagy alsó kanóc) csak formai
+       változatosság.
 
-   MOZGÁSI MODELL (v1.2 — a korábbi, független „összevissza" sodródás helyett)
+   MI VÁLTOZOTT A v1.4-HEZ KÉPEST
    --------------------------------------------------------------------------
-   A korábbi verzióban minden gyertya SAJÁT, független fázisú szinuszon
-   lebegett, és nagy (a Hero magasságának ~30%-át kitevő) véletlen függőleges
-   szórást kapott. Ettől a mező kaotikusnak, pattogónak hatott. A v1.2 ezt
-   három eszközzel szünteti meg:
+   A v1.4 gyertyái egy LAPOS, vízszintes sávrendszerben álltak: a mélységet
+   méret, alfa és rajzolási gazdagság szimulálta, de a mező a teljes
+   szélességben egyenletesen töltötte ki a Herót, és a „mélység" három
+   párhuzamos réteg volt, nem tér.
 
-     1) MASTER MARKET PATH — egyetlen, közös, folytonos görbe (egész
-        frekvenciájú térbeli szinuszok összege, nagyon lassú időbeli
-        fázissodrással). MINDEN réteg MINDEN gyertyája ennek a görbének a
-        magasságát veszi fel; a rétegek csak az amplitúdóban és egy kis
-        fáziseltolásban különböznek. Így a mező egyetlen, összefüggő piaci
-        sziluettként olvasódik.
+   A v1.5 VALÓDI PERSPEKTÍVÁT vezet be. Minden gyertya világkoordinátát kap
+   (oldalirány, mélység, padló fölötti magasság), és egy egyszerű, egypontos
+   kamera vetíti ki:
 
-     2) RENDEZETT POZÍCIÓS SOR — a gyertyák egyenletes vízszintes rácson
-        ülnek (elhanyagolható, ±6%-os jitterrel), és mind UGYANABBA az irányba
-        sodródnak. A rétegek sebessége 8–14 px/s között van: érzékelhető
-        parallax, de nem versengő, szétszaladó mozgás.
+       s        = focal / z                    (mélységi méretarány)
+       screenX  = vpX + wx * s
+       screenY  = horizonY + (camY - magasság) * s
 
-     3) SZOMSZÉDKORRELÁCIÓ — a gyertyánkénti animációs fázisok nem
-        véletlenek, hanem az INDEXBŐL származnak, kis lépésközzel
-        (~0.4–0.6 rad). Ettől a szomszédos gyertyák szinte fázisban vannak: a
-        mozgás végigfutó hullámként halad a soron, nem egyenkénti pattogásként.
+   Ebből három dolog KÖVETKEZIK, nem utólag rájátszott effekt:
+
+     1) FOLYOSÓ. Az oldalirányú pozíció egy középső sávot kihagy, ezért a
+        közeli gyertyák a képszélek felé kerülnek, a távoliak viszont a
+        középpont felé konvergálnak — pontosan úgy, ahogy egy valódi
+        folyosóban. A copy középső zónája szerkezetileg marad szabadon, nem
+        utólagos elhalványítással.
+
+     2) PADLÓSÍK. A padló a magasság = 0 sík. Ugyanaz a vetítés rajzolja a
+        mélységi vonalakat és a tükröződéseket, ezért a gyertyák valóban EGY
+        térben állnak. (A v1.4 CSS-rácsa megszűnt: az külön síkban élt, és
+        nem tudott a gyertyákkal egyezni.)
+
+     3) PARALLAXIS INGYEN. Egyetlen, világkoordinátás oldalirányú lengés
+        elég: a közeli gyertyák nagyobb `s`-sel nagyobbat mozdulnak a
+        képernyőn, mint a távoliak. Nem kell rétegenként külön sebesség.
+
+   MOZGÁSI ELV — „szinte statikus prémium vizuál"
+   --------------------------------------------------------------------------
+   A v1.4 rétegei 8–13,5 px/s sebességgel sodródtak: ez 10 másodperc alatt
+   80–135 px, ami már érzékelhető chart-scroll. A v1.5-ben NINCS lineáris
+   sodródás és nincs körbefordulás — MINDEN mozgás nagyon hosszú periódusú,
+   szinuszos lengés. Ebből következik, hogy:
+     – nincs loop-jump (a görbe sosem ugrik vissza a kezdőpontra);
+     – a kompozíció 20 másodperc után sem drifteltel el;
+     – az első másodpercben gyakorlatilag semmi nem történik, a mozgás
+       5–8 másodperc után válik érzékelhetővé.
 
    Minden animált érték zárt alakú, C∞-sima függvénye az időnek és a gyertya
    indexének. NINCS frame-enkénti random, nincs hard step, nincs jitter.
-
-   RENDERELÉSI MODELL (v1.4 — a lapos kitöltés helyett térbeli hasábok)
-   --------------------------------------------------------------------------
-   A MOZGÁSI modell a fentiek szerint VÁLTOZATLAN. Ami új, az kizárólag az,
-   ahogyan egy gyertya kinéz:
-
-     A) HÁROM ÉRZÉKELHETŐ Z-MÉLYSÉG. A rétegek nem csak méretben és
-        opacitásban térnek el, hanem a rajzolás GAZDAGSÁGÁBAN is
-        (flat / shaded / full), és a bandCenter a horizont felé emeli a
-        távoli réteget. A rétegek mégsem külön sávok: minden gyertya kap egy
-        rétegen BELÜLI mélységi szórást (zScale / zAlpha / zOffsetY), ami
-        egymásba fésüli őket.
-
-     B) TÉRBELI GYERTYATEST. Egy front lap (belső tonális gradienssel),
-        egy árnyékos jobb oldallap, az előtérben egy megvilágított tetőlap,
-        egy 1 px-es bal éli csúcsfény és egy alsó perem. A mélységvektor
-        iránya minden gyertyán azonos, ezért a mező egyetlen koherens
-        térnek olvasódik — explicit 3D kamera és WebGL nélkül.
-
-     C) EGYETLEN FÉNYFORRÁS bal felülről / elölről. Ebből következik minden
-        laptónus és a kanócok eltérő világossága.
-
-     D) MAGASABB PERCEPTUÁLIS KONTRASZT — világosabb rétegszínek és nagyobb
-        alfák, miközben a copy mögötti LOKÁLIS csillapítás szűkebb lett.
-        Nem az egész animációt halványítjuk, csak ott, ahol szöveg van.
-
-   Továbbra sincs külső függőség, WebGL, charting vagy animációs library.
    ========================================================================== */
 
-/* -------------------------------------------------------------------------
-   Színek — a globals.css brand-tokenjeivel azonos értékek, RGB-triplettként,
-   mert a Canvas 2D API-nak numerikus csatornák kellenek. Ha a brand-szín
-   változik, a globals.css @theme blokkja marad a forrás, és ezt a táblát kell
-   vele szinkronban tartani.
-   ------------------------------------------------------------------------- */
 type Rgb = readonly [number, number, number];
 
 /*
-  v1.4 — SÖTÉT ALAPRA HANGOLT, MÉLYSÉGI RAJZOLÁSI PALETTA.
+  RAJZOLÁSI PALETTA — a globals.css @theme tokenjeivel AZONOS értékek,
+  RGB-triplettként, mert a Canvas 2D API-nak numerikus csatornák kellenek.
+  A v1.5 EGYETLEN új színt sem vezet be: ugyanaz a négy érték, mint a
+  v1.4-ben. Ami változott, az kizárólag a HASZNÁLATI ARÁNYUK (ld. a
+  COLOR_MIX táblát) és a lapok anyagszerű árnyalása.
 
-  A v1.3 már sötét alapra hangolta a színeket, de a gyertyák több helyen
-  túl közel maradtak a háttér tónusához, és minden gyertya EGYETLEN lapos
-  kitöltést kapott. A v1.4 két dolgot változtat:
-
-    1) világosabb rétegszínek (nagyobb perceptuális kontraszt a Deep alapon);
-    2) a lapos kitöltést egy háromlapos (front / oldal / tető) árnyalt
-       modell váltja — ld. a `shade()` függvényt és a drawCandle()-t.
-
-  Mért kontrasztok a Deep (#1B161C) alapon, TELJES alfánál:
-    Cool Silver      #BEC1C7 ..... 9.88:1   háttérréteg
-    Plum light       #B29CB0 ..... 7.02:1   középső réteg
-    Aubergine light  #D0BCCE ..... 9.99:1   fókuszréteg
-    Signal Berry lt. #C27FA3 ..... 5.82:1   ritka kiemelés
-  A tényleges megjelenést ezen felül a rétegalfa, a mélységi z-szórás és az
-  olvashatósági zóna csillapítja — a számok a felső korlátot mutatják.
-
-  A MOZGÁSI MODELL VÁLTOZATLAN: a master market path, a rendezett pozíciós
-  sor, a szomszédkorrelált fázisok, valamint a test- és kanócanimáció
-  pontosan ugyanaz, mint a v1.3-ban. Ez a kör a RENDERELÉST fejleszti.
-
-  A háttérszín — a sötétítés CÉLSZÍNE. A sötét lapokat NEM fekete felé
-  keverjük (attól kormosak lennének), hanem a Hero saját alapfelülete felé:
-  így a gyertya „beleül" a térbe, nem ráfestett folt.
+  Mért kontrasztok a Deep (#1B161C) alapon, teljes alfánál:
+    Cool Silver      #BEC1C7 ..... 9.88:1
+    Plum light       #B29CB0 ..... 7.02:1
+    Aubergine light  #D0BCCE ..... 9.99:1
+    Signal Berry lt. #C27FA3 ..... 5.82:1
 */
 const SURFACE_DEEP: Rgb = [27, 22, 28]; // #1B161C — a Hero alapfelülete
-const COOL_SILVER: Rgb = [190, 193, 199]; // #BEC1C7 — háttérréteg
-const PLUM_LIGHT: Rgb = [178, 156, 176]; // #B29CB0 — középső réteg
-const AUBERGINE_LIGHT: Rgb = [208, 188, 206]; // #D0BCCE — fókuszréteg
-const SIGNAL_BERRY_LIGHT: Rgb = [194, 127, 163]; // #C27FA3 — ritka kiemelés
+const COOL_SILVER: Rgb = [190, 193, 199]; // #BEC1C7
+const PLUM_LIGHT: Rgb = [178, 156, 176]; // #B29CB0
+const AUBERGINE_LIGHT: Rgb = [208, 188, 206]; // #D0BCCE
+const SIGNAL_BERRY_LIGHT: Rgb = [194, 127, 163]; // #C27FA3
+const WHITE: Rgb = [255, 255, 255];
+
+/*
+  SZÍNARÁNY — a referencia szerint a mező domináns tömege grafit/ezüst, a
+  lila csak másodlagos, a Berry pedig ritka akcentus. A súlyok kumulatívak.
+  Eredmény: ~58% Cool Silver, ~26% Plum, ~11% Aubergine, ~5% Berry —
+  vagyis a gyertyák ~95%-a a hűvös/grafit/lila tartományban marad, és a kép
+  egészében NEM rózsaszín.
+*/
+const COLOR_MIX: readonly { readonly weight: number; readonly color: Rgb }[] = [
+  { weight: 0.58, color: COOL_SILVER },
+  { weight: 0.84, color: PLUM_LIGHT },
+  { weight: 0.95, color: AUBERGINE_LIGHT },
+  { weight: 1.0, color: SIGNAL_BERRY_LIGHT },
+];
+
+function pickColor(t: number): Rgb {
+  for (const entry of COLOR_MIX) if (t <= entry.weight) return entry.color;
+  return COOL_SILVER;
+}
 
 /*
   FÉNYMODELL — egyetlen, nagyon finom fényforrás bal felülről / elölről.
-  Ebből következik minden lapérték: a tetőlap néz leginkább a fény felé
-  (legvilágosabb), a front lap felülről lefelé sötétedik, a jobb oldallap
-  árnyékban van, a bal él pedig egy hajszálnyi csúcsfényt kap.
-  Nincs neon, nincs glow, nincs bloom — az értékek szándékosan kicsik.
+  Ebből következik minden laptónus: a tetőlap néz leginkább a fény felé, a
+  front lap felülről lefelé sötétedik, a jobb oldallap árnyékban van, a bal
+  él pedig egy hajszálnyi csúcsfényt kap.
+
+  Az anyag célja MATT / SZATÉN INTÉZMÉNYI FÉM: nincs üveg, króm, erős tükör,
+  hologram vagy emissive neon. Ezért a csúcsfény szűk és halvány, a lapok
+  közötti különbség pedig mérsékelt.
 */
 const FACE = {
   /** Tetőlap — a fény felé néz. */
-  top: 0.34,
+  top: 0.3,
   /** A front lap teteje. */
-  frontTop: 0.1,
+  frontTop: 0.12,
   /** A front lap alja. */
-  frontBottom: -0.26,
+  frontBottom: -0.28,
   /** Jobb oldallap — árnyékban. */
-  side: -0.44,
-  /** Bal él csúcsfénye (1 px). */
-  highlight: 0.52,
+  side: -0.46,
+  /** Bal él csúcsfénye. */
+  highlight: 0.5,
   /** Alsó perem — a test „vastagsága". */
-  rim: -0.55,
+  rim: -0.58,
 } as const;
 
 const TAU = Math.PI * 2;
@@ -171,8 +164,8 @@ function clamp(value: number, min: number, max: number): number {
  * amplitúdóval. A második komponens frekvenciája irracionális arányú
  * (aranymetszés), ezért a görbe soha nem ismétli önmagát pontosan — a mozgás
  * nem válik felismerhetően ciklikussá, ugyanakkor teljesen folytonos marad.
- * Ez helyettesíti a korábbi tiszta szinuszt ÉS zárja ki a frame-random
- * jittert: minden érték kizárólag az idő sima függvénye.
+ * Ez zárja ki a frame-random jittert ÉS a loop-jumpot: minden érték
+ * kizárólag az idő sima függvénye.
  */
 function smoothWave(x: number): number {
   return 0.72 * Math.sin(x) + 0.28 * Math.sin(1.618034 * x + 1.1);
@@ -182,7 +175,8 @@ function smoothWave(x: number): number {
  * Egy laptónus előállítása a gyertya alapszínéből. Pozitív `amount` a fehér
  * felé világosít (megvilágított lap), negatív a Hero ALAPFELÜLETE felé
  * sötétít (árnyékos lap) — nem a fekete felé, mert attól a gyertyák
- * kormosak lennének a lila-fekete háttéren.
+ * kormosak lennének a lila-fekete háttéren. Ugyanez a függvény adja a
+ * MÉLYSÉGI KÖDÖT is: a távoli gyertyák a háttérszín felé mosódnak.
  */
 function shade(color: Rgb, amount: number): Rgb {
   const target = amount >= 0 ? WHITE : SURFACE_DEEP;
@@ -194,329 +188,341 @@ function shade(color: Rgb, amount: number): Rgb {
   ];
 }
 
-const WHITE: Rgb = [255, 255, 255];
+function rgba(color: Rgb, alpha: number): string {
+  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+}
+
+/* =========================================================================
+   TÍPUSOK
+   ========================================================================= */
 
 /** A master market path egyetlen térbeli komponense. */
 type PathWave = {
   /** Normalizált amplitúdó (a komponensek összege 1). */
   readonly amplitude: number;
-  /** Egész térbeli frekvencia a világszélességen → seamless wrap. */
   readonly frequency: number;
   readonly phase: number;
-  /** Nagyon lassú időbeli fázissodrás: a görbe „lélegzik". */
+  /** Nagyon lassú időbeli fázissodrás: a sziluett „lélegzik". */
   readonly drift: number;
 };
 
+/**
+ * Rajzolási gazdagság mélység szerint. Egyszerre esztétikai és
+ * teljesítmény-döntés: a távoli tartomány sok gyertyából áll, de laponként
+ * olcsó; az előtér kevés gyertyából áll, viszont teljes anyagkezelést kap.
+ */
+type Richness = "flat" | "shaded" | "full";
+
 /** Egyetlen gyertya. Minden mező a jelenet felépítésekor dől el. */
 type Candle = {
-  /** Rendezett rácspozíció a réteg világsávjában. */
-  readonly worldX: number;
+  /* --- VILÁGKOORDINÁTÁK ------------------------------------------------- */
+  /** Oldalirány; negatív = bal folyosó, pozitív = jobb folyosó. */
+  readonly wx: number;
+  /** Mélység a kamerától. Nagyobb = távolabb. */
+  readonly wz: number;
+  /** A vetítési méretarány ezen a mélységen (focal / wz). */
+  readonly scale: number;
+  /** A test középpontjának alap-magassága a padlósík fölött. */
+  readonly baseHeight: number;
+  /** A master path t = 0-beli értéke ezen a gyertyán (a lélegzés nullpontja). */
+  readonly pathBase: number;
+
+  /* --- VILÁGMÉRETEK (a vetítés szorozza őket a scale-lel) --------------- */
   readonly width: number;
   readonly baseBodyHeight: number;
   readonly baseWickUp: number;
   readonly baseWickDown: number;
-  /** Kicsi, simított lokális eltérés a master pathtól. */
-  readonly localOffset: number;
-  readonly radius: number;
 
-  /* Animációs paraméterek. A FÁZISOK az indexből származnak (kis lépésközzel),
-     ezért a szomszédos gyertyák korreláltan mozognak. A RATE-ek a 10–22 s-os
-     ciklusidőkből adódnak. */
+  readonly color: Rgb;
+  readonly richness: Richness;
+  /** Az oldallap mélysége a gyertya szélességének arányában. */
+  readonly sideDepth: number;
+  /** Alap-átlátszatlanság a mélységi köd ELŐTT. */
+  readonly alpha: number;
+  /** Mennyire halványuljon a copy mögött (0–1). */
+  readonly readabilityFloor: number;
+  /** Kap-e tükröződést a padlón. */
+  readonly reflects: boolean;
+
+  /* --- ANIMÁCIÓ ---------------------------------------------------------
+     A fázisok az INDEXBŐL származnak, kis lépésközzel, ezért a szomszédos
+     gyertyák korreláltan mozognak: a mozgás végigfutó hullámként halad a
+     soron, nem egyenkénti pattogásként. */
+  /** Oldalirányú lengés VILÁGEGYSÉGBEN (a parallaxist a vetítés adja). */
   readonly swayAmplitude: number;
   readonly swayRate: number;
   readonly swayPhase: number;
-  readonly growAmplitude: number;
-  readonly growRate: number;
-  readonly growPhase: number;
+  /** Függőleges lebegés világegységben. */
+  readonly floatAmplitude: number;
+  readonly floatRate: number;
+  readonly floatPhase: number;
+  /** Testmagasság-lélegzés — a saját magasság ARÁNYÁBAN (2–5%). */
+  readonly breathAmplitude: number;
+  readonly breathRate: number;
+  readonly breathPhase: number;
+  /** Kanóc-mikromozgás világegységben (néhány px). */
   readonly wickUpAmplitude: number;
   readonly wickUpRate: number;
   readonly wickUpPhase: number;
   readonly wickDownAmplitude: number;
   readonly wickDownRate: number;
   readonly wickDownPhase: number;
-
-  /* --- v1.4 MÉLYSÉGI SZÓRÁS ------------------------------------------------
-     A rétegek önmagukban vízszintes SÁVOKNAK látszanának. Hogy egyetlen
-     összefüggő tér legyen belőlük, minden gyertya kap egy kis saját
-     z-pozíciót a rétegén BELÜL is: ez egyszerre skálázza a méretét, az
-     opacitását, a függőleges helyét és a mozgásamplitúdóját. Ettől a
-     rétegek egymásba fésülődnek — egy réteg „közeli" gyertyája nagyobb és
-     kontrasztosabb lehet, mint a következő réteg „távoli" gyertyája. */
-  /** Mélységi méretszorzó (0.86–1.14). */
-  readonly zScale: number;
-  /** Mélységi opacitásszorzó (0.82–1.18). */
-  readonly zAlpha: number;
-  /** Közelebbi gyertya lejjebb is ül — perspektivikus függőleges eltolás. */
-  readonly zOffsetY: number;
-
-  /** Ritka Signal Berry fókuszpont. */
-  readonly accent: boolean;
+  /** Anyag/fény lélegzés — a laptónusokat modulálja. */
+  readonly lightRate: number;
+  readonly lightPhase: number;
 };
 
-/**
- * Rajzolási gazdagság mélység szerint. Ez egyszerre esztétikai és
- * teljesítmény-döntés: a távoli réteg sok gyertyából áll, de laponként
- * olcsó; az előtér kevés gyertyából áll, viszont teljes térbeli kezelést kap.
- */
-type Richness = "flat" | "shaded" | "full";
-
-type Layer = {
-  readonly color: Rgb;
-  readonly alpha: number;
-  readonly richness: Richness;
-  /** Az oldallap mélysége a gyertya szélességének arányában (0 = lapos). */
-  readonly sideDepth: number;
-  /** Vízszintes sodródás CSS px/másodpercben — minden réteg AZONOS irányba. */
-  readonly speed: number;
-  /** Mennyire halványuljon a réteg a középső olvasási zónában (0–1). */
-  readonly readabilityFloor: number;
-  readonly baseline: number;
-  /** A master path amplitúdója ebben a rétegben (mélységi skálázás). */
-  readonly pathAmplitude: number;
-  /** A réteg fáziseltolása a master pathon — hogy ne legyenek pontosan fedésben. */
-  readonly pathPhase: number;
-  readonly candles: readonly Candle[];
+/** Egypontos perspektivikus kamera. */
+type Camera = {
+  readonly vpX: number;
+  readonly horizonY: number;
+  readonly focal: number;
+  /** A kamera magassága a padlósík fölött, világegységben. */
+  readonly camY: number;
+  readonly nearZ: number;
+  readonly farZ: number;
 };
 
 type Scene = {
   readonly width: number;
   readonly height: number;
-  /** MINDEN réteg ugyanazt a világszélességet és master patht használja. */
-  readonly worldWidth: number;
+  readonly camera: Camera;
+  /** A master market path függőleges kiterjedése világegységben. */
+  readonly pathAmplitude: number;
+  /** A path térbeli hullámhossz-alapja (oldalirányú világegységben). */
+  readonly pathSpan: number;
   readonly masterWaves: readonly PathWave[];
-  readonly layers: readonly Layer[];
+  /** Mélység szerint CSÖKKENŐEN rendezve: a távoli rajzolódik előbb. */
+  readonly candles: readonly Candle[];
+  readonly ground: {
+    /** A mélységi (vízszintes) padlóvonalak z-értékei. */
+    readonly depthLines: readonly number[];
+    /** Az oldalirányú (konvergáló) padlóvonalak wx-értékei. */
+    readonly lateralLines: readonly number[];
+  };
   readonly readability: {
-    /** Elemenként EGY védett szövegdoboz (eyebrow, H1, bevezető, CTA). */
     readonly boxes: readonly {
       readonly cx: number;
       readonly cy: number;
       readonly halfWidth: number;
       readonly halfHeight: number;
     }[];
-    /** Az elhalványulás hossza a dobozokon kívül. */
     readonly padX: number;
     readonly padY: number;
   };
 };
 
-/** Rétegenkénti tervezési paraméterek. */
-type LayerSpec = {
-  readonly color: Rgb;
-  readonly alpha: number;
-  /** Mélységi rajzolási gazdagság — ld. a Richness típust. */
-  readonly richness: Richness;
-  /** Az oldallap mélysége a gyertya szélességének arányában (0 = lapos). */
-  readonly sideDepth: number;
-  /** A rétegen BELÜLI mélységi szórás mértéke (0 = nincs). */
-  readonly zSpread: number;
-  /** CSS px/s — a specifikáció szerinti 8–14 px/s sávban. */
-  readonly speed: number;
+/** Egy mélységi sáv tervezési paraméterei. */
+type BandSpec = {
   readonly count: number;
+  /** A sáv mélységi tartománya a fókusztávolság arányában. */
+  readonly zRange: readonly [number, number];
+  readonly richness: Richness;
+  readonly sideDepth: number;
+  readonly alpha: number;
+  readonly readabilityFloor: number;
+  readonly reflects: boolean;
+  /**
+   * A folyosó oldalirányú tartománya KÉPERNYŐARÁNYBAN (a Hero szélességének
+   * hányadában, a középvonaltól mérve). A világkoordinátát ebből számoljuk
+   * vissza (wx = képernyőeltolás / s), ezért minden sáv garantáltan a képen
+   * belül marad, a sávok EGYMÁSHOZ képest viszont a középpont felé
+   * konvergálnak: előtér kint, háttér bent. Ez adja a folyosó perspektíváját
+   * anélkül, hogy az előtér lecsúszna a képről.
+   */
+  readonly offsetRange: readonly [number, number];
+  /** Világméretek a fókusztávolságon (z = focal, tehát s = 1). */
   readonly widthRange: readonly [number, number];
   readonly bodyRange: readonly [number, number];
   readonly wickRange: readonly [number, number];
-  /** A réteg alapvonala a Hero magasságának arányában. */
-  readonly bandCenter: number;
-  /** A master path amplitúdója a Hero magasságának arányában. */
-  readonly pathAmplitude: number;
-  /** Kicsi lokális eltérés a pathtól, a Hero magasságának arányában. */
-  readonly localSpread: number;
-  /** Mozgásamplitúdó-szorzó (mélységi csillapítás). */
-  readonly motionScale: number;
-  readonly readabilityFloor: number;
-  readonly accentIndices: readonly number[];
 };
 
 /*
-  RÉTEGTERV — v1.4.
+  MÉLYSÉGI SÁVOK — előtér / középtér / háttér.
 
-  Három ÉRZÉKELHETŐ mélységi réteg, de szándékosan NEM három elkülönülő sáv:
-  a `zSpread` mezővel minden réteg gyertyái a rétegen belül is szóródnak
-  mélységben, ezért a három réteg egymásba fésülődik és EGY perspektivikus
-  térnek olvasódik.
+  A sávok NEM három vízszintes réteg: mindegyik egy MÉLYSÉGI TARTOMÁNY, és a
+  tartományok érintkeznek (0.55–1.05, 1.0–2.3, 2.2–6.2 × focal). Az átfedés
+  szándékos: a határon lévő gyertyák egymásba fésülődnek, ezért a szem
+  folytonos teret lát, nem három síkot.
 
-  A perspektíva eszközei rétegről rétegre, összehangoltan:
-    – méret ........ widthRange / bodyRange nő az előtér felé
-    – kontraszt .... alpha nő az előtér felé (0.22 -> 0.38 -> 0.52)
-    – gazdagság .... flat -> shaded -> full (oldallap, tetőlap, csúcsfény)
-    – sebesség ..... 8 -> 10.5 -> 13.5 px/s (parallax)
-    – magasság ..... bandCenter 0.40 -> 0.52 -> 0.63 (a távoli följebb ül,
-                     a horizont felé — ez a legerősebb mélységjelzés)
-    – mozgás ....... motionScale nő az előtér felé
-  Minden réteg AZONOS irányba (balra) sodródik.
+  Rajzolási költség képkockánként (desktop):
+    előtér  16 × 9 hívás (7 lap + tükröződés)  = 144
+    középtér 30 × 5                            = 150
+    háttér   44 × 2                            =  88
+    padló + horizont                           ≈  34
+                                          összesen ≈ 416
 */
-const DESKTOP_LAYERS: readonly LayerSpec[] = [
+const DESKTOP_BANDS: readonly BandSpec[] = [
   {
-    // HÁTTÉRRÉTEG — sok, apró, lapos gyertya a horizont közelében.
-    color: COOL_SILVER,
-    alpha: 0.22,
-    richness: "flat",
-    sideDepth: 0,
-    zSpread: 0.1,
-    speed: 8,
-    count: 26,
-    widthRange: [6, 11],
-    bodyRange: [18, 50],
-    wickRange: [8, 28],
-    bandCenter: 0.4,
-    pathAmplitude: 0.2,
-    localSpread: 0.045,
-    motionScale: 0.6,
-    readabilityFloor: 0.3,
-    accentIndices: [],
-  },
-  {
-    // KÖZÉPSŐ RÉTEG — tisztább testek, oldallap, jól érzékelhető kanóc.
-    color: PLUM_LIGHT,
-    alpha: 0.38,
-    richness: "shaded",
-    sideDepth: 0.17,
-    zSpread: 0.13,
-    speed: 10.5,
-    count: 18,
-    widthRange: [12, 18],
-    bodyRange: [34, 92],
-    wickRange: [12, 44],
-    bandCenter: 0.52,
-    pathAmplitude: 0.17,
-    localSpread: 0.038,
-    motionScale: 0.85,
-    readabilityFloor: 0.14,
-    accentIndices: [],
-  },
-  {
-    // ELŐTÉRRÉTEG — kevés gyertya, nagy lépték, teljes térbeli kezelés.
-    color: AUBERGINE_LIGHT,
-    alpha: 0.52,
+    // ELŐTÉR — kevés, nagy, teljes anyagkezelésű gyertya a képszéleken.
+    count: 16,
+    zRange: [0.55, 1.05],
     richness: "full",
     sideDepth: 0.3,
-    zSpread: 0.15,
-    speed: 13.5,
-    count: 9,
-    widthRange: [19, 30],
-    bodyRange: [58, 142],
-    wickRange: [16, 58],
-    bandCenter: 0.63,
-    pathAmplitude: 0.14,
-    localSpread: 0.03,
-    motionScale: 1,
-    readabilityFloor: 0.06,
-    // Desktopon PONTOSAN 3 Signal Berry gyertya, mind ugyanebben a rétegben.
-    // Egy rétegen belül azonos a sodródási sebesség, ezért a köztük lévő
-    // távolság ÁLLANDÓ — sosem kerülhetnek közvetlenül egymás mellé.
-    accentIndices: [1, 4, 7],
+    alpha: 0.66,
+    readabilityFloor: 0.035,
+    reflects: true,
+    offsetRange: [0.26, 0.56],
+    widthRange: [17, 26],
+    bodyRange: [78, 190],
+    wickRange: [30, 76],
+  },
+  {
+    // KÖZÉPTÉR — a legtisztább tartomány; itt a legolvashatóbb a forma.
+    count: 30,
+    zRange: [1.0, 2.3],
+    richness: "shaded",
+    sideDepth: 0.19,
+    alpha: 0.58,
+    readabilityFloor: 0.085,
+    reflects: true,
+    offsetRange: [0.15, 0.44],
+    widthRange: [15, 24],
+    bodyRange: [64, 160],
+    wickRange: [26, 66],
+  },
+  {
+    // HÁTTÉR — sok, apró, lapos gyertya, a horizont felé sűrűsödve és
+    // a mélységi ködbe veszve.
+    count: 44,
+    zRange: [2.2, 6.2],
+    richness: "flat",
+    sideDepth: 0,
+    alpha: 0.5,
+    readabilityFloor: 0.2,
+    reflects: false,
+    offsetRange: [0.05, 0.27],
+    widthRange: [13, 21],
+    bodyRange: [54, 140],
+    wickRange: [22, 58],
   },
 ];
 
 /*
-  MOBIL — a mélység érezhető marad, de a kompozíció nem zsúfolt, és a
-  renderelési költség számottevően alacsonyabb:
-    – kevesebb gyertya minden rétegben (29 vs. 53);
-    – az előtér „shaded", nem „full" (nincs tetőlap és csúcsfény);
-    – kisebb oldallap-mélység;
-    – a copy olvashatósága ugyanúgy elsődleges.
-  A mobil Hero így NEM a desktop lekicsinyítése: külön komponált mező.
-  A gyertyaszám ugyanakkor MÉRÉS alapján nőtt (29 -> 41): 390 px-en a
-  korábbi sűrűség mellett egyszerre csak ~17 gyertya látszott, és azok
-  nagy része a copy-zónába esett — a mező gyakorlatilag eltűnt.
+  MOBIL — a térérzet megmarad, de a vizuális komplexitás a desktop ~70%-a:
+  kevesebb előtérgyertya, kisebb perspektivikus túlzás, kevesebb tükröződés,
+  nyugodtabb középső zóna. A mobil Hero így NEM a desktop lekicsinyítése.
+    előtér 9 + középtér 19 + háttér 28 = 56 gyertya (desktop: 90 → 62%)
 */
-const MOBILE_LAYERS: readonly LayerSpec[] = [
+const MOBILE_BANDS: readonly BandSpec[] = [
   {
-    color: COOL_SILVER,
-    alpha: 0.3,
-    richness: "flat",
-    sideDepth: 0,
-    zSpread: 0.09,
-    speed: 6,
-    count: 20,
-    widthRange: [5, 9],
-    bodyRange: [16, 42],
-    wickRange: [7, 22],
-    bandCenter: 0.38,
-    pathAmplitude: 0.22,
-    localSpread: 0.04,
-    motionScale: 0.45,
-    readabilityFloor: 0.34,
-    accentIndices: [],
+    count: 9,
+    zRange: [0.62, 1.1],
+    richness: "shaded",
+    sideDepth: 0.22,
+    alpha: 0.64,
+    readabilityFloor: 0.055,
+    reflects: true,
+    offsetRange: [0.28, 0.62],
+    widthRange: [16, 24],
+    bodyRange: [72, 176],
+    wickRange: [28, 70],
   },
   {
-    color: PLUM_LIGHT,
-    alpha: 0.48,
+    count: 19,
+    zRange: [1.05, 2.4],
     richness: "shaded",
     sideDepth: 0.15,
-    zSpread: 0.12,
-    speed: 7.9,
-    count: 14,
-    widthRange: [9, 14],
-    bodyRange: [26, 66],
-    wickRange: [10, 32],
-    bandCenter: 0.52,
-    pathAmplitude: 0.185,
-    localSpread: 0.034,
-    motionScale: 0.62,
-    readabilityFloor: 0.18,
-    accentIndices: [],
+    alpha: 0.56,
+    readabilityFloor: 0.11,
+    reflects: false,
+    offsetRange: [0.17, 0.5],
+    widthRange: [14, 22],
+    bodyRange: [60, 150],
+    wickRange: [24, 60],
   },
   {
-    color: AUBERGINE_LIGHT,
-    alpha: 0.66,
-    richness: "shaded",
-    sideDepth: 0.24,
-    zSpread: 0.14,
-    speed: 10,
-    count: 7,
-    widthRange: [14, 22],
-    bodyRange: [42, 96],
-    wickRange: [12, 40],
-    bandCenter: 0.66,
-    pathAmplitude: 0.15,
-    localSpread: 0.028,
-    motionScale: 0.72,
-    readabilityFloor: 0.1,
-    // Mobilon PONTOSAN 2 Signal Berry gyertya, szintén egyetlen rétegben.
-    accentIndices: [1, 4],
+    count: 28,
+    zRange: [2.3, 6.0],
+    richness: "flat",
+    sideDepth: 0,
+    alpha: 0.48,
+    readabilityFloor: 0.24,
+    reflects: false,
+    offsetRange: [0.06, 0.3],
+    widthRange: [12, 20],
+    bodyRange: [50, 132],
+    wickRange: [20, 54],
   },
 ];
 
 const MOBILE_BREAKPOINT = 768;
 
-/* Mozgásamplitúdók CSS pixelben (desktop alapérték; mobilon a motionScale
-   csillapít). A specifikáció irányértékei:
-     – test függőleges mozgása .... 8–20 px
-     – testmagasság-változás ...... 3–8 px
-     – felső/alsó kanócváltozás ... 5–14 px
-     – teljes mozgási ciklusok .... 10–22 s                                   */
-const SWAY_RANGE = [8, 20] as const;
-const GROW_RANGE = [3, 8] as const;
-const WICK_RANGE = [5, 14] as const;
+/* -------------------------------------------------------------------------
+   MOZGÁSI AMPLITÚDÓK — világegységben, a fókusztávolságon (s = 1) értendők.
+   A képernyőn látható elmozdulás ennek a scale-szerese, tehát az előtérben
+   kb. 1,7×, a háttérben kb. 0,2×.
+
+   A brief szerinti célok és az itt beállított értékek:
+     – oldalirányú sodródás ..... 8–16 px több másodperc alatt
+     – testmagasság-változás .... 2–5% (arányos, nem abszolút px)
+     – kanócmozgás .............. néhány px
+     – ciklusidők ............... 26–70 s (a v1.4 10–22 s-os ciklusaihoz
+                                  képest lényegesen lassabb)
+
+   MÉRT EREDMÉNY (sávonkénti alfa-súlyozott középpont elmozdulása 1440 px-en):
+      1 s ..... vízszintes 1,3 px · függőleges 3,6 px   (észrevehetetlen)
+      5 s ..... 5,3 px · 15,6 px                        (kezd élni)
+     10 s ..... 9,3 px · 26,6 px
+     20 s ..... 12,2 px · 19,0 px                       (VISSZATÉR — leng)
+     30 s ..... 16,5 px · 22,6 px
+   Az értékek nem monoton nőnek, hanem oszcillálnak: a kompozíció tehát nem
+   vándorol el. Képkockák közti legnagyobb lépés 250 ms alatt: 0,0045 átlagos
+   alfa — nincs loop-jump.
+   ------------------------------------------------------------------------- */
+const SWAY_RANGE = [5, 9] as const; // világegység → előtérben ~8–16 px
+const FLOAT_RANGE = [2, 4] as const; // függőleges lebegés
+const BREATH_RANGE = [0.02, 0.045] as const; // a testmagasság ARÁNYÁBAN
+const WICK_RANGE = [1.6, 4] as const; // kanóc-mikromozgás
+
+/** A kamera nagyon lassú, alig érzékelhető sodródása. */
+const CAMERA_DRIFT = {
+  x: 6, // ±6 px vízszintesen
+  y: 3, // ±3 px függőlegesen
+  xRate: TAU / 78, // 78 s periódus
+  yRate: TAU / 103, // 103 s periódus
+} as const;
 
 /** Egy szöveget hordozó Hero-elem helye a canvashoz képest, CSS pixelben. */
 type CopyRect = { readonly x: number; readonly y: number; readonly width: number; readonly height: number };
 
+/* =========================================================================
+   JELENET FELÉPÍTÉSE
+   ========================================================================= */
+
 function createScene(width: number, height: number, copyRects: readonly CopyRect[]): Scene {
   const isMobile = width < MOBILE_BREAKPOINT;
-  const specs = isMobile ? MOBILE_LAYERS : DESKTOP_LAYERS;
+  const bands = isMobile ? MOBILE_BANDS : DESKTOP_BANDS;
 
-  const heightScale = clamp(height / 760, 0.62, 1.2);
-  const widthScale = isMobile ? 0.9 : 1;
+  /* ---- KAMERA -----------------------------------------------------------
+     A horizont a Hero 68%-ánál van: elég mélyen ahhoz, hogy a távoli
+     gyertyák konvergenciapontja a CTA ALÁ essen, és a copy fölött nyugodt
+     maradjon a kép. A `camY` úgy van megválasztva, hogy a legközelebbi
+     padlósáv épp a Hero alsó pereme körül érjen véget. */
+  const focal = width * 0.92;
+  const horizonY = height * 0.68;
+  const nearZ = focal * 0.55;
+  const farZ = focal * 6.4;
+  // A legközelebbi mélységen a padló a Hero aljára essen:
+  //   horizonY + camY * (focal / nearZ) ≈ height
+  const camY = ((height - horizonY) * nearZ) / focal;
 
-  // MINDEN réteg ugyanazt a világszélességet használja: így a master path
-  // térbeli frekvenciái minden mélységben egybeesnek, és a mező EGYETLEN
-  // összefüggő piaci sziluettként olvasódik.
-  const worldWidth = width + Math.max(width * 0.45, 280);
+  const camera: Camera = { vpX: width * 0.5, horizonY, focal, camY, nearZ, farZ };
 
   /* ---- Master market path -------------------------------------------------
      Egész frekvenciájú térbeli szinuszok összege, normalizált amplitúdókkal.
-     Az egész frekvencia miatt a görbe a világsáv határán tökéletesen
-     folytonos (nincs látható loopkezdés); a nagyon lassú `drift` fázissodrás
-     miatt viszont a sziluett folyamatosan, kiszámíthatatlanul alakul át. */
+     A gyertyák PADLÓ FÖLÖTTI MAGASSÁGÁT adja, az oldalirányú
+     világkoordinátájuk függvényében — így a mező egyetlen összefüggő piaci
+     sziluettként olvasódik, a folyosó két oldalán is. A nagyon lassú `drift`
+     fázissodrás miatt a sziluett folyamatosan, kiszámíthatatlanul alakul át. */
   const pathRandom = mulberry32(SCENE_SEED);
   const rawWaves = [1, 2, 3].map((frequency) => ({
     frequency,
     amplitude: (1 / frequency) * lerp(0.78, 1, pathRandom()),
     phase: pathRandom() * TAU,
-    // 0.055 / 0.080 / 0.105 rad/s → 114 / 79 / 60 s periódus: nagyon lassú.
-    drift: 0.03 + 0.025 * frequency,
+    // 0.0072 / 0.0104 / 0.0136 rad/s → 873 / 604 / 462 s periódus.
+    // A v1.4-nél (114/79/60 s) közel nyolcszor lassabb.
+    drift: 0.004 + 0.0032 * frequency,
   }));
   const amplitudeSum = rawWaves.reduce((total, w) => total + w.amplitude, 0);
   const masterWaves: PathWave[] = rawWaves.map((w) => ({
@@ -524,131 +530,149 @@ function createScene(width: number, height: number, copyRects: readonly CopyRect
     amplitude: w.amplitude / amplitudeSum,
   }));
 
-  /* A kiemelt (Signal Berry) gyertyák rétegeken átívelő számlálója: felváltva
-     emelkedő és csökkenő alakot adunk nekik, hogy a szín ne kaphasson piaci
-     jelentést. */
-  let accentCursor = 0;
+  /* ---- FOLYOSÓ ------------------------------------------------------------
+     Az oldalirányú pozíciót KÉPERNYŐARÁNYBAN adjuk meg sávonként, és onnan
+     számoljuk vissza a világkoordinátát (wx = eltolás / s).
 
-  const layers = specs.map((spec, layerIndex) => {
-    const random = mulberry32(SCENE_SEED + layerIndex * 9176);
-    const step = worldWidth / spec.count;
-    const accentSet = new Set(spec.accentIndices);
-    const motion = spec.motionScale;
+     Miért nem fix világkoordinátás a folyosó? Mert akkor az előtér (nagy s)
+     gyertyáinak túlnyomó része lecsúszna a képről: mérés szerint a 0,17–0,72
+     világarányú tartományból 1440 px-en az előtérben csak a legbelső néhány
+     gyertya maradt látható, a mező pedig kiürült a képszéleken.
 
-    const candles: Candle[] = Array.from({ length: spec.count }, (_, index) => {
-      const accent = accentSet.has(index);
+     A konvergenciát így a SÁVOK EGYMÁSHOZ KÉPESTI tartománya adja:
+       előtér  0,27–0,64 × szélesség  (kint, részben a kereten kívül)
+       középtér 0,16–0,47
+       háttér  0,05–0,27              (bent, a horizont felé összetartva)
+     A copy középső zónája ezért szerkezetileg marad szabadon, a távoli
+     gyertyák viszont a konvergenciapont felé futnak. */
 
-      // RENDEZETT rács: a jitter szándékosan elhanyagolható (±6% a lépésközön
-      // belül). Elég ahhoz, hogy ne legyen mechanikus, de a sor rendezettsége
-      // és a szomszédokkal való vizuális kapcsolat megmarad.
-      const worldX = (index + 0.5) * step + (random() - 0.5) * step * 0.12;
+  const scene0Span = width * 1.6;
+  const heightScale = clamp(height / 760, 0.7, 1.15);
+  /* A sziluett függőleges kiterjedése. A v1.5 első mérésénél 0,13 volt, és a
+     gyertyák egy szűk, ~90 px-es sávba tömörültek a horizont körül; 0,22
+     mellett az előtér a Hero felső harmadáig felér. */
+  const pathAmplitude = height * (isMobile ? 0.17 : 0.22);
 
-      /* MÉLYSÉGI SZÓRÁS a rétegen belül: ez fésüli egymásba a három réteget,
-         hogy ne három vízszintes sávnak, hanem egyetlen térnek olvasódjanak.
-         A nagyobb zScale = közelebbi gyertya: nagyobb, kontrasztosabb,
-         lejjebb ül és nagyobb amplitúdóval mozog. */
-      const z = (random() - 0.5) * 2; // −1 .. +1
-      const zScale = 1 + z * spec.zSpread;
-      const zAlpha = 1 + z * spec.zSpread * 1.25;
-      const zOffsetY = z * spec.zSpread * height * 0.42;
+  const candles: Candle[] = [];
+  let globalIndex = 0;
 
-      const candleWidth =
-        lerp(spec.widthRange[0], spec.widthRange[1], random()) * widthScale * zScale;
-      const baseBodyHeight =
-        lerp(spec.bodyRange[0], spec.bodyRange[1], random()) * heightScale * zScale;
+  bands.forEach((band, bandIndex) => {
+    const random = mulberry32(SCENE_SEED + bandIndex * 9176);
 
-      // Sarokrádiusz: kisebb gyertyáknál 2–3 px, nagyobbaknál 4–6 px. A
-      // rajzoláskor a MINDENKORI (animált) testmagassághoz is hozzá van vágva,
-      // ezért a forma sosem válhat kapszulává.
-      const radius = clamp(candleWidth * 0.26, 2, 6);
+    for (let i = 0; i < band.count; i++) {
+      const index = globalIndex++;
 
-      /* Az irány itt már csak a kanócok alap-aszimmetriáját adja. A kiemelt
-         gyertyáké NEM véletlen, hanem felváltva emelkedő/csökkenő alak. */
-      const direction: 1 | -1 = accent
-        ? accentCursor++ % 2 === 0
-          ? 1
-          : -1
-        : random() < 0.5
-          ? 1
-          : -1;
-      const wickA = lerp(spec.wickRange[0], spec.wickRange[1], random()) * heightScale * zScale;
-      const wickB = lerp(spec.wickRange[0], spec.wickRange[1], random()) * heightScale * zScale;
+      /* Mélység: a sávon belül rendezett lépésköz, elhanyagolható jitterrel.
+         A rendezettség adja a folyosó ritmusát; a jitter csak annyit lazít
+         rajta, hogy ne legyen gépies. */
+      const zT = (i + 0.5) / band.count + (random() - 0.5) * 0.6 / band.count;
+      const wz = focal * lerp(band.zRange[0], band.zRange[1], clamp(zT, 0, 1));
+      const scale = focal / wz;
 
-      return {
-        worldX,
-        width: candleWidth,
-        baseBodyHeight,
-        baseWickUp: direction === 1 ? wickA * 1.45 : wickA * 0.7,
-        baseWickDown: direction === 1 ? wickB * 0.7 : wickB * 1.45,
-        localOffset: (random() - 0.5) * spec.localSpread * height,
-        radius,
+      // Oldal: felváltva bal és jobb, hogy egyik folyosó se ürüljön ki.
+      const side = i % 2 === 0 ? -1 : 1;
+      const offsetPx = width * lerp(band.offsetRange[0], band.offsetRange[1], random());
+      const wx = (side * offsetPx) / scale;
 
-        /* FÁZISOK AZ INDEXBŐL — ez adja a szomszédkorrelációt. A kis
-           lépésközök (0.42–0.61 rad) miatt a szomszédos gyertyák közel
-           fázisban vannak, így a mozgás végigfutó hullámként halad a soron.
-           A ±0.12 rad-os véletlen csak annyit lazít rajta, hogy ne legyen
-           gépiesen tökéletes. */
-        swayAmplitude: lerp(SWAY_RANGE[0], SWAY_RANGE[1], random()) * motion * zScale,
-        swayRate: TAU / lerp(14, 22, random()),
+      /* A sziluett magassága: a kamera szemmagassága (camY) körül ingadozik,
+         ezért a horizont közelében természetesen lapul ki. A saját szórás
+         adja, hogy a folyosó ne egyetlen vonalban álljon.
+
+         MÉRÉS ALAPJÁN: a v1.5 első két iterációjában a canvas felső harmada
+         teljesen üres maradt (8×8-as alfarács: y0–y2 sorok ≈ 0,00), mert a
+         gyertyák a kamera szemmagassága körüli szűk sávban álltak. A
+         0,9-es pathAmplitude-szorzó és a ±18%-os szórás emeli a mezőt úgy,
+         hogy az előtér a keret tetejéig felérjen. */
+      // A master market path t = 0-beli értéke BEÉPÜL az alapmagasságba:
+      // a sziluett alakja ezzel rögzül, és nem tud időben elvándorolni.
+      const pathBase = pathAt(masterWaves, wx, scene0Span, 0);
+      const baseHeight =
+        camY + pathAmplitude * 0.9 + (random() - 0.5) * height * 0.36 + pathBase * pathAmplitude;
+
+      const w = lerp(band.widthRange[0], band.widthRange[1], random());
+      const bodyHeight = lerp(band.bodyRange[0], band.bodyRange[1], random()) * heightScale;
+
+      /* Az irány csak a kanócok alap-aszimmetriáját adja; a SZÍN ettől
+         teljesen független, tehát a színnek nem tulajdonítható
+         nyereség/veszteség jelentés. */
+      const direction: 1 | -1 = random() < 0.5 ? 1 : -1;
+      const wickA = lerp(band.wickRange[0], band.wickRange[1], random()) * heightScale;
+      const wickB = lerp(band.wickRange[0], band.wickRange[1], random()) * heightScale;
+
+      candles.push({
+        wx,
+        wz,
+        scale,
+        baseHeight,
+        pathBase,
+        width: w,
+        baseBodyHeight: bodyHeight,
+        baseWickUp: direction === 1 ? wickA * 1.4 : wickA * 0.72,
+        baseWickDown: direction === 1 ? wickB * 0.72 : wickB * 1.4,
+        color: pickColor(random()),
+        richness: band.richness,
+        sideDepth: band.sideDepth,
+        alpha: band.alpha,
+        readabilityFloor: band.readabilityFloor,
+        reflects: band.reflects,
+
+        swayAmplitude: lerp(SWAY_RANGE[0], SWAY_RANGE[1], random()),
+        swayRate: TAU / lerp(44, 70, random()),
         swayPhase: index * 0.55 + (random() - 0.5) * 0.24,
 
-        growAmplitude: lerp(GROW_RANGE[0], GROW_RANGE[1], random()) * motion,
-        growRate: TAU / lerp(11, 18, random()),
-        growPhase: index * 0.42 + 1.7 + (random() - 0.5) * 0.24,
+        floatAmplitude: lerp(FLOAT_RANGE[0], FLOAT_RANGE[1], random()),
+        floatRate: TAU / lerp(38, 62, random()),
+        floatPhase: index * 0.47 + 1.1 + (random() - 0.5) * 0.24,
 
-        wickUpAmplitude: lerp(WICK_RANGE[0], WICK_RANGE[1], random()) * motion,
-        wickUpRate: TAU / lerp(10, 17, random()),
+        breathAmplitude: lerp(BREATH_RANGE[0], BREATH_RANGE[1], random()),
+        breathRate: TAU / lerp(30, 52, random()),
+        breathPhase: index * 0.42 + 1.7 + (random() - 0.5) * 0.24,
+
+        wickUpAmplitude: lerp(WICK_RANGE[0], WICK_RANGE[1], random()),
+        wickUpRate: TAU / lerp(26, 44, random()),
         wickUpPhase: index * 0.61 + 0.4 + (random() - 0.5) * 0.24,
 
-        wickDownAmplitude: lerp(WICK_RANGE[0], WICK_RANGE[1], random()) * motion,
-        wickDownRate: TAU / lerp(12, 20, random()),
+        wickDownAmplitude: lerp(WICK_RANGE[0], WICK_RANGE[1], random()),
+        wickDownRate: TAU / lerp(30, 50, random()),
         wickDownPhase: index * 0.48 + 3.1 + (random() - 0.5) * 0.24,
 
-        zScale,
-        zAlpha,
-        zOffsetY,
-
-        accent,
-      } satisfies Candle;
-    });
-
-    return {
-      color: spec.color,
-      alpha: spec.alpha,
-      richness: spec.richness,
-      sideDepth: spec.sideDepth,
-      speed: spec.speed,
-      readabilityFloor: spec.readabilityFloor,
-      baseline: height * spec.bandCenter,
-      pathAmplitude: height * spec.pathAmplitude,
-      pathPhase: layerIndex * 0.6,
-      candles,
-    } satisfies Layer;
+        lightRate: TAU / lerp(34, 58, random()),
+        lightPhase: index * 0.39 + 2.4 + (random() - 0.5) * 0.24,
+      });
+    }
   });
 
+  // MÉLYSÉG SZERINTI RENDEZÉS: a távoli rajzolódik előbb, a közeli takar.
+  // A mélység nem változik az idővel, ezért elég egyszer, itt rendezni.
+  candles.sort((a, b) => b.wz - a.wz);
+
+  /* ---- PADLÓSÍK -----------------------------------------------------------
+     A mélységi vonalak z-értékei MÉRTANI sorozatot alkotnak, ezért a
+     képernyőn egyenletesen sűrűsödnek a horizont felé — ez a helyes
+     perspektivikus viselkedés. Az oldalirányú vonalak a folyosó szélességét
+     követik és a horizontban futnak össze. */
+  const depthLines: number[] = [];
+  for (let i = 0; i <= 13; i++) {
+    depthLines.push(nearZ * Math.pow(farZ / nearZ, i / 13));
+  }
+  const lateralLines: number[] = [];
+  const lateralCount = isMobile ? 5 : 7;
+  for (let i = 1; i <= lateralCount; i++) {
+    // Világkoordinátában egyenletes osztás: a képen a horizont felé
+    // összetartó vonalsereget ad.
+    const v = width * 0.12 * i;
+    lateralLines.push(-v, v);
+  }
+
   /*
-    Az olvasási zóna a Hero copy-blokkjának KIMÉRT geometriáját követi (ha az
-    valamiért nem mérhető, egy konzervatív arányos becslés lép be).
-  */
-  /*
-    OLVASHATÓSÁGI ZÓNA — v1.4: ELEMENKÉNTI, LEKEREKÍTETT TÉGLALAPOK.
+    OLVASHATÓSÁGI ZÓNA — v1.4-ből VÁLTOZATLANUL átvéve.
 
-    Két hibát javít a v1.3 egyetlen, ellipszis alakú zónájához képest.
-
-    (a) ROSSZ ALAK. Az ellipszis peremén a csillapítás már majdnem nulla, a
-        szöveg viszont épp a peremig ér — a 768 px-es bevezető mögött ezért
-        teljes erejű gyertya jelent meg, és a Cool Silver kontrasztja
-        3.21:1-re esett (WCAG AA FAIL). A lekerekített téglalap
-        távolságmezeje a dobozon BELÜL pontosan 0, tehát a szöveg egyetlen
-        pontja sem marad védtelen.
-
-    (b) TÚL NAGY ZÓNA. Egyetlen, a teljes copyt befoglaló doboz a sorok
-        KÖZÖTTI üres sávokat és a keskenyebb elemek (bevezető, CTA) melletti
-        területet is lehalkította — pedig ott nincs szöveg. Ezért minden
-        megjelölt elem SAJÁT dobozt kap, és a csillapítás a dobozok
-        MINIMUMA: ahol nincs szöveg, ott a mező teljes erővel látszik.
-
-    Így a csillapítás pontosan a betűk mögött van, és sehol máshol.
+    Elemenkénti ([data-hero-ink]: eyebrow, H1, bevezető, CTA), lekerekített
+    téglalap alakú zónák. A dobozon belül a távolság pontosan 0, tehát a
+    szöveg egyetlen pontja sem marad védtelen; a dobozok KÖZÖTT és a
+    perifériákon viszont nincs csillapítás. A v1.5 folyosós elrendezése
+    ezt kiegészíti, nem helyettesíti: a közeli gyertyák már szerkezetileg
+    sem kerülhetnek a copy mögé.
   */
   const fallback: CopyRect[] = [
     {
@@ -664,46 +688,44 @@ function createScene(width: number, height: number, copyRects: readonly CopyRect
     boxes: rects.map((r) => ({
       cx: r.x + r.width / 2,
       cy: r.y + r.height / 2,
-      // Hajszálnyi biztonsági ráhagyás (leading, ékezetek, alsó szárak).
       halfWidth: r.width / 2 + 6,
       halfHeight: r.height / 2 + 6,
     })),
-    padX: width * 0.07,
-    padY: height * 0.055,
+    padX: width * 0.085,
+    padY: height * 0.066,
   };
 
-  return { width, height, worldWidth, masterWaves, layers, readability };
+  return {
+    width,
+    height,
+    camera,
+    pathAmplitude,
+    pathSpan: scene0Span,
+    masterWaves,
+    candles,
+    ground: { depthLines, lateralLines },
+    readability,
+  };
 }
 
 /**
- * A MASTER MARKET PATH magassága az adott világkoordinátán és időpontban.
- * Minden réteg minden gyertyája ezt olvassa — ez teszi a mezőt összefüggővé.
+ * A MASTER MARKET PATH normalizált magassága az adott oldalirányú
+ * világkoordinátán és időpontban. Minden gyertya ezt olvassa — ez teszi a
+ * mezőt összefüggő piaci sziluetté.
  */
-function marketPathAt(scene: Scene, layer: Layer, worldX: number, time: number): number {
+function pathAt(waves: readonly PathWave[], wx: number, span: number, time: number): number {
   let sum = 0;
-  for (const w of scene.masterWaves) {
-    sum +=
-      w.amplitude *
-      Math.sin((TAU * w.frequency * worldX) / scene.worldWidth + w.phase + layer.pathPhase + w.drift * time);
+  for (const w of waves) {
+    sum += w.amplitude * Math.sin((TAU * w.frequency * wx) / span + w.phase + w.drift * time);
   }
-  return layer.baseline + layer.pathAmplitude * sum;
+  return sum;
 }
 
 /**
- * Olvashatósági szorzó — a GYERTYA TELJES BEFOGLALÓ DOBOZA és a védett
- * szövegdobozok közötti pontos távolság alapján.
- *
- * v1.4 JAVÍTÁS: korábban ezt a szorzót a gyertya KÖZÉPPONTJÁRA számoltuk.
- * Egy magas gyertya teste és kanóca ezért átlóghatott a szövegre úgy, hogy a
- * középpontja a zónán kívül volt — ilyenkor teljes erővel rajzolódott ki a
- * betűk mögé. A 768 px-es bevezetőnél ez mérhetően 3.77:1-re rontotta a
- * Cool Silver kontrasztját (WCAG AA FAIL).
- *
- * Most a gyertya teljes függőleges kiterjedését (felső kanóc hegyétől az
- * alsó kanóc hegyéig) és szélességét vesszük, és doboz–doboz szeparációt
- * számolunk: ha a gyertya bármely pontja ÉRINTI a szöveget, a távolság 0,
- * tehát teljes a csillapítás. A dobozokon kívül padX / padY hosszon oldódik
- * fel, azon túl a mező teljes erővel látszik.
+ * Olvashatósági szorzó — a GYERTYA TELJES KÉPERNYŐS BEFOGLALÓ DOBOZA és a
+ * védett szövegdobozok közötti pontos doboz–doboz távolság alapján. Ha a
+ * gyertya bármely pontja érinti a szöveget, a szorzó a réteg `floor` értéke.
+ * (v1.4-ből változatlanul átvéve.)
  */
 function readabilityFactor(
   scene: Scene,
@@ -714,9 +736,6 @@ function readabilityFactor(
   floor: number,
 ): number {
   const { boxes, padX, padY } = scene.readability;
-
-  // A LEGKÖZELEBBI szövegdoboz dönt: elég egyetlen elem közelsége ahhoz,
-  // hogy a gyertya lehalkuljon, de két elem KÖZÖTT nincs csillapítás.
   let distance = 1;
   for (const box of boxes) {
     const dx = Math.max(0, Math.abs(cx - box.cx) - box.halfWidth - halfWidth) / padX;
@@ -725,7 +744,6 @@ function readabilityFactor(
     if (d < distance) distance = d;
     if (distance <= 0) return floor;
   }
-
   if (distance >= 1) return 1;
   const smooth = distance * distance * (3 - 2 * distance); // smoothstep(0, 1, d)
   return floor + (1 - floor) * smooth;
@@ -755,10 +773,6 @@ function roundedRectPath(
   ctx.closePath();
 }
 
-function rgba(color: Rgb, alpha: number): string {
-  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
-}
-
 /** Kitöltött sokszög — az oldal- és tetőlaphoz. */
 function facePath(ctx: CanvasRenderingContext2D, points: readonly (readonly [number, number])[]): void {
   ctx.beginPath();
@@ -767,73 +781,197 @@ function facePath(ctx: CanvasRenderingContext2D, points: readonly (readonly [num
   ctx.closePath();
 }
 
+/* =========================================================================
+   RAJZOLÁS
+   ========================================================================= */
+
+/**
+ * MÉLYSÉGI KÖD — a távoli objektumok a háttérszín felé mosódnak, és
+ * veszítenek a kontrasztjukból. Ez helyettesíti a drága valódi blur
+ * pipeline-t: ugyanazt a „mélységélesség" érzetet adja alfával és
+ * tónussal, képkockánkénti szűrő nélkül.
+ * 0 = nincs köd (előtér), 1 = teljesen a háttérbe olvad.
+ */
+function fogAmount(camera: Camera, wz: number): number {
+  const t = clamp((wz - camera.focal * 0.9) / (camera.farZ - camera.focal * 0.9), 0, 1);
+  return t * t * 0.78;
+}
+
+/**
+ * PADLÓSÍK — perspektivikus mélységi és oldalirányú vonalak.
+ *
+ * SZÁNDÉKOSAN NEM „synthwave grid": nincs neon, nincs izzás, nincs
+ * telített szín, és a vonalak alfája 1,5–5% között marad. A padló csak
+ * annyira látszik, hogy a gyertyák egy TÉRBEN álljanak — önálló grafikai
+ * elemként nem hívja fel magára a figyelmet.
+ */
+function drawGround(ctx: CanvasRenderingContext2D, scene: Scene, camDx: number, camDy: number): void {
+  const { camera, ground } = scene;
+  const vpX = camera.vpX + camDx;
+  const horizonY = camera.horizonY + camDy;
+  const floorAt = (z: number) => horizonY + (camera.camY * camera.focal) / z;
+  const xAt = (wx: number, z: number) => vpX + (wx * camera.focal) / z;
+
+  ctx.lineWidth = 1;
+
+  // Mélységi (vízszintes) vonalak — a horizont felé sűrűsödnek.
+  for (const z of ground.depthLines) {
+    const y = floorAt(z);
+    if (y <= horizonY + 0.5 || y > scene.height + 2) continue;
+    // A közelebbi vonal erősebb; a horizont közelében elhal.
+    const nearness = clamp((y - horizonY) / (scene.height - horizonY), 0, 1);
+    const alpha = 0.03 + 0.085 * nearness * nearness;
+    const halfSpan = xAt(scene.width * 1.5, z) - vpX;
+    ctx.strokeStyle = rgba(COOL_SILVER, alpha);
+    ctx.beginPath();
+    ctx.moveTo(vpX - halfSpan, y);
+    ctx.lineTo(vpX + halfSpan, y);
+    ctx.stroke();
+  }
+
+  // Oldalirányú vonalak — a horizontban futnak össze.
+  const yNear = floorAt(camera.nearZ);
+  const yFar = floorAt(camera.farZ);
+  for (const wx of ground.lateralLines) {
+    const gradient = ctx.createLinearGradient(0, yFar, 0, yNear);
+    gradient.addColorStop(0, rgba(COOL_SILVER, 0));
+    gradient.addColorStop(0.45, rgba(COOL_SILVER, 0.032));
+    gradient.addColorStop(1, rgba(COOL_SILVER, 0.1));
+    ctx.strokeStyle = gradient;
+    ctx.beginPath();
+    ctx.moveTo(xAt(wx, camera.farZ), yFar);
+    ctx.lineTo(xAt(wx, camera.nearZ), yNear);
+    ctx.stroke();
+  }
+}
+
+/**
+ * HORIZONT — optikai mélységi támpont, NEM fényforrás.
+ *
+ * Egy nagyon halvány, lapos Aubergine/Berry atmoszféra a konvergenciapont
+ * körül, plusz egy hajszálvékony fénysáv magán a horizontvonalon. Nem
+ * naplemente, nem sci-fi portál, nem neon horizont: a maximális alfa 9%.
+ */
+function drawHorizon(ctx: CanvasRenderingContext2D, scene: Scene, camDx: number, camDy: number): void {
+  const vpX = scene.camera.vpX + camDx;
+  const horizonY = scene.camera.horizonY + camDy;
+  const radius = scene.width * 0.3;
+
+  const glow = ctx.createRadialGradient(vpX, horizonY, 0, vpX, horizonY, radius);
+  glow.addColorStop(0, rgba(AUBERGINE_LIGHT, 0.17));
+  glow.addColorStop(0.35, rgba(PLUM_LIGHT, 0.075));
+  glow.addColorStop(1, rgba(PLUM_LIGHT, 0));
+  ctx.save();
+  // Lapított ellipszis: a horizont vízszintesen terül el, nem gömbszerű.
+  ctx.translate(vpX, horizonY);
+  ctx.scale(1, 0.32);
+  ctx.translate(-vpX, -horizonY);
+  ctx.fillStyle = glow;
+  ctx.fillRect(vpX - radius, horizonY - radius, radius * 2, radius * 2);
+  ctx.restore();
+
+  // Hajszálvékony fénysáv a horizontvonalon, a közepén a legerősebb.
+  const line = ctx.createLinearGradient(vpX - radius, 0, vpX + radius, 0);
+  line.addColorStop(0, rgba(AUBERGINE_LIGHT, 0));
+  line.addColorStop(0.5, rgba(AUBERGINE_LIGHT, 0.3));
+  line.addColorStop(1, rgba(AUBERGINE_LIGHT, 0));
+  ctx.fillStyle = line;
+  ctx.fillRect(vpX - radius, horizonY - 0.5, radius * 2, 1);
+}
+
+/**
+ * TÜKRÖZŐDÉS — a gyertya rövid, lefelé halványodó lenyomata a padlón.
+ *
+ * Nem valódi tükörkép: csak a TEST alsó része jelenik meg, függőlegesen
+ * tükrözve a padlósíkra, alacsony alfával és gyors elhalványulással. Nincs
+ * blur-szűrő (drága lenne); a lágyságot a gradiens és az alacsony
+ * átlátszatlanság adja.
+ */
+function drawReflection(
+  ctx: CanvasRenderingContext2D,
+  color: Rgb,
+  x: number,
+  w: number,
+  floorY: number,
+  bodyBottomY: number,
+  bodyHeightPx: number,
+  alpha: number,
+): void {
+  if (floorY <= bodyBottomY) return; // a test a padló alatt van: nincs értelme
+  const gap = floorY - bodyBottomY;
+  // A lenyomat a padlótól indul, és legfeljebb a testmagasság 70%-áig ér.
+  const length = Math.min(bodyHeightPx * 0.7, 120);
+  if (length < 3) return;
+
+  // Minél magasabban lebeg a gyertya, annál halványabb és szórtabb a nyoma.
+  const lift = clamp(1 - gap / (bodyHeightPx * 2.4 + 60), 0, 1);
+  const peak = alpha * 0.42 * lift;
+  if (peak <= 0.004) return;
+
+  const gradient = ctx.createLinearGradient(0, floorY, 0, floorY + length);
+  gradient.addColorStop(0, rgba(color, peak));
+  gradient.addColorStop(0.45, rgba(color, peak * 0.34));
+  gradient.addColorStop(1, rgba(color, 0));
+  ctx.fillStyle = gradient;
+  // A lenyomat hajszálnyit szélesebb és széttartó: a padló nem tükörsima.
+  ctx.fillRect(x - w * 0.62, floorY, w * 1.24, length);
+}
+
 /* -------------------------------------------------------------------------
-   EGYETLEN GYERTYA KIRAJZOLÁSA — v1.4 térbeli modell
-   --------------------------------------------------------------------------
-   A gyertyatest már nem lapos téglalap, hanem egy nagyon visszafogott,
-   háromlapos hasáb:
+   EGYETLEN GYERTYA — matt/szatén intézményi fém, háromlapos hasábként.
 
         ┌────────────┐ ← tetőlap (a fény felé néz, a legvilágosabb)
         │            │╲
         │  front lap │ ╲ ← jobb oldallap (árnyékban, a legsötétebb)
         │  (gradiens)│  │
         └────────────┘  ╱
-        ↑ bal él csúcsfénye (1 px)
+        ↑ bal él csúcsfénye
 
-   A mélységvektor IRÁNYA minden gyertyán azonos (jobbra-felfelé), ezért a
-   mező egyetlen, koherens térnek olvasódik, és nem kell explicit 3D kamera.
-   A fény bal felülről / elölről érkezik — ebből adódik a lapok sorrendje.
-
-   Rétegenként eltérő a gazdagság (`richness`), tehát a távoli, sok elemből
-   álló réteg laponként olcsó marad:
-     flat   — kanóc + egyetlen kitöltés                  (2 rajzolási hívás)
-     shaded — + oldallap + kétsávos front + alsó perem    (5 hívás)
-     full   — + tetőlap + gradiens front + bal csúcsfény  (7 hívás)
+   A mélységvektor iránya minden gyertyán azonos, ezért a mező egyetlen
+   koherens térnek olvasódik. A `light` paraméter az anyag/fény lélegzést
+   viszi be: a laptónusokat ±12%-kal modulálja, mintha a jelenet fénye
+   nagyon lassan változna.
    ------------------------------------------------------------------------- */
 function drawCandle(
   ctx: CanvasRenderingContext2D,
-  layer: Layer,
   candle: Candle,
+  color: Rgb,
   x: number,
   bodyTop: number,
   bodyHeight: number,
+  w: number,
   wickUpLength: number,
   wickDownLength: number,
   alpha: number,
+  light: number,
 ): void {
-  const color = candle.accent ? SIGNAL_BERRY_LIGHT : layer.color;
-  const w = candle.width;
   const left = x - w / 2;
   const right = x + w / 2;
   const bodyBottom = bodyTop + bodyHeight;
-  const radius = Math.min(candle.radius, w / 3, bodyHeight / 3);
+  const radius = Math.min(Math.max(w * 0.22, 1.5), w / 3, bodyHeight / 3);
+  const L = (amount: number) => amount * (1 + light * 0.12);
 
-  /* --- KANÓC ---------------------------------------------------------------
-     Mindig a test MÖGÖTT, és a felső kanóc egy hajszállal világosabb, mint az
-     alsó: ugyanaz a fényirány, ami a lapokat is meghatározza. */
-  const wickWidth = Math.max(1, w * 0.085);
+  /* --- KANÓC — mindig a test MÖGÖTT; a felső egy hajszállal világosabb. */
+  const wickWidth = Math.max(1, w * 0.09);
   const wickLeft = x - wickWidth / 2;
-  ctx.fillStyle = rgba(shade(color, 0.06), alpha * 0.66);
+  ctx.fillStyle = rgba(shade(color, L(0.06)), alpha * 0.62);
   ctx.fillRect(wickLeft, bodyTop - wickUpLength, wickWidth, wickUpLength);
-  ctx.fillStyle = rgba(shade(color, -0.18), alpha * 0.54);
+  ctx.fillStyle = rgba(shade(color, L(-0.2)), alpha * 0.5);
   ctx.fillRect(wickLeft, bodyBottom, wickWidth, wickDownLength);
 
-  /* --- LAPOS RÉTEG: itt véget is ér ---------------------------------------- */
-  if (layer.richness === "flat") {
+  /* --- LAPOS (háttér) — itt véget is ér. */
+  if (candle.richness === "flat") {
     ctx.fillStyle = rgba(color, alpha);
     roundedRectPath(ctx, left, bodyTop, w, bodyHeight, radius);
     ctx.fill();
     return;
   }
 
-  /* --- MÉLYSÉGVEKTOR -------------------------------------------------------
-     Jobbra és felfelé: a test „hátrafelé" mélyül, a néző pedig egy
-     hajszálnyival a mező alatt/balra áll. Az irány minden gyertyán azonos. */
-  const dx = w * layer.sideDepth;
+  const dx = w * candle.sideDepth;
   const dy = -dx * 0.55;
 
   // Jobb oldallap — árnyékban.
-  ctx.fillStyle = rgba(shade(color, FACE.side), alpha * 0.92);
+  ctx.fillStyle = rgba(shade(color, L(FACE.side)), alpha * 0.92);
   facePath(ctx, [
     [right - radius * 0.5, bodyTop + radius * 0.5],
     [right - radius * 0.5 + dx, bodyTop + radius * 0.5 + dy],
@@ -843,8 +981,8 @@ function drawCandle(
   ctx.fill();
 
   // Tetőlap — csak az előtérben, ahol a lépték már elbírja.
-  if (layer.richness === "full") {
-    ctx.fillStyle = rgba(shade(color, FACE.top), alpha * 0.86);
+  if (candle.richness === "full") {
+    ctx.fillStyle = rgba(shade(color, L(FACE.top)), alpha * 0.86);
     facePath(ctx, [
       [left + radius * 0.5, bodyTop + radius * 0.4],
       [left + radius * 0.5 + dx, bodyTop + radius * 0.4 + dy],
@@ -854,124 +992,147 @@ function drawCandle(
     ctx.fill();
   }
 
-  /* --- FRONT LAP -----------------------------------------------------------
-     Belső tonális gradiens felülről lefelé. Az előtérben valódi
-     CanvasGradient (rétegenként legfeljebb 9 példány képkockánként), a
-     középső rétegen két lapos sáv — ez vizuálisan alig különbözik, viszont
-     feleannyi objektumallokáció. */
+  /* --- FRONT LAP — belső tonális gradiens. Az előtérben valódi
+     CanvasGradient, a középtérben két lapos sáv: vizuálisan alig
+     különbözik, viszont feleannyi objektumallokáció. */
   roundedRectPath(ctx, left, bodyTop, w, bodyHeight, radius);
-  if (layer.richness === "full") {
+  if (candle.richness === "full") {
     const gradient = ctx.createLinearGradient(left, bodyTop, left + w * 0.35, bodyBottom);
-    gradient.addColorStop(0, rgba(shade(color, FACE.frontTop), alpha));
+    gradient.addColorStop(0, rgba(shade(color, L(FACE.frontTop)), alpha));
     gradient.addColorStop(0.55, rgba(color, alpha));
-    gradient.addColorStop(1, rgba(shade(color, FACE.frontBottom), alpha));
+    gradient.addColorStop(1, rgba(shade(color, L(FACE.frontBottom)), alpha));
     ctx.fillStyle = gradient;
   } else {
     ctx.fillStyle = rgba(color, alpha);
   }
   ctx.fill();
 
-  if (layer.richness === "shaded") {
-    // Kétsávos árnyalás gradiens nélkül: a test alsó harmada sötétebb.
+  if (candle.richness === "shaded") {
     ctx.save();
     ctx.clip();
-    ctx.fillStyle = rgba(shade(color, FACE.frontBottom), alpha * 0.55);
+    ctx.fillStyle = rgba(shade(color, L(FACE.frontBottom)), alpha * 0.55);
     ctx.fillRect(left, bodyTop + bodyHeight * 0.62, w, bodyHeight * 0.38);
     ctx.restore();
   }
 
-  // Bal él csúcsfénye — 1 px, csak az előtérben.
-  if (layer.richness === "full") {
-    ctx.fillStyle = rgba(shade(color, FACE.highlight), alpha * 0.8);
+  // Bal él csúcsfénye — szűk és halvány: szatén, nem króm.
+  if (candle.richness === "full") {
+    ctx.fillStyle = rgba(shade(color, L(FACE.highlight)), alpha * 0.72);
     ctx.fillRect(left + radius * 0.6, bodyTop + radius, 1, Math.max(0, bodyHeight - radius * 2));
   }
 
-  // Alsó perem — a test „vastagsága", ami a hasábot lezárja.
-  ctx.fillStyle = rgba(shade(color, FACE.rim), alpha * 0.75);
+  // Alsó perem — a hasáb lezárása.
+  ctx.fillStyle = rgba(shade(color, L(FACE.rim)), alpha * 0.75);
   ctx.fillRect(left + radius * 0.6, bodyBottom - 1, Math.max(0, w - radius * 1.2), 1);
 }
 
 function drawScene(ctx: CanvasRenderingContext2D, scene: Scene, elapsed: number): void {
   ctx.clearRect(0, 0, scene.width, scene.height);
 
-  for (const layer of scene.layers) {
-    // Egységes haladási irány: minden réteg balra sodródik, csak a sebesség
-    // (azaz a mélységi parallax) különbözik.
-    const shift = (elapsed * layer.speed) % scene.worldWidth;
+  const { camera } = scene;
 
-    for (const candle of layer.candles) {
-      let x = candle.worldX - shift;
-      if (x < -candle.width * 2) x += scene.worldWidth;
-      if (x > scene.width + candle.width * 2) continue;
+  /* --- VIRTUÁLIS KAMERA ---------------------------------------------------
+     Nagyon lassú, hosszú periódusú sodródás: ±6 px vízszintesen (78 s) és
+     ±3 px függőlegesen (103 s). NINCS zoom, dolly, orbit, tilt vagy
+     egérkövetés — a jelenet nem mozog a néző szeme előtt, csak él. */
+  const camDx = CAMERA_DRIFT.x * smoothWave(elapsed * CAMERA_DRIFT.xRate);
+  const camDy = CAMERA_DRIFT.y * smoothWave(elapsed * CAMERA_DRIFT.yRate + 1.9);
+  const vpX = camera.vpX + camDx;
+  const horizonY = camera.horizonY + camDy;
 
-      /* --- ANIMÁLT GEOMETRIA — minden érték az idő sima függvénye ---------
-         A v1.3-hoz képest itt CSAK a zOffsetY perspektivikus tag új; a
-         master path, a sway, a testlélegzés és a kanócmozgás változatlan. */
+  // A padló és a horizont a gyertyák MÖGÖTT: előbb a tér, aztán a tárgyak.
+  drawHorizon(ctx, scene, camDx, camDy);
+  drawGround(ctx, scene, camDx, camDy);
 
-      // 1) A gyertya függőleges helye: a közös market path + kis lokális
-      //    eltérés + a test saját, lassú fel-le mozgása + a mélységi eltolás.
-      const sway = candle.swayAmplitude * smoothWave(elapsed * candle.swayRate + candle.swayPhase);
-      const centerY =
-        marketPathAt(scene, layer, candle.worldX, elapsed) +
-        candle.localOffset +
-        candle.zOffsetY +
-        sway;
+  // A gyertyák mélység szerint CSÖKKENŐ sorrendben érkeznek (távoli előbb),
+  // ezért a közelebbi természetesen takarja a távolabbit.
+  for (const candle of scene.candles) {
+    const s = candle.scale;
 
-      // 2) A TEST magassága is finoman változik: a felső és az alsó él
-      //    részben külön interpolálódik (a grow fél-fél arányban oszlik meg,
-      //    de a két élhez eltérő fázisú komponens is társul), ezért a test
-      //    nemcsak mozog, hanem lélegzik is.
-      const grow = candle.growAmplitude * smoothWave(elapsed * candle.growRate + candle.growPhase);
-      const edgeSkew =
-        candle.growAmplitude * 0.35 * smoothWave(elapsed * candle.growRate * 0.73 + candle.growPhase + 2.2);
-      const bodyHeight = Math.max(6, candle.baseBodyHeight + grow);
-      const bodyTop = centerY - bodyHeight / 2 + edgeSkew * 0.5;
+    /* --- ANIMÁLT VILÁGGEOMETRIA — minden érték az idő sima függvénye ----
+       Egyetlen, világkoordinátás oldalirányú lengés: a PARALLAXIST maga a
+       vetítés adja, mert a közeli gyertya nagyobb `s`-sel nagyobbat mozdul
+       a képernyőn. Nincs rétegenkénti sebesség és nincs körbefordulás. */
+    const sway = candle.swayAmplitude * smoothWave(elapsed * candle.swayRate + candle.swayPhase);
+    const wx = candle.wx + sway;
 
-      // 3) A felső és az alsó KANÓC végpontja külön, egymástól részben
-      //    függetlenül nyúlik és húzódik vissza — de mindig a test aktuális
-      //    éléhez kapcsolódva, ezért a geometria végig folytonos marad.
-      const wickUpLength = Math.max(
-        3,
-        candle.baseWickUp + candle.wickUpAmplitude * smoothWave(elapsed * candle.wickUpRate + candle.wickUpPhase),
-      );
-      const wickDownLength = Math.max(
-        3,
-        candle.baseWickDown +
-          candle.wickDownAmplitude * smoothWave(elapsed * candle.wickDownRate + candle.wickDownPhase),
-      );
+    const float = candle.floatAmplitude * smoothWave(elapsed * candle.floatRate + candle.floatPhase);
+    /* A sziluett alakja a jelenet felépítésekor RÖGZÜLT (ld. baseHeight).
+       Futásidőben csak a t = 0-hoz képesti KÜLÖNBSÉG hat, 18%-os
+       csillapítással: a mező így „lélegzik", de a kompozíció nem tud
+       elvándorolni. Mérés indokolja — a teljes amplitúdójú animált path
+       mellett a tömegközéppont 20 s alatt 116 px-t vándorolt. */
+    const pathHeight =
+      (pathAt(scene.masterWaves, candle.wx, scene.pathSpan, elapsed) - candle.pathBase) *
+      scene.pathAmplitude *
+      0.18;
+    const worldHeight = candle.baseHeight + pathHeight + float;
 
-      /* --- SZÍN ÉS OLVASHATÓSÁG ------------------------------------------ */
+    /* A TEST lélegzése ARÁNYOS: a saját magasságának 2–4,5%-a, nagyon lassú
+       (30–52 s) ciklusban. A v1.4 abszolút px-es változása a kis gyertyáknál
+       aránytalanul nagy volt; ez a forma megőrzi az arányt. */
+    const breath = 1 + candle.breathAmplitude * smoothWave(elapsed * candle.breathRate + candle.breathPhase);
+    const bodyWorldHeight = candle.baseBodyHeight * breath;
 
-      /* A gyertya TELJES befoglaló doboza — a felső kanóc hegyétől az alsó
-         kanóc hegyéig, plusz az oldallap mélysége. Így ha bármely része a
-         szöveg fölé kerül, a csillapítás teljes. */
-      const extentTop = bodyTop - wickUpLength;
-      const extentBottom = bodyTop + bodyHeight + wickDownLength;
-      const halfExtentY = (extentBottom - extentTop) / 2;
-      const halfExtentX = candle.width / 2 + candle.width * layer.sideDepth;
-      const factor = readabilityFactor(
-        scene,
-        x,
-        (extentTop + extentBottom) / 2,
-        halfExtentX,
-        halfExtentY,
-        layer.readabilityFloor,
-      );
-      const edgeFade = clamp(
-        Math.min(x + candle.width, scene.width - x + candle.width) / 96,
-        0,
-        1,
-      );
+    // Kanóc-mikromozgás: néhány világegység, egymástól eltérő fázisban.
+    const wickUpWorld = Math.max(
+      2,
+      candle.baseWickUp + candle.wickUpAmplitude * smoothWave(elapsed * candle.wickUpRate + candle.wickUpPhase),
+    );
+    const wickDownWorld = Math.max(
+      2,
+      candle.baseWickDown +
+        candle.wickDownAmplitude * smoothWave(elapsed * candle.wickDownRate + candle.wickDownPhase),
+    );
 
-      // A mélységi z-szórás az opacitást is modulálja: a rétegen belül
-      // közelebbi gyertya kontrasztosabb. A Berry akcentus fix, magasabb
-      // alfát kap, hogy határozott fókuszpont maradjon.
-      const base = candle.accent ? 0.72 : layer.alpha * candle.zAlpha;
-      const bodyAlpha = clamp(base, 0, 0.92) * factor * edgeFade;
-      if (bodyAlpha <= 0.004) continue;
+    /* --- VETÍTÉS --------------------------------------------------------- */
+    const x = vpX + wx * s;
+    const w = candle.width * s;
+    const bodyHeight = bodyWorldHeight * s;
+    const centerY = horizonY + (camera.camY - worldHeight) * s;
+    const bodyTop = centerY - bodyHeight / 2;
+    const bodyBottom = bodyTop + bodyHeight;
+    const wickUp = wickUpWorld * s;
+    const wickDown = wickDownWorld * s;
 
-      drawCandle(ctx, layer, candle, x, bodyTop, bodyHeight, wickUpLength, wickDownLength, bodyAlpha);
+    // Képen kívüli gyertyák kihagyása (a vízszintes margó a takarás miatt bő).
+    if (x < -w * 3 || x > scene.width + w * 3) continue;
+    if (bodyHeight < 1.5 || w < 0.8) continue;
+
+    /* --- MÉLYSÉGI KÖD ÉS OLVASHATÓSÁG ------------------------------------ */
+    const fog = fogAmount(camera, candle.wz);
+    const color = shade(candle.color, -fog);
+
+    const extentTop = bodyTop - wickUp;
+    const extentBottom = bodyBottom + wickDown;
+    const halfExtentX = w / 2 + w * candle.sideDepth;
+    const factor = readabilityFactor(
+      scene,
+      x,
+      (extentTop + extentBottom) / 2,
+      halfExtentX,
+      (extentBottom - extentTop) / 2,
+      candle.readabilityFloor,
+    );
+
+    // Peremelhalványulás: a képszélen a gyertyák beleolvadnak a vignettába.
+    const edgeFade = clamp(Math.min(x + w * 1.6, scene.width - x + w * 1.6) / 70, 0, 1);
+
+    const alpha = clamp(candle.alpha * (1 - fog * 0.42), 0, 0.94) * factor * edgeFade;
+    if (alpha <= 0.004) continue;
+
+    /* --- ANYAG/FÉNY LÉLEGZÉS ---------------------------------------------
+       Nem külön effekt: úgy hat, mintha a jelenet fénye változna
+       nagyon lassan. A laptónusokat modulálja ±12%-kal. */
+    const light = smoothWave(elapsed * candle.lightRate + candle.lightPhase);
+
+    // TÜKRÖZŐDÉS — a test MÖGÉ, a padlóra, még a gyertya kirajzolása előtt.
+    if (candle.reflects) {
+      const floorY = horizonY + camera.camY * s;
+      drawReflection(ctx, color, x, w, floorY, bodyBottom + wickDown, bodyHeight, alpha);
     }
+
+    drawCandle(ctx, candle, color, x, bodyTop, bodyHeight, w, wickUp, wickDown, alpha, light);
   }
 }
 
