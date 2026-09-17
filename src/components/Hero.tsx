@@ -1,4 +1,6 @@
-import HeroMarketMotion from "@/components/HeroMarketMotion";
+import Image from "next/image";
+
+import heroBackdrop from "@/assets/hero-market-corridor.webp";
 import { hero, statusNotice } from "@/content/homepage";
 
 /**
@@ -77,16 +79,15 @@ export default function Hero() {
       vált, ld. globals.css). Rétegek alulról:
         1) Deep alapfelület
         2) hero-vignette — lágy Aubergine mélység és peremsötétítés
-        3) HeroMarketMotion canvas — a perspektivikus gyertyatér: padlósík,
-           horizont, tükröződések és a mozgó gyertyák EGY vetítésben
+        3) hero-media — a jóváhagyott, statikus gyertyakorridor-kép
         4) hero-veil — SÖTÉT kontrasztvédő overlay a copy mögött
+        4b) hero-scrim — alsó kontrasztvédő sáv a státuszközlés mögött
         5) a copy és a CTA
-      Az 1–4. réteg mind dekoratív: aria-hidden és pointer-events: none.
+      Az 1–4b. réteg mind dekoratív: aria-hidden és pointer-events: none.
 
-      v1.5: a korábbi külön `.hero-grid` CSS-réteg MEGSZŰNT. A rácsháló egy
-      másik síkban élt, mint a gyertyák, ezért sosem tudott velük egyezni.
-      A padlósíkot most ugyanaz a perspektivikus vetítés rajzolja a
-      canvasra, amelyik a gyertyákat is — így a mező valóban EGY tér.
+      v1.5.2: a 3. réteg a Canvas-animáció helyett egy STATIKUS, jóváhagyott
+      kép. A HeroMarketMotion komponens megmarad a repositoryban, de a Hero
+      nem rendereli — így bármikor visszakapcsolható.
     */
     <section
       id="top"
@@ -98,22 +99,46 @@ export default function Hero() {
       <div aria-hidden="true" className="hero-vignette pointer-events-none absolute inset-0" />
 
       {/*
-        Réteg 4: animation-mount — az absztrakt japángyertya-animáció canvasa.
-        Tisztán dekoratív: a CTA fölé sosem kerülhet (pointer-events: none),
-        nincs a billentyűzetes fókuszsorrendben, és screen readerek számára
-        nem létezik (aria-hidden). Szerveroldalon üres canvasként renderel,
-        ezért nem okoz hydration mismatchet és nem mozdítja el a layoutot.
+        Réteg 3: HERO MÉDIA — a jóváhagyott, statikus filmszerű gyertyakorridor.
+
+        v1.5.2: a Canvas-alapú HeroMarketMotion NEM renderelődik többé itt
+        (a komponens megmarad a repositoryban, ld. a fájl tetején lévő
+        jegyzetet). Ez tudatos köztes lépés: előbb a statikus vizuális irány
+        kerül jóváhagyásra, és csak utána döntünk a mozgásról.
+
+        Tisztán dekoratív: alt="" + aria-hidden, tehát képernyőolvasó nem
+        olvassa fel; pointer-events: none, tehát a CTA fölé sosem kerülhet.
+        A kép abszolút pozicionált, kifolyik a normál elrendezésből, ezért
+        elvileg sem okozhat layout shiftet. A `priority` above-the-fold
+        előtöltést kér; a statikus import miatt a méretek build-időben
+        ismertek.
+
+        A kompozíciót a `.hero-media` osztály állítja be (ld. globals.css):
+        desktopon `cover`, mobilon a kép TELJES szélessége látszik egy alsó
+        sávban — mert egy 390 px-es, álló viewporton a középre vágott
+        `cover` pontosan a folyosó ÜRES közepét mutatná, gyertyák nélkül.
       */}
-      <div
-        aria-hidden="true"
-        data-hero-animation-mount=""
-        className="pointer-events-none absolute inset-0"
-      >
-        <HeroMarketMotion />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <Image
+          src={heroBackdrop}
+          alt=""
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 479px) 205vw, (max-width: 639px) 170vw, (max-width: 767px) 132vw, 100vw"
+          className="hero-media select-none"
+        />
       </div>
 
       {/* Réteg 4: sötét kontrasztvédő overlay — ld. .hero-veil a globals.css-ben. */}
       <div aria-hidden="true" className="hero-veil pointer-events-none absolute inset-0" />
+
+      {/*
+        Réteg 4b: alsó kontrasztvédő sáv. A kép alsó harmada fényes,
+        tükröződő padló, és a kötelező státuszközlés éppen azon ül — mérve
+        3,06:1 kontrasztra esett vissza. Ez a réteg csak a Hero alját
+        sötétíti, a padló a copy alatt látható marad.
+      */}
+      <div aria-hidden="true" className="hero-scrim pointer-events-none absolute inset-0" />
 
       {/* Réteg 5: valódi HTML copy és CTA. */}
       <div className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-col px-5 sm:px-6 lg:px-8">
@@ -187,20 +212,22 @@ export default function Hero() {
 
           {/*
             EGYETLEN hero-CTA — az oldal legerősebb konverziós pontja.
-            Világos Berry Soft felület, Carbon felirat (12.85:1, AAA), alsó
-            Berry jelzővonallal. Hoverre 1 px-t emelkedik; nincs pulzálás.
+            v1.5.2: Porcelain felület, Ink felirat (13,56:1, AAA), teljesen
+            SEMLEGES élkezeléssel. A korábbi Berry Soft (rózsaszín) háttér,
+            az alsó Berry jelzővonal, a Berry kontúr és a Berry fókuszgyűrű
+            MIND eltávolítva. Hoverre 1 px-t emelkedik; nincs pulzálás.
           */}
           <div className="mt-9 flex w-full max-w-sm flex-col items-stretch sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center">
             {/*
               A gomb SEMMILYEN dekoratív karaktert (pl. nyilat) nem tartalmaz:
               a renderelt szövegnek karakterre a content-modell feliratával kell
-              egyeznie. A hover-visszajelzést a finom emelkedés és az alsó
-              Berry jelzővonal adja.
+              egyeznie. A hover-visszajelzést a finom emelkedés és a semleges
+              élkezelés erősödése adja — Berry/rózsaszín elem nincs rajta.
             */}
             <a
               href={hero.primaryCta.href}
               data-hero-ink=""
-              className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-signal-berry-soft px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
+              className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-porcelain px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
             >
               {hero.primaryCta.label}
             </a>

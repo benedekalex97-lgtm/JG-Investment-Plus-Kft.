@@ -492,30 +492,148 @@ body {
 }
 
 /*
-  Elsődleges Hero-CTA — a v1.3-ban a Hero sötét alapra került, ezért a CTA
-  megfordult: VILÁGOS (Berry Soft) felület, Carbon felirattal. Mért kontraszt
-  12.85:1 (AAA). Ez a legerősebb konverziós pont az oldalon.
+  ==========================================================================
+  HERO MÉDIA — a statikus gyertyakorridor-kép elhelyezése (v1.5.2)
+  ==========================================================================
 
-  A Signal Berry itt két kontrollált szerepben marad:
-    1) egy 2 px-es alsó jelzővonal (inset box-shadow), hoverkor erősödik;
-    2) a fókuszgyűrű színe — sötét alapon a -light változat, mert a sötét
-       Berry ott csak 2.59:1 lenne.
-  Nincs glow, gradient, pulzálás vagy színes árnyék.
+  A kép 1672×941 (oldalarány 1,777). A Hero desktopon 1440×805 (1,789),
+  tehát a két arány gyakorlatilag azonos: `cover` mellett elhanyagolható a
+  levágás, és a referencia kompozíciója — bal gyertyacsoport, üres közép,
+  jobb gyertyacsoport, padló — teljes egészében megmarad.
+
+  MOBILON EZ NEM MŰKÖDIK, és ezt mérés igazolja: egy 390×799-es álló
+  viewporton a `cover` a képet 0,849-es szorzóval nagyítja (1419×799), és
+  ebből mindössze 390 px széles sáv látszik — a forráskép vízszintes
+  27,5%-a, középre igazítva. Az pedig PONTOSAN a folyosó ÜRES közepe:
+  egyetlen gyertya sem lenne a képen.
+
+  Ezért mobilon nem `cover` van, hanem a kép TELJES SZÉLESSÉGE jelenik meg
+  egy alsó sávban, a Hero aljához igazítva. Így mindkét gyertyacsoport, a
+  perspektíva és a padló is látszik, a H1 mögötti felső zóna viszont tiszta
+  és sötét marad.
+*/
+.hero-media {
+  position: absolute;
+  left: 50%;
+  /*
+    MOBIL KOMPOZÍCIÓ — mérés vezérelte, három iteráció után.
+
+    A szélesség és a látható képkivágat KÖLCSÖNÖSEN kizárja egymást: minél
+    szélesebbre nagyítjuk a képet (magasabb sáv), annál kisebb hányada
+    látszik, és 200% fölött már CSAK a folyosó közepe marad a képen — ott
+    viszont a gyertyák a legapróbbak. 132%-nál a forráskép vízszintes
+    ~77%-a látszik, tehát MINDKÉT gyertyacsoport nagy, előtéri gyertyái is.
+
+    A sáv a státuszközlés FÖLÖTT ér véget (bottom: 22%), ezért a kötelező
+    jogi szöveg tiszta, sötét alapra kerül, és nem kell erős sötétítéssel
+    elnyomni a képet. Mindkét éle maszkkal olvad a felületbe.
+  */
+  bottom: 22%;
+  width: 132%;
+  /*
+    KÖTELEZŐ: a Tailwind preflight `img { max-width: 100% }` szabálya
+    különben 100%-ra vágná a szélességet. Mérés igazolta: 205% helyett
+    390 px-en renderelt (219 px magas sáv), és a gyertyák gyakorlatilag
+    eltűntek a mobil Heróból.
+  */
+  max-width: none;
+  height: auto;
+  transform: translateX(-50%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 26%,
+    black 80%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom, transparent 0%, black 26%, black 80%, transparent 100%);
+}
+
+@media (min-width: 480px) {
+  .hero-media {
+    width: 118%;
+    bottom: 19%;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Tabletnél és fölötte az arányok már összeérnek: teljes felületű cover. */
+  .hero-media {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: none;
+    object-fit: cover;
+    object-position: 50% 50%;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/*
+  .hero-scrim — ALSÓ KONTRASZTVÉDŐ SÁV (v1.5.2).
+
+  A statikus kép alsó harmada fényes, tükröződő padló. A kötelező
+  státuszközlés pontosan ezen a sávon ül, és a mérés szerint a Cool Silver
+  kontrasztja 3,06:1-re esett (WCAG AA FAIL, 4,5 kellene). A brief szerint
+  ilyenkor a HÁTTERET kell javítani, nem a szöveget — ezt teszi ez a réteg.
+
+  Csak a Hero alsó ~38%-át érinti, felfelé teljesen feloldódik, ezért a
+  padló perspektívája és a tükröződések a copy alatt továbbra is látszanak;
+  a státuszközlés viszont kontrollált, sötét alapot kap.
+*/
+.hero-scrim {
+  /*
+    MOBIL görbe — szándékosan nagyon enyhe. A képsáv itt a státuszközlés
+    FÖLÖTT ér véget (ld. .hero-media bottom: 22%), tehát a jogi szöveg már
+    eleve tiszta, sötét alapon ül; nem kell erős sötétítéssel elnyomni a
+    képet. Ez a réteg csak a Hero alsó peremét zárja le.
+  */
+  background-image: linear-gradient(
+    to bottom,
+    rgb(21 17 22 / 0%) 74%,
+    rgb(21 17 22 / 22%) 86%,
+    rgb(21 17 22 / 40%) 100%
+  );
+}
+
+@media (min-width: 768px) {
+  /*
+    DESKTOP görbe: a státuszközlés lejjebb, a Hero 83–88%-án ül, és a
+    padló nagyobb felületen látszik, ezért a sötétítés később indul és
+    laposabb.
+  */
+  .hero-scrim {
+    background-image: linear-gradient(
+      to bottom,
+      rgb(21 17 22 / 0%) 62%,
+      rgb(21 17 22 / 32%) 76%,
+      rgb(21 17 22 / 64%) 88%,
+      rgb(21 17 22 / 80%) 100%
+    );
+  }
+}
+
+/*
+  Elsődleges Hero-CTA — v1.5.2: TELJESEN SEMLEGES.
+
+  A v1.3–v1.5 változat Berry Soft (rózsaszín) felületet, alsó Berry
+  jelzővonalat, Berry kontúrt és Berry fókuszgyűrűt használt. Ez a kör
+  MINDET eltávolítja: a gomb Porcelain felület + Ink felirat, az élkezelés
+  pedig semleges (felső belső fény, hajszálnyi sötét kontúr, szűk vetett
+  árnyék). A Hero CTA-n a Berry/rózsaszín dekorációk száma: 0.
+
+  Mért kontraszt: Ink a Porcelainen 13,56:1 (AAA).
+
+  A fókuszgyűrű a Hero `.on-dark` szabályát kapja (Porcelain gyűrű + Ink
+  kontúr), mert a gomb világos felületen ül sötét szakaszon belül — így
+  mindkét irányban elválik, és nincs rajta rózsaszín.
 */
 .hero-cta-primary {
-  --focus: var(--color-signal-berry-light);
-
-  /*
-    v1.4 éltisztítás: a lapos „inset alsó vonal" helyett négy rétegű, de
-    végig visszafogott élkezelés — felső belső fény (a gomb teteje megcsillan),
-    alsó belső Berry jelzővonal, egy hajszálnyi Berry kontúr és egy szűk,
-    mély vetett árnyék, ami a gombot elemeli a Hero felületéről.
-    Nincs gradient-animáció, nincs glow, nincs shine sweep, nincs pulzálás.
-  */
   box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 80%),
-    inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-berry) 55%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--color-signal-berry) 18%, transparent),
+    inset 0 1px 0 0 rgb(255 255 255 / 85%),
+    inset 0 -2px 0 0 rgb(39 38 42 / 14%),
+    0 0 0 1px rgb(39 38 42 / 10%),
     0 14px 30px -16px rgb(0 0 0 / 90%);
   transition:
     background-color 220ms ease,
@@ -525,9 +643,9 @@ body {
 
 .hero-cta-primary:hover {
   box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 92%),
-    inset 0 -2px 0 0 var(--color-signal-berry),
-    0 0 0 1px color-mix(in srgb, var(--color-signal-berry) 30%, transparent),
+    inset 0 1px 0 0 rgb(255 255 255 / 95%),
+    inset 0 -2px 0 0 rgb(39 38 42 / 22%),
+    0 0 0 1px rgb(39 38 42 / 16%),
     0 18px 38px -18px rgb(0 0 0 / 95%);
 }
 

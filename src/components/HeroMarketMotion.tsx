@@ -3,6 +3,23 @@
 import { useEffect, useRef } from "react";
 
 /* ==========================================================================
+   ÁLLAPOT — v1.5.2: EZ A KOMPONENS JELENLEG NINCS RENDERELVE.
+   --------------------------------------------------------------------------
+   A Hero vizuális alapja átmenetileg egy STATIKUS kép
+   (src/assets/hero-market-corridor.webp, ld. Hero.tsx „Réteg 3").
+
+   A komponenst SZÁNDÉKOSAN nem töröltük: a teljes perspektivikus vetítés, a
+   folyosós elhelyezés, a padlósík, a tükröződések, az anyagmodell és a
+   mozgási rendszer érintetlenül megmaradt. Visszakapcsolni egyetlen lépés:
+   a Hero.tsx-ben a statikus <Image> réteg helyére vissza kell tenni a
+   korábbi animation-mount blokkot (`<HeroMarketMotion />`), és újra
+   importálni ezt a modult.
+
+   A döntés oka nem technikai: előbb a statikus vizuális irány kap
+   jóváhagyást, és csak utána döntünk arról, hogyan animáljuk tovább.
+   ========================================================================== */
+
+/* ==========================================================================
    HERO MARKET MOTION — v1.5: FILMSZERŰ, TÉRBELI GYERTYAKORRIDOR
    --------------------------------------------------------------------------
    Mi EZ:
