@@ -41,6 +41,7 @@ import { legalNotice } from "@/content/legal-notice";
 
 export const metadata: Metadata = {
   title: `${legalNotice.heading} · ${meta.wordmark}`,
+  alternates: { canonical: "/jogi-tajekoztato" },
 };
 
 /** Ékezetek nélküli, kötőjeles azonosító a címsorokhoz (csak horgony-cél, nem tartalom). */

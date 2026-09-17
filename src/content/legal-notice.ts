@@ -8,13 +8,25 @@
  * v1.1 — POST-LAUNCH UI & STRUCTURE POLISH.
  *
  * Ez a fájl a src/content/homepage.ts korábbi `legal` mezőjéből lett
- * KISZERVEZVE (MOVE, nem REWRITE): a tartalom karakterre változatlan, csak a
- * helye és a megjelenítése változott. Korábban a homepage-en, a
- * LegalRiskBlock komponens `#jogi-tajekoztato` szakaszaként, alapállapotban
- * összecsukott accordionban jelent meg; mostantól önálló oldalon
- * (`/jogi-tajekoztato`, ld. src/app/jogi-tajekoztato/page.tsx) él, teljes
- * egészében, kattintás nélkül olvashatóan — ugyanazzal a lapos, összecsukás
- * nélküli szerkezettel, mint az /adatkezelesi-tajekoztato oldal.
+ * KISZERVEZVE (MOVE, nem REWRITE): a tartalom a lenti egy kivétellel
+ * karakterre változatlan, csak a helye és a megjelenítése változott.
+ * Korábban a homepage-en, a LegalRiskBlock komponens `#jogi-tajekoztato`
+ * szakaszaként, alapállapotban összecsukott accordionban jelent meg;
+ * mostantól önálló oldalon (`/jogi-tajekoztato`, ld.
+ * src/app/jogi-tajekoztato/page.tsx) él, teljes egészében, kattintás nélkül
+ * olvashatóan — ugyanazzal a lapos, összecsukás nélküli szerkezettel, mint
+ * az /adatkezelesi-tajekoztato oldal.
+ *
+ * v1.2 KIVÉTEL (TYPOGRAPHY & CONTENT RHYTHM POLISH v1.0 — MICRO FIX 1). A
+ * `lead` mező eredetileg így zárult: „A témakörök alapértelmezés szerint
+ * összecsukva jelennek meg, hogy a szakasz áttekinthető maradjon; a
+ * kockázati figyelmeztetés mindig nyitva van." Ez a mondat az accordion UI
+ * leírása volt, ami az önálló oldalon (nincs accordion, minden szakasz
+ * azonnal olvasható) ténybelileg hamissá vált — Alex kifejezett
+ * jóváhagyásával eltávolítva. Ez az EGYETLEN szöveges eltérés a forrás
+ * DOCX-hez képest; minden más mező (státusz, keretek, korlátok,
+ * kockázatok, nyilatkozat, panaszkezelés, impresszum) karakterre
+ * változatlan.
  *
  * v1.1 KIEGÉSZÍTÉS (POST-LAUNCH UI POLISH v1.1 — LEGAL CONSOLIDATION).
  * A `complaints` (Panaszkezelés és jogorvoslat) és az `imprint` (Impresszum)
@@ -69,7 +81,7 @@ export const legalNotice: {
   };
 } = {
   heading: "Jogi tájékoztató",
-  lead: "Az alábbi részletes tájékoztatás teljes egészében elérhető. A témakörök alapértelmezés szerint összecsukva jelennek meg, hogy a szakasz áttekinthető maradjon; a kockázati figyelmeztetés mindig nyitva van.",
+  lead: "Az alábbi részletes tájékoztatás teljes egészében elérhető.",
   status: {
     heading: "Szerepek és felelősség",
     paragraphs: [
