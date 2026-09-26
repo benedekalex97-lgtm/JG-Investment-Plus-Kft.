@@ -112,24 +112,30 @@ export default function Header() {
         </Link>
 
         <nav aria-label={nav.menuLabel} className="hidden min-w-0 lg:block">
-          {/* A lista törhet: 200%-os szövegnagyításnál sem okoz vízszintes overflow-t. */}
+          {/*
+            A lista törhet: 200%-os szövegnagyításnál sem okoz vízszintes overflow-t.
+            1024–1079 px között a nav (≈751 px) + logó + gap-x-10 ≈ 990 px nem
+            fért el a 960 px-es tartalomsávban, ezért két sorba tört és kilógott
+            a 80 px-es headerből. Ebben a sávban a nav itemek és az elválasztó
+            vízszintes belső margója 16 -> 12 px (-40 px), így egy sorban marad.
+          */}
           <ul className="flex flex-wrap items-center justify-end gap-x-1">
             {nav.items.map((item) => (
               <li key={item.href}>
                 <a
                   href={item.href}
-                  className="jg-nav-item relative flex min-h-11 items-center rounded px-4 text-[0.9375rem] tracking-[0.005em] text-cool-silver transition-colors duration-200 hover:text-porcelain focus-visible:text-porcelain"
+                  className="jg-nav-item relative flex min-h-11 items-center rounded px-4 text-[0.9375rem] tracking-[0.005em] text-cool-silver transition-colors duration-200 hover:text-porcelain focus-visible:text-porcelain max-[1080px]:px-3"
                 >
                   {item.label}
                   {/* Hover/fókusz-jelölés: középről kifutó, hajszálvékony Berry sín. */}
                   <span
                     aria-hidden="true"
-                    className="jg-nav-rail pointer-events-none absolute inset-x-4 bottom-[0.6875rem] h-px bg-signal-berry-light"
+                    className="jg-nav-rail pointer-events-none absolute inset-x-4 bottom-[0.6875rem] h-px bg-signal-berry-light max-[1080px]:inset-x-3"
                   />
                 </a>
               </li>
             ))}
-            <li aria-hidden="true" className="mx-4 h-6 w-px bg-white/12" />
+            <li aria-hidden="true" className="mx-4 h-6 w-px bg-white/12 max-[1080px]:mx-3" />
             <li>
               <Link
                 href="/#kapcsolat"

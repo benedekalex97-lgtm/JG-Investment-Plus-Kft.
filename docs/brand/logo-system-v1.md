@@ -271,7 +271,9 @@ footer's short Berry divider line below the brand block is unchanged.
 Why the header sizes differ at 1024–1279 px: the desktop nav needs 751 px and already wrapped
 to two lines between 1024 and 1056 px **before** this change (a pre-existing issue). The
 smaller lockup at that range (≈ 199 px, slightly narrower than the old 202 px text wordmark)
-keeps the wrap point where it was instead of pushing it to 1083 px.
+keeps the wrap point where it was instead of pushing it to 1083 px. The wrap itself is now
+fixed separately: between 1024 and 1079 px the nav items and separator use 12 px instead of
+16 px side padding, so the nav stays on one line at every width from 1024 px.
 
 ## 13. Production Assets
 
