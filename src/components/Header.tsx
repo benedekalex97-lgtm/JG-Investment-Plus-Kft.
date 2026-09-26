@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-import { meta, nav } from "@/content/homepage";
+import { nav } from "@/content/homepage";
+import Logo from "./Logo";
 
 /**
  * Header — v1.4: „az oldal első prémium részlete".
@@ -19,9 +20,9 @@ import { meta, nav } from "@/content/homepage";
  *      header külső magassága PONTOSAN 72 px (mobil) és 80 px (desktop) —
  *      ugyanaz a két érték, amire a html { scroll-padding-top } is be van
  *      állítva, tehát az anchor-eltolás ±0 px;
- *   3) a wordmark nagyobb, feszesebb betűközzel és egy hajszálvékony
- *      függőleges Berry/Aubergine signature-ruddal — ez GEOMETRIAI jel, nem
- *      logó, és NEM ad új szövegcsomópontot a DOM-hoz (aria-hidden span);
+ *   3) a márkaazonosító a Logo System v1.0 horizontal lockupja (Porcelain
+ *      szimbólum + Inter wordmark; ld. Logo.tsx) — a v1.4 Berry
+ *      signature-rudat váltja;
  *   4) a nav itemek szélesebb ritmust és középről kifutó Berry sínt kapnak,
  *      ami hoverre ÉS :focus-visible-re is működik;
  *   5) a CTA finomabb élkezelést kap (belső felső fény + alsó Berry
@@ -90,20 +91,24 @@ export default function Header() {
       <div className="jg-safe-x mx-auto flex h-[72px] w-full max-w-[1280px] items-center justify-between gap-x-10 lg:h-20">
         <Link
           href="/#top"
-          className="group flex min-h-11 shrink-0 items-center gap-3 rounded"
+          className="group flex min-h-11 shrink-0 items-center rounded"
         >
           {/*
-            Geometriai signature a wordmark mellett — NEM logó és NEM új
-            szöveg: aria-hidden, tartalom nélküli span. Egy rövid függőleges
-            Berry rúd, Aubergine-be futó alsó véggel.
+            Logo System v1.0 — horizontal lockup (ld. Logo.tsx). A jel
+            aria-hidden, a link neve a wordmark élő szövege. 375 px alatt a
+            teljes lockup nem fér el a (nyitott állapotban szélesebb,
+            „Bezárás" feliratú) menügomb mellett, ezért ott csak a jel
+            látszik; a wordmark sr-only marad, így a link akadálymentes neve
+            változatlan. 1024–1279 px között a lockup
+            szándékosan kisebb: így nem szélesebb a korábbi szöveges
+            wordmarknál, és nem tolja tovább a desktop nav tördelési pontját.
           */}
-          <span
-            aria-hidden="true"
-            className="jg-wordmark-rule block h-6 w-0.5 shrink-0 rounded-full lg:h-7"
+          <Logo
+            variant="horizontal"
+            theme="dark"
+            className="text-[0.6875rem] transition-colors duration-200 group-hover:text-white sm:text-[0.8125rem] lg:text-[0.78125rem] xl:text-[0.875rem]"
+            wordmarkClassName="max-[374px]:sr-only"
           />
-          <span className="font-display text-[1.1875rem] leading-none tracking-[-0.015em] whitespace-nowrap text-porcelain transition-colors duration-200 group-hover:text-white sm:text-[1.3125rem] lg:text-[1.4375rem]">
-            {meta.wordmark}
-          </span>
         </Link>
 
         <nav aria-label={nav.menuLabel} className="hidden min-w-0 lg:block">

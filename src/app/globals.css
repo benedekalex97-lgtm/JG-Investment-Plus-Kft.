@@ -344,21 +344,6 @@ body {
 }
 
 /*
-  A wordmark melletti Berry signature — tisztán geometriai, NEM logó és NEM
-  új szövegcsomópont (aria-hidden span). Egy rövid függőleges Berry rúd,
-  fölötte egy hajszálnyi Aubergine folytatással: a márka „jelzése", nem
-  díszítés. Hoverkor a rúd nem mozog; a wordmark visszafogottan világosodik.
-*/
-.jg-wordmark-rule {
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--color-signal-berry-light) 22%, transparent) 0%,
-    var(--color-signal-berry) 46%,
-    color-mix(in srgb, var(--color-aubergine) 70%, transparent) 100%
-  );
-}
-
-/*
   Nav-hover: a felirat alatt középről kifutó, hajszálvékony Berry sín.
   Kizárólag transform (scaleX), ezért nincs reflow és nincs layout shift.
   A :focus-visible ugyanezt a visszajelzést kapja, nem csak az egér.
