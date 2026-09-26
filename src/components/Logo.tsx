@@ -118,7 +118,7 @@ export default function Logo({
         className={`${stacked ? "h-[3.5em]" : "h-[2.5em]"} w-auto shrink-0`}
       />
       <span
-        className={`-mr-[0.14em] font-sans leading-none font-medium tracking-[0.14em] whitespace-nowrap uppercase ${wordmarkClassName}`}
+        className={`-mr-[0.12em] font-sans leading-none font-medium tracking-[0.12em] whitespace-nowrap uppercase ${wordmarkClassName}`}
       >
         {meta.wordmark}
       </span>
