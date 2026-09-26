@@ -107,8 +107,10 @@ ezek nem a docx-ből származnak, és verzióváltáskor szabadon frissíthetők
 - Az adatkezelési tájékoztató **nincs** saját készítésű jogi szöveggel
   pótolva. A K&H/Patria által átadott tájékoztató teljes, tartalmilag
   változatlan szövege szükséges hozzá; a hiányt az oldal láthatóan jelzi.
-- Nincs végleges JG-logó: a wordmark egyszerű szöveges "JG Investment Plus"
-  lockup, monogram vagy embléma nélkül.
+- A JG márkajel a Logo System v1.0 (absztrakt, szimmetrikus szimbólum +
+  élő Inter wordmark, monogram nélkül); a geometria, a színhasználat és a
+  tiltott használatok: `docs/brand/logo-system-v1.md`. Élesítés előtt a
+  dokumentum „ALEX APPROVAL REQUIRED" tételei jóváhagyandók.
 
 ### Kapcsolati űrlap
 
@@ -336,7 +338,8 @@ src/
     layout.tsx                next/font/google (Newsreader, Inter)
     page.tsx                  skip link + szakaszok összeállítása
   components/
-    Header.tsx                wordmark, navigáció, billentyűzetes mobilmenü + focus trap
+    Header.tsx                logó-lockup, navigáció, billentyűzetes mobilmenü + focus trap
+    Logo.tsx                  JG Logo System v1.0 (mark / horizontal / stacked)
     Hero.tsx                  Hero + rövid státuszközlés (jogi hierarchia 1. szint)
     HeroMarketMotion.tsx      rendezett japángyertya-háttéranimáció (kliens Canvas,
                               master market path; reduced-motion + pause-kezeléssel)
