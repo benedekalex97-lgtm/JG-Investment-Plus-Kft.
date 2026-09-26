@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- JG micro mark (favicon): master geometry, cap/pillar gap widened 9 -> 14 units for 16 px legibility. See docs/brand/logo-system-v1.md -->
   <rect width="32" height="32" rx="7" fill="#18181B"/>
-  <rect x="8" y="7" width="4" height="18" rx="2" fill="#493447"/>
-  <rect x="15" y="11" width="4" height="14" rx="2" fill="#755D70"/>
-  <rect x="22" y="15" width="4" height="10" rx="2" fill="#BEC1C7"/>
+  <path fill="#F4F3F1" transform="translate(6.2222 5) scale(0.2222)" d="M44 0 80 18 44 36 8 18Z M0 28 32 44 32 83 0 99Z M88 28 56 44 56 83 88 99Z"/>
 </svg>

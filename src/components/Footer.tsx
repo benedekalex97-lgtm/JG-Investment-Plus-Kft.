@@ -1,15 +1,17 @@
 import Link from "next/link";
-import { footer, meta } from "@/content/homepage";
+import { footer } from "@/content/homepage";
+import Logo from "./Logo";
 import SectionTransition from "./SectionTransition";
 
 /**
  * Footer — a SOT 10. szakaszának kötelező rövid változata, teljes szöveggel.
- * Nem jelenik meg K&H- vagy Patria-logó; a wordmark egyszerű szöveg.
+ * Nem jelenik meg K&H- vagy Patria-logó; a márkaazonosító a JG Logo System
+ * v1.0 horizontal lockupja (ld. Logo.tsx).
  *
  * v1.4: a footer a legmélyebb felületre (surface-sink) került, felső élén
  * szakaszhatár-fényvonallal és nagyon gyenge Aubergine atmoszférával; a
- * wordmark ugyanazt a Berry signature-rudat kapja, mint a headerben, így a
- * lap eleje és vége ugyanazt a jelet zárja körbe.
+ * lockup ugyanaz, mint a headerben, így a lap eleje és vége ugyanazt a
+ * jelet zárja körbe.
  *
  * v0.2 anyagvilág: Carbon alap, Porcelain/Cool Silver tipográfia, egyetlen
  * nagyon visszafogott Aubergine jelzővonal a wordmark alatt — signature
@@ -50,15 +52,13 @@ export default function Footer() {
           <div className="lg:col-span-4">
             <Link
               href="/#top"
-              className="group inline-flex min-h-11 items-center gap-3 rounded"
+              className="group inline-flex min-h-11 items-center rounded"
             >
-              <span
-                aria-hidden="true"
-                className="jg-wordmark-rule block h-6 w-0.5 shrink-0 rounded-full"
+              <Logo
+                variant="horizontal"
+                theme="dark"
+                className="text-[0.875rem] transition-colors duration-200 group-hover:text-white lg:text-[0.9375rem]"
               />
-              <span className="font-display text-xl tracking-[-0.015em] text-porcelain transition-colors duration-200 group-hover:text-white">
-                {meta.wordmark}
-              </span>
             </Link>
             <span
               aria-hidden="true"
