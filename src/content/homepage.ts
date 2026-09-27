@@ -340,12 +340,29 @@ export const whyJg: {
  * v1.2 — K&H COMPLIANCE (Jánosi Renáta, 2026.09.21.): a JG-specifikus
  * „Mindenkor hatályos ügynöki hirdetmény" tétel a generikus gyűjtőoldal
  * helyett a K&H „Ügynöki Hirdetmény" kategóriájában közzétett JG-hirdetmény
- * dokumentumoldalára mutat (KH_AGENCY_NOTICE_URL, ld. fent). A többi
- * K&H-dokumentumtétel egyelőre a gyűjtőoldalra mutat, amíg a kategóriájuk
- * pontos, hivatalos K&H-URL-je nincs megerősítve.
+ * dokumentumoldalára mutat (KH_AGENCY_NOTICE_URL, ld. fent).
+ *
+ * v1.3 — K&H COMPLIANCE LINKLEZÁRÁS (külső ellenőrzés, 2026.09.27.):
+ *   – Üzletszabályzat: „A K&H Értékpapír Üzletszabályzata – Hatályos:
+ *     2026. augusztus 6-tól" dokumentumoldala;
+ *   – Végrehajtási Politika: „Tájékoztatás a végrehajtási politikáról"
+ *     (a fő politikai tájékoztató, NEM a végrehajtási helyszínek listája);
+ *   – Kondíciós Lista: a stabil K&H díjjegyzék oldal, amely a Kondíciós
+ *     lista kategóriát és az aktuális verziókat jeleníti meg. Szándékosan NEM
+ *     egy konkrét verzió dokumentumoldala: az új (2026. október 1-jétől
+ *     hatályos) verzió már közzé van téve, egy verziólink napokon belül
+ *     elavulna;
+ *   – Termék- és kockázati tájékoztatók: NYITOTT compliance-tétel — ehhez a
+ *     széles kártyához nincs egyetlen, szemantikailag teljes és stabil K&H
+ *     kategória-URL azonosítva (a Forward KID oldal túl szűk), ezért
+ *     egyelőre a gyűjtőoldalra mutat.
  */
 const KH_DOCUMENTS_URL = "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok";
 const KH_COMPLAINTS_URL = "https://www.khertekpapir.hu/ugyfelvedelem/panaszkezeles";
+const KH_TERMS_URL = "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok/dokumentum/4756";
+const KH_EXECUTION_POLICY_URL =
+  "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok/dokumentum/3493";
+const KH_FEE_SCHEDULE_URL = "https://www.khertekpapir.hu/dijjegyzek";
 
 export const officialDocuments: {
   sectionNumber: string;
@@ -360,9 +377,9 @@ export const officialDocuments: {
   heading: "Hivatalos dokumentumok",
   lead: "A szolgáltatások részletes feltételeit, költségeit, végrehajtási szabályait és kockázatait a K&H Értékpapír mindenkor hatályos dokumentumai tartalmazzák.",
   items: [
-    { label: "Üzletszabályzat", href: KH_DOCUMENTS_URL },
-    { label: "Végrehajtási Politika", href: KH_DOCUMENTS_URL },
-    { label: "Kondíciós Lista", href: KH_DOCUMENTS_URL },
+    { label: "Üzletszabályzat", href: KH_TERMS_URL },
+    { label: "Végrehajtási Politika", href: KH_EXECUTION_POLICY_URL },
+    { label: "Kondíciós Lista", href: KH_FEE_SCHEDULE_URL },
     { label: "Termék- és kockázati tájékoztatók", href: KH_DOCUMENTS_URL },
     { label: "Mindenkor hatályos ügynöki hirdetmény", href: KH_AGENCY_NOTICE_URL },
     { label: "Panaszkezelési oldal és szabályzat", href: KH_COMPLAINTS_URL },
