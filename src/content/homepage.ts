@@ -161,12 +161,29 @@ export const statusNotice = {
  * NEM marketingígéretként, és compliance-review tételként van megjelölve
  * (`complianceReview: true`). Hivatalos forrás hiányában NEM rendelünk hozzá
  * kitalált hivatkozást.
+ *
+ * v1.2 — K&H COMPLIANCE (Jánosi Renáta, 2026.09.21.): az első bekezdés
+ * „a K&H Értékpapír dokumentumai között közzétett" szövegrésze link lett a
+ * JG-re vonatkozó K&H ügynöki hirdetmény dokumentumoldalára. A bekezdés
+ * szövege karakterre változatlan; az About komponens a `documentLink.label`
+ * mentén bontja a bekezdést, és a címkét renderli <a>-ként.
  */
+
+/**
+ * K&H Értékpapír — „Ügynöki Hirdetmény" kategória, JG-specifikus dokumentum:
+ * „Hirdetmény: A Patria Finance Magyarországi Fióktelepe és JG Investment
+ * Plus Kft. közötti együttműködés kereteiről". Stabil dokumentumoldal, nem
+ * filestorage PDF — a hatályos verzió ugyanezen az oldalon frissül.
+ */
+const KH_AGENCY_NOTICE_URL =
+  "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok/dokumentum/4478";
+
 export const about: {
   sectionNumber: string;
   sectionLabel: string;
   heading: string;
   paragraphs: readonly string[];
+  documentLink: { readonly label: string; readonly href: string };
   quote: string;
   facts: readonly { readonly label: string; readonly value: string; readonly complianceReview: boolean }[];
 } = {
@@ -177,6 +194,10 @@ export const about: {
     "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynökeként közvetlen kapcsolatot biztosít ügyfeleink és Magyarország egyik vezető bankcsoporti hátterű brókercége között. Tevékenységünket a Bszt. 111. §-a alapján, a K&H Értékpapír dokumentumai között közzétett, mindenkor hatályos együttműködési hirdetmény keretei között végezzük.",
     "Munkánk középpontjában az átlátható, szakmailag megalapozott tájékoztatás áll.",
   ],
+  documentLink: {
+    label: "a K&H Értékpapír dokumentumai között közzétett",
+    href: KH_AGENCY_NOTICE_URL,
+  },
   quote:
     "A pénzügyi döntések nem csupán számokról szólnak, hanem értékekről, célokról és felelős gondolkodásról is.",
   facts: [
@@ -221,7 +242,7 @@ export const services = {
     },
     {
       title: "Digitális pénzügyi megoldások",
-      body: "A K&H Webtrader és Mobiltrader platform lehetőségeinek, funkcióinak és a számlanyitás folyamatának bemutatása. Segítség az online tőkepiaci jelenlét megkezdéséhez.",
+      body: "A K&H webtrader és K&H mobiltrader platformok lehetőségeinek, funkcióinak és a számlanyitás folyamatának bemutatása. Segítség az online tőkepiaci jelenlét megkezdéséhez.",
     },
     {
       title: "Kapcsolattartás és pénzügyi edukáció",
@@ -313,10 +334,15 @@ export const whyJg: {
  * A compliance-visszajelzés miatt marad, de vizuálisan MÁSODLAGOS és kompakt,
  * az oldal alsó felében.
  *
- * LINKPOLITIKA: kizárólag ELLENŐRZÖTT, a repositoryban már korábban is
- * használt hivatalos URL-ek. Az egyes dokumentumokhoz NEM találunk ki
- * mélylinket: a K&H Értékpapír ezeket a dokumentum-gyűjtőoldalán teszi közzé,
- * ezért oda mutatnak. A panaszkezelés a saját, szintén ellenőrzött oldalára.
+ * LINKPOLITIKA: kizárólag hivatalos K&H-URL-ek; kitalált mélylink nincs.
+ * A panaszkezelés a saját K&H oldalára mutat.
+ *
+ * v1.2 — K&H COMPLIANCE (Jánosi Renáta, 2026.09.21.): a JG-specifikus
+ * „Mindenkor hatályos ügynöki hirdetmény" tétel a generikus gyűjtőoldal
+ * helyett a K&H „Ügynöki Hirdetmény" kategóriájában közzétett JG-hirdetmény
+ * dokumentumoldalára mutat (KH_AGENCY_NOTICE_URL, ld. fent). A többi
+ * K&H-dokumentumtétel egyelőre a gyűjtőoldalra mutat, amíg a kategóriájuk
+ * pontos, hivatalos K&H-URL-je nincs megerősítve.
  */
 const KH_DOCUMENTS_URL = "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok";
 const KH_COMPLAINTS_URL = "https://www.khertekpapir.hu/ugyfelvedelem/panaszkezeles";
@@ -338,7 +364,7 @@ export const officialDocuments: {
     { label: "Végrehajtási Politika", href: KH_DOCUMENTS_URL },
     { label: "Kondíciós Lista", href: KH_DOCUMENTS_URL },
     { label: "Termék- és kockázati tájékoztatók", href: KH_DOCUMENTS_URL },
-    { label: "Mindenkor hatályos ügynöki hirdetmény", href: KH_DOCUMENTS_URL },
+    { label: "Mindenkor hatályos ügynöki hirdetmény", href: KH_AGENCY_NOTICE_URL },
     { label: "Panaszkezelési oldal és szabályzat", href: KH_COMPLAINTS_URL },
   ],
   note: "A felsorolt dokumentumokat a K&H Értékpapír a hivatalos dokumentum-gyűjtőoldalán teszi közzé; a hivatkozások oda vezetnek.",

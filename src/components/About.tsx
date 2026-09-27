@@ -33,14 +33,40 @@ export default function About() {
       headingId="rolunk-cim"
     >
       <Reveal className="max-w-[68ch] space-y-6">
-        {about.paragraphs.map((paragraph) => (
-          <p
-            key={paragraph.slice(0, 48)}
-            className="text-[1.0625rem] leading-[1.75] text-text-primary sm:text-[1.125rem]"
-          >
-            {paragraph}
-          </p>
-        ))}
+        {about.paragraphs.map((paragraph) => {
+          /*
+            v1.2 — K&H COMPLIANCE: a `documentLink.label` szövegrész a
+            bekezdésen belül valódi <a> lesz (a privacy-oldal inline
+            linkmintájával azonos stílusban). A renderelt szöveg karakterre
+            változatlan; ha a címke nem szerepel a bekezdésben, az egyszerű
+            szövegként jelenik meg.
+          */
+          const at = paragraph.indexOf(about.documentLink.label);
+          return (
+            <p
+              key={paragraph.slice(0, 48)}
+              className="text-[1.0625rem] leading-[1.75] text-text-primary sm:text-[1.125rem]"
+            >
+              {at === -1 ? (
+                paragraph
+              ) : (
+                <>
+                  {paragraph.slice(0, at)}
+                  <a
+                    href={about.documentLink.href}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="font-medium text-accent underline underline-offset-4 hover:text-text-primary"
+                  >
+                    {about.documentLink.label}
+                    <span className="sr-only"> (új lapon nyílik meg)</span>
+                  </a>
+                  {paragraph.slice(at + about.documentLink.label.length)}
+                </>
+              )}
+            </p>
+          );
+        })}
       </Reveal>
 
       <Reveal as="figure" delay={90} className="mt-14 max-w-[60ch] sm:mt-16">
