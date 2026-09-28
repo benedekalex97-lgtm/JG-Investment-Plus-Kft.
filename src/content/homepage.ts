@@ -347,11 +347,8 @@ export const whyJg: {
  *     2026. augusztus 6-tól" dokumentumoldala;
  *   – Végrehajtási Politika: „Tájékoztatás a végrehajtási politikáról"
  *     (a fő politikai tájékoztató, NEM a végrehajtási helyszínek listája);
- *   – Kondíciós Lista: a stabil K&H díjjegyzék oldal, amely a Kondíciós
- *     lista kategóriát és az aktuális verziókat jeleníti meg. Szándékosan NEM
- *     egy konkrét verzió dokumentumoldala: az új (2026. október 1-jétől
- *     hatályos) verzió már közzé van téve, egy verziólink napokon belül
- *     elavulna;
+ *   – Kondíciós Lista: K&H Compliance által 2026.09.28-án megadott
+ *     Kondíciós lista kategórialink;
  *   – Termék- és kockázati tájékoztatók: NYITOTT compliance-tétel — ehhez a
  *     széles kártyához nincs egyetlen, szemantikailag teljes és stabil K&H
  *     kategória-URL azonosítva (a Forward KID oldal túl szűk), ezért
@@ -362,7 +359,7 @@ const KH_COMPLAINTS_URL = "https://www.khertekpapir.hu/ugyfelvedelem/panaszkezel
 const KH_TERMS_URL = "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok/dokumentum/4756";
 const KH_EXECUTION_POLICY_URL =
   "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok/dokumentum/3493";
-const KH_FEE_SCHEDULE_URL = "https://www.khertekpapir.hu/dijjegyzek";
+const KH_FEE_SCHEDULE_URL = "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok?dm=9&ds=10";
 
 export const officialDocuments: {
   sectionNumber: string;
