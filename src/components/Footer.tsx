@@ -1,12 +1,16 @@
+import Image from "next/image";
 import Link from "next/link";
 import { footer } from "@/content/homepage";
+import khLogo from "../../public/brand/kh-logo-preview-dark.png";
 import Logo from "./Logo";
 import SectionTransition from "./SectionTransition";
 
 /**
  * Footer — a SOT 10. szakaszának kötelező rövid változata, teljes szöveggel.
- * Nem jelenik meg K&H- vagy Patria-logó; a márkaazonosító a JG Logo System
- * v1.0 horizontal lockupja (ld. Logo.tsx).
+ * A márkaazonosító elsődlegesen a JG Logo System v1.0 horizontal lockupja
+ * (ld. Logo.tsx). A legalsó, önálló sávban — preview kör, Alex kérésére,
+ * Reni jóváhagyására várva — megjelenik a K&H Értékpapír logója is, a JG
+ * brandnél vizuálisan kisebb súllyal, a kötelező compliance-mondat mellett.
  *
  * v1.4: a footer a legmélyebb felületre (surface-sink) került, felső élén
  * szakaszhatár-fényvonallal és nagyon gyenge Aubergine atmoszférával; a
@@ -113,6 +117,24 @@ export default function Footer() {
 
         <div className="mt-10 border-t border-white/12 pt-8">
           <p className="text-sm text-cool-silver">{footer.copyright}</p>
+        </div>
+
+        {/*
+          K&H FOOTER LOGO PREVIEW — külön, alárendelt sáv a copyright alatt:
+          a lap legkevésbé hangsúlyos pontja, szándékosan a JG saját
+          brandingja (a footer tetején, ld. fent) UTÁN. A logó statikus, nem
+          kattintható, nincs keret/árnyék/hover-CTA — pusztán másodlagos
+          információs jelzés a kötelező compliance-mondat mellett.
+        */}
+        <div className="mt-8 flex flex-col items-start gap-4 border-t border-white/12 pt-8 sm:flex-row sm:items-center">
+          <Image
+            src={khLogo}
+            alt={footer.khPartnerLogo.alt}
+            className="h-auto w-[90px] shrink-0 opacity-90 sm:w-[100px] lg:w-[120px]"
+          />
+          <p className="max-w-[60ch] text-xs leading-relaxed text-cool-silver">
+            {footer.khPartnerLogo.complianceLine}
+          </p>
         </div>
       </div>
     </footer>

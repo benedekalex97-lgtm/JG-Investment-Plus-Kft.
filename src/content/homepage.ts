@@ -464,6 +464,15 @@ export const contact: {
  * `contact` mező (Kapcsolat szakasz) és a legal-notice.ts importálja.
  */
 
+/**
+ * v-preview — K&H FOOTER LOGO PREVIEW (külön preview kör, Alex kérésére;
+ * NEM production, NEM main-re szánt): a `khPartnerLogo.complianceLine`
+ * szövege Alex által megadott, szó szerint átveendő mondat — nem
+ * marketingesíthető, nem rövidíthető, nem írható át. A Footer.tsx korábbi
+ * megjegyzése (a footerben eddig nem jelent meg K&H-logó) erre a preview
+ * körre nem vonatkozik; a végső döntés Reni jóváhagyásától függ.
+ */
+
 /** SOT 10. Lábléc – kötelező rövid változat */
 export const footer: {
   statusLine: string;
@@ -471,6 +480,7 @@ export const footer: {
   disclaimerLine: string;
   links: readonly FooterLink[];
   copyright: string;
+  khPartnerLogo: { alt: string; complianceLine: string };
 } = {
   statusLine:
     "JG Investment Plus Kft. · A K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke.",
@@ -507,4 +517,9 @@ export const footer: {
     },
   ],
   copyright: "© 2026 JG Investment Plus Kft. – Minden jog fenntartva.",
+  khPartnerLogo: {
+    alt: "K&H Értékpapír logó",
+    complianceLine:
+      "JG Investment Plus Kft. a Patria Finance Magyarországi Fióktelepe, kereskedelmi nevén K&H Értékpapír függő ügynöke.",
+  },
 };
