@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { hero, statusNotice } from "@/content/homepage";
-import { ASSEMBLY, type AssemblyLayout } from "./config";
+import { ASSEMBLY, type AssemblyLayout, type MaterialKind } from "./config";
 import EmblemFallback from "./EmblemFallback";
 import type { AssemblyStage, StageTokens } from "./stage";
 
@@ -41,30 +41,31 @@ type Mode = "pinned" | "inline" | "static";
 type StageState = "loading" | "ready" | "fallback";
 
 /**
- * Egy főcímsort három részre bont a kiemelt szó mentén (ugyanaz a logika,
- * mint a Hero.tsx-ben): a szöveg nem változik, csak a hero.headlineHighlight
- * által megjelölt szó kap Signal Berry kiemelést.
+ * A FŐCÍM ÉS AZ EMBLÉMA ANYAGAI.
+ *
+ * A H1 szövege karakterre a tartalmi modellből jön (hero.headlineLines); itt
+ * csak kifejezésekre (pontra végződő mondatokra) tagolódik, a szóközök sima
+ * szövegként maradnak közöttük. A kifejezések sorrendben a config.ts
+ * `headline` listájában megadott emblémaelem anyagszínét viselik:
+ * Biztonság. -> felső elem (ezüstszürke), Átláthatóság. -> bal elem
+ * (porcelánfehér), Szakmai háttér. -> jobb elem (padlizsán). A finom
+ * térhatást és a világos betűk olvashatóságát a .jg-headline-phrase CSS adja.
  */
-function splitHeadlineLine(line: string, highlight: string) {
-  const at = line.indexOf(highlight);
-  if (at === -1 || highlight.length === 0) {
-    return { before: line, highlighted: "", after: "" };
-  }
-  return {
-    before: line.slice(0, at),
-    highlighted: highlight,
-    after: line.slice(at + highlight.length),
-  };
-}
+type HeadlinePart = { text: string; tone?: MaterialKind };
 
-function HeadlineLine({ line }: { line: string }) {
-  const { before, highlighted, after } = splitHeadlineLine(line, hero.headlineHighlight);
-  return (
-    <span className="block">
-      {before}
-      {highlighted ? <span className="text-signal-berry">{highlighted}</span> : null}
-      {after}
-    </span>
+function headlineParts(lines: readonly string[]): HeadlinePart[][] {
+  let phrase = 0;
+  return lines.map((line) =>
+    line.split(/(?<=\.)/).flatMap((chunk) => {
+      const lead = chunk.match(/^\s*/)?.[0] ?? "";
+      const text = chunk.slice(lead.length);
+      const parts: HeadlinePart[] = lead ? [{ text: lead }] : [];
+      if (text) {
+        const piece = ASSEMBLY.headline[phrase++];
+        parts.push({ text, tone: piece ? ASSEMBLY.pieceMaterials[piece] : undefined });
+      }
+      return parts;
+    }),
   );
 }
 
@@ -335,7 +336,6 @@ export default function HeroAssembly() {
     };
   }, []);
 
-  const [firstLine, secondLine] = hero.headlineLines;
   const [eyebrowPrimary, eyebrowSecondary] = hero.eyebrowLines;
 
   return (
@@ -363,10 +363,21 @@ export default function HeroAssembly() {
 
               <h1
                 id="hero-cim"
-                className="font-display mt-7 max-w-[13ch] text-[clamp(2.625rem,11.5vw,3.5rem)] leading-[1.02] font-medium tracking-[-0.02em] [overflow-wrap:normal] hyphens-none text-text-primary sm:mt-8 sm:text-[clamp(3.5rem,8vw,4.5rem)] lg:mt-7 lg:text-[clamp(3.25rem,min(5.2vw,8.6svh),5.25rem)]"
+                className="jg-assembly-headline font-display mt-7 max-w-[13ch] text-[clamp(2.625rem,11.5vw,3.5rem)] leading-[1.02] font-medium tracking-[-0.02em] [overflow-wrap:normal] hyphens-none text-text-primary sm:mt-8 sm:text-[clamp(3.5rem,8vw,4.5rem)] lg:mt-7 lg:text-[clamp(3.25rem,min(5.2vw,8.6svh),5.25rem)]"
               >
-                <HeadlineLine line={firstLine} />
-                <HeadlineLine line={secondLine} />
+                {headlineParts(hero.headlineLines).map((parts, line) => (
+                  <span key={line} className="block">
+                    {parts.map((part, index) =>
+                      part.tone ? (
+                        <span key={index} className="jg-headline-phrase" data-tone={part.tone}>
+                          {part.text}
+                        </span>
+                      ) : (
+                        part.text
+                      ),
+                    )}
+                  </span>
+                ))}
               </h1>
 
               <p className="mt-7 max-w-[36ch] text-base leading-[1.7] text-pretty text-text-secondary sm:mt-8 sm:max-w-[44ch] sm:text-lg lg:mt-7 lg:text-[clamp(1.0625rem,min(1.35vw,2.3svh),1.25rem)]">

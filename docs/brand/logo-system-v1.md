@@ -309,9 +309,9 @@ and §11 in exactly these four ways:
 
 1. a three-dimensional rendering of the mark: slight extrusion, a restrained inward bevel and a
    soft contact shadow;
-2. materials: matte porcelain (Porcelain `#F4F3F1`, upper cap), satin silver (Cool Silver
-   `#BEC1C7`, left pillar) and smoky, partly translucent aubergine glass (Aubergine `#493447`,
-   with Muted Plum `#755D70` in the backlit areas, right pillar);
+2. materials: satin, brushed silver-grey (Cool Silver `#BEC1C7`, upper cap), matte porcelain
+   white (Porcelain `#F4F3F1`, left pillar) and smoky, partly translucent aubergine glass
+   (Aubergine `#493447`, with Muted Plum `#755D70` in the backlit areas, right pillar);
 3. separating the three elements (a symmetric, exploded start state);
 4. a scroll-driven assembly back into the master silhouette.
 

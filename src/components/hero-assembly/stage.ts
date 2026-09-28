@@ -33,7 +33,7 @@ import {
 } from "three";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 
-import { ASSEMBLY, type AssemblyLayout } from "./config";
+import { ASSEMBLY, type AssemblyLayout, type MaterialKind } from "./config";
 import {
   explodeOffsets,
   HALF_WIDTH,
@@ -161,9 +161,18 @@ function buildPieceGeometry(key: PieceKey) {
   return smooth;
 }
 
+/** A szálcsiszolás-textúra sorainak száma (egy sor = egy csiszolásnyom). */
+const BRUSHED_ROWS = 256;
+
+/** Egy emblémaelem magassága logóegységben (az SVG-koordinátákból). */
+function pieceHeight(key: PieceKey) {
+  const ys = MARK.pieces[key].points.map(([, y]) => y);
+  return Math.max(...ys) - Math.min(...ys);
+}
+
 /** Finom, vízszintes szálcsiszolás-rajzolat (roughness-térkép, G csatorna). */
 function brushedTexture(amount: number, maxAnisotropy: number) {
-  const size = 256;
+  const size = BRUSHED_ROWS;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
@@ -252,10 +261,11 @@ function falloffTexture(from: number, to: number) {
  * Nincs HDR-fájl, nincs hálózati letöltés; a PMREM egyszer készül el.
  *
  * Az elülső lapok a kamera mögötti, szűk tartományt tükrözik. Ott magasan
- * egy széles softbox ül: az ezüst felső része és az üveg felső éle ezt
- * tükrözi (felül világos, lefelé szatén-szürke átmenet). Alatta balra egy
- * alacsony derítőkártya világosítja az ezüst alsó részét — az üveg ezt a
- * szögtartományt nem látja, így a padlizsán tónusa mély marad.
+ * egy széles softbox ül: a felső ezüstlap és az üveg felső éle ezt
+ * tükrözi (felül világosabb, lefelé szatén-szürke átmenet). Alatta balra
+ * egy alacsony derítőkártya a bal oldali elemre és az ezüstlap bal felére ad
+ * derítést — az üveg ezt a szögtartományt nem látja, így a padlizsán tónusa
+ * mély marad.
  */
 function createStudioEnvironment(renderer: WebGLRenderer) {
   const scene = new Scene();
@@ -282,7 +292,7 @@ function createStudioEnvironment(renderer: WebGLRenderer) {
   const panels: Array<[number, number, [number, number, number], number]> = [
     // [szélesség, magasság, pozíció, erősség]
     [13, 4.4, [-1.4, 4.4, 8.3], 3], // széles softbox a kamera mögött, magasan
-    [6.8, 3, [-3.8, 0.3, 8.6], 1], // alacsony derítőkártya balra: csak az ezüst tükrözi
+    [6.8, 3, [-3.8, 0.3, 8.6], 1], // alacsony derítőkártya balra (az üveg nem tükrözi)
     [9, 6, [-6, 5.5, 6], 3.2], // kulcs-softbox: bal felül, elöl
     [10, 10, [0, 9.2, 0], 1.6], // felső derítő
     [2.4, 8, [8.6, 2, 2], 2], // jobb oldali élfény
@@ -395,8 +405,11 @@ export function createAssemblyStage(
   scene.background = porcelain.clone();
 
   const environment = createStudioEnvironment(renderer);
-  scene.environment = environment.texture;
-  scene.environmentIntensity = ASSEMBLY.light.environment;
+  // A környezeti térkép ANYAGONKÉNT kerül fel (nem scene.environment-ként):
+  // a Three.js scene.environment esetén a jelenet közös intenzitásával
+  // felülírná az anyagok saját envMapIntensity értékét.
+  const envMap = environment.texture;
+  const envIntensity = (value: number) => value * ASSEMBLY.light.environment;
 
   const warmLight = new Color(1, 0.985, 0.965);
   const key = new DirectionalLight(warmLight, ASSEMBLY.light.key);
@@ -404,47 +417,66 @@ export function createAssemblyStage(
   scene.add(key);
 
   // ---- Anyagok -----------------------------------------------------------
-  const brushed = brushedTexture(
-    ASSEMBLY.materials.silver.brushed,
-    renderer.capabilities.getMaxAnisotropy(),
-  );
-  const glass = ASSEMBLY.materials.glass;
-  const glassThickness = thicknessTexture(glass.thicknessTop, glass.thicknessBottom);
+  // Az elem -> anyag hozzárendelés a config.ts pieceMaterials mezőjéből jön.
+  // Az anyaggal együtt minden tulajdonsága vándorol (textúra, érdesség,
+  // fémesség, tónusleképezés), nem csak az alapszín.
   const depth = ASSEMBLY.emblem.depth * UNIT;
-  const porcelainCfg = ASSEMBLY.materials.porcelain;
+  const { porcelain: porcelainCfg, silver: silverCfg, glass: glassCfg } = ASSEMBLY.materials;
+  const brushed = brushedTexture(silverCfg.brushed, renderer.capabilities.getMaxAnisotropy());
+  const glassThickness = thicknessTexture(glassCfg.thicknessTop, glassCfg.thicknessBottom);
   const porcelainFalloff = falloffTexture(porcelainCfg.falloff[0], porcelainCfg.falloff[1]);
+  const textures: Texture[] = [brushed, glassThickness, porcelainFalloff];
 
-  const materials: Record<PieceKey, MeshPhysicalMaterial> = {
-    cap: new MeshPhysicalMaterial({
-      color: porcelain.clone(),
-      metalness: 0,
-      map: porcelainFalloff,
-      roughness: porcelainCfg.roughness,
-      envMapIntensity: porcelainCfg.envMapIntensity,
-      toneMapped: false,
-    }),
-    left: new MeshPhysicalMaterial({
-      color: new Color(tokens.silver),
-      metalness: 1,
-      roughness: ASSEMBLY.materials.silver.roughness,
-      roughnessMap: brushed,
-      envMapIntensity: ASSEMBLY.materials.silver.envMapIntensity,
-    }),
-    right: new MeshPhysicalMaterial({
-      color: new Color(1, 1, 1),
-      metalness: 0,
-      roughness: glass.roughness,
-      ior: glass.ior,
-      transmission: 1,
-      thickness: depth,
-      thicknessMap: glassThickness,
-      attenuationColor: new Color(tokens.aubergine),
-      attenuationDistance: depth,
-      clearcoat: glass.clearcoat,
-      clearcoatRoughness: glass.clearcoatRoughness,
-      envMapIntensity: glass.envMapIntensity,
-    }),
-  };
+  function createMaterial(kind: MaterialKind, key: PieceKey) {
+    switch (kind) {
+      case "porcelain":
+        return new MeshPhysicalMaterial({
+          color: porcelain.clone(),
+          metalness: 0,
+          map: porcelainFalloff,
+          roughness: porcelainCfg.roughness,
+          envMap,
+          envMapIntensity: envIntensity(porcelainCfg.envMapIntensity),
+          toneMapped: false,
+        });
+      case "silver": {
+        // A csiszolásnyomok sűrűsége logóegységben állandó, így a rajzolat
+        // bármelyik elemen ugyanolyan finom.
+        const map = brushed.clone();
+        map.repeat.set(1, (pieceHeight(key) * silverCfg.brushedRowsPerUnit) / BRUSHED_ROWS);
+        map.needsUpdate = true;
+        textures.push(map);
+        return new MeshPhysicalMaterial({
+          color: new Color(tokens.silver),
+          metalness: 1,
+          roughness: silverCfg.roughness,
+          roughnessMap: map,
+          envMap,
+          envMapIntensity: envIntensity(silverCfg.envMapIntensity),
+        });
+      }
+      case "glass":
+        return new MeshPhysicalMaterial({
+          color: new Color(1, 1, 1),
+          metalness: 0,
+          roughness: glassCfg.roughness,
+          ior: glassCfg.ior,
+          transmission: 1,
+          thickness: depth,
+          thicknessMap: glassThickness,
+          attenuationColor: new Color(tokens.aubergine),
+          attenuationDistance: depth,
+          clearcoat: glassCfg.clearcoat,
+          clearcoatRoughness: glassCfg.clearcoatRoughness,
+          envMap,
+          envMapIntensity: envIntensity(glassCfg.envMapIntensity),
+        });
+    }
+  }
+
+  const materials = Object.fromEntries(
+    PIECE_KEYS.map((key) => [key, createMaterial(ASSEMBLY.pieceMaterials[key], key)]),
+  ) as Record<PieceKey, MeshPhysicalMaterial>;
 
   // ---- A három elem --------------------------------------------------------
   // A csoport a kamera emelésével azonos szögben hátra van döntve: az
@@ -462,7 +494,8 @@ export function createAssemblyStage(
       mesh,
       exploded: new Vector3(),
       assembled: new Vector3(0, 0, 0),
-      shadowStrength: pieceKey === "right" ? ASSEMBLY.shadow.glassStrength : 1,
+      shadowStrength:
+        ASSEMBLY.pieceMaterials[pieceKey] === "glass" ? ASSEMBLY.shadow.glassStrength : 1,
     };
   });
 
@@ -692,8 +725,6 @@ export function createAssemblyStage(
     options.onContextLost?.();
   }
   canvas.addEventListener("webglcontextlost", onContextLost);
-
-  const textures: Texture[] = [brushed, glassThickness, porcelainFalloff];
 
   return {
     get pieceCount() {

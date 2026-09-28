@@ -965,6 +965,93 @@ body {
 }
 
 /*
+  H1 — A HÁROM KIFEJEZÉS AZ EMBLÉMA ANYAGSZÍNEIT VISELI
+  (ld. config.ts: pieceMaterials, headline):
+    Biztonság.       -> felső elem, ezüstszürke   (Cool Silver #BEC1C7)
+    Átláthatóság.    -> bal elem, porcelánfehér   (Porcelain #F4F3F1)
+    Szakmai háttér.  -> jobb elem, padlizsán      (Aubergine #493447)
+
+  Finom, CSS-alapú térhatás — sekély, anyagszerű betűvastagság, bal felső
+  fénnyel (mint az emblémán):
+    – a betű fő felülete PONTOSAN a kért szín;
+    – keskeny perem a betűforma körül: a fényoldalon (bal/felső) egy
+      árnyalattal világosabb, az árnyékoldalon (jobb/alsó) sötétebb;
+    – 1–2 px-es sötétebb alsó/oldalsó „vastagság”, felül halvány fényél;
+    – rövid, lágy árnyék.
+  A perem text-shadow, NEM -webkit-text-stroke: a változó Newsreader
+  betűkontúrjai egymásba fedő részekből állnak, amelyeken a stroke belső
+  varratokat rajzolna; az árnyék a kitöltött betűformából készül.
+  Nincs mozgás, nincs ragyogás, nincs kemény vagy hosszú vetett árnyék.
+
+  KONTRASZT (Porcelain háttéren): a fő felület önmagában az ezüstnél
+  1,63:1, a porcelánnál 1,0:1 — nagy szövegre sem elég. A betűformát
+  ezért a perem rajzolja ki, amelynek MINDEN oldala legalább 3:1-es színű
+  (ezüst: 4,3 / 4,8:1, porcelán: 4,1 / 4,4:1); a padlizsán felület 10,15:1.
+  A renderelt pixeleken mért eredmény a riportban.
+*/
+.jg-headline-phrase {
+  /* A vastagság és az árnyék mérete; mobilon (kisebb betűméret) sekélyebb. */
+  --jg-depth-1: 0.5px 1.3px;
+  --jg-depth-2: 0.3px 1.8px;
+  --jg-drop: 0 3px 4px;
+
+  color: var(--jg-face);
+  text-shadow:
+    /* perem — fényoldal (egész pixel: 1x kijelzőn is teljes fedésű) */
+    -0.7px -0.7px 0 var(--jg-edge-lit),
+    0 -1px 0 var(--jg-edge-lit),
+    -1px 0 0 var(--jg-edge-lit),
+    0.7px -0.7px 0 var(--jg-edge-lit),
+    -0.7px 0.7px 0 var(--jg-edge-lit),
+    /* perem — árnyékoldal */
+    1px 0 0 var(--jg-edge-dark),
+    0 1px 0 var(--jg-edge-dark),
+    0.7px 0.7px 0 var(--jg-edge-dark),
+    /* sekély vastagság */
+    var(--jg-depth-1) 0 var(--jg-side),
+    var(--jg-depth-2) 0 var(--jg-side),
+    /* felső fényél */
+    0 -1.5px 0 var(--jg-light),
+    /* rövid, lágy árnyék */
+    var(--jg-drop) var(--jg-shade);
+}
+
+@media (max-width: 639px) {
+  .jg-headline-phrase {
+    --jg-depth-1: 0.4px 1px;
+    --jg-depth-2: 0.2px 1.4px;
+    --jg-drop: 0 2px 3px;
+  }
+}
+
+.jg-headline-phrase[data-tone="silver"] {
+  --jg-face: var(--color-cool-silver);
+  --jg-edge-lit: color-mix(in srgb, var(--color-cool-silver) 50%, var(--color-ink));
+  --jg-edge-dark: color-mix(in srgb, var(--color-cool-silver) 42%, var(--color-ink));
+  --jg-side: color-mix(in srgb, var(--color-cool-silver) 62%, var(--color-ink));
+  --jg-light: rgb(255 255 255 / 90%);
+  --jg-shade: rgb(39 38 42 / 20%);
+}
+
+.jg-headline-phrase[data-tone="porcelain"] {
+  --jg-face: var(--color-porcelain);
+  --jg-edge-lit: color-mix(in srgb, var(--color-porcelain) 38%, var(--color-ink));
+  --jg-edge-dark: color-mix(in srgb, var(--color-porcelain) 36%, var(--color-ink));
+  --jg-side: color-mix(in srgb, var(--color-porcelain) 56%, var(--color-ink));
+  --jg-light: rgb(255 255 255 / 95%);
+  --jg-shade: rgb(39 38 42 / 20%);
+}
+
+.jg-headline-phrase[data-tone="glass"] {
+  --jg-face: var(--color-aubergine);
+  --jg-edge-lit: color-mix(in srgb, var(--color-aubergine) 72%, var(--color-surface));
+  --jg-edge-dark: color-mix(in srgb, var(--color-aubergine) 72%, var(--color-carbon));
+  --jg-side: color-mix(in srgb, var(--color-aubergine) 58%, var(--color-carbon));
+  --jg-light: rgb(255 255 255 / 70%);
+  --jg-shade: rgb(39 38 42 / 22%);
+}
+
+/*
   Elsődleges CTA a világos heróban — Aubergine felület, fehér felirat
   (11.26:1, AAA). Semleges élkezelés, hoverre 1 px emelkedés; nincs glow,
   nincs pulzálás. A fókuszgyűrű az alapértelmezett Aubergine (--focus),

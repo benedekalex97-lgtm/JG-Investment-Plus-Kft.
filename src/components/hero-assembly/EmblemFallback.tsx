@@ -1,21 +1,22 @@
 import { useId } from "react";
 
-import { MARK } from "./geometry";
+import { ASSEMBLY } from "./config";
+import { MARK, PIECE_KEYS } from "./geometry";
 
 /**
  * Statikus, összeállt embléma — a WebGL-színpad tartaléka.
  *
  * Akkor jelenik meg, ha a WebGL nem érhető el, a kontextus elvész, a modul
  * betöltése meghiúsul, vagy nincs JavaScript. Ugyanabból a három
- * mester-subpathból épül, mint a 3D jelenet, tehát a sziluett és a rések
- * azonosak. Az anyaghatást kizárólag token-alapú színátmenetek adják (nincs
- * nyers HEX); a porcelán fedőlap egy vékony BELSŐ kontúrt kap (clipPath),
- * hogy ne olvadjon bele a Porcelain háttérbe — a külső kontúr így sem nő.
- * Dekoratív: aria-hidden.
+ * mester-subpathból épül, mint a 3D jelenet, és ugyanazt az anyagkiosztást
+ * követi (config.ts, pieceMaterials), tehát a sziluett, a rések és a színek
+ * a 3D változattal egyeznek. Az anyaghatást kizárólag token-alapú
+ * színátmenetek adják (nincs nyers HEX); a porcelán elem egy vékony BELSŐ
+ * kontúrt kap (clipPath), hogy ne olvadjon bele a Porcelain háttérbe — a
+ * külső kontúr így sem nő. Dekoratív: aria-hidden.
  */
 export default function EmblemFallback({ className = "" }: { className?: string }) {
   const id = `jg-fb-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const { cap, left, right } = MARK.pieces;
   const { x, y, width, height } = MARK.viewBox;
 
   return (
@@ -26,7 +27,7 @@ export default function EmblemFallback({ className = "" }: { className?: string 
       focusable="false"
     >
       <defs>
-        <linearGradient id={`${id}-cap`} x1="0.1" y1="0" x2="0.9" y2="1">
+        <linearGradient id={`${id}-porcelain`} x1="0.1" y1="0" x2="0.9" y2="1">
           <stop offset="0" style={{ stopColor: "var(--color-surface)" }} />
           <stop
             offset="1"
@@ -57,20 +58,30 @@ export default function EmblemFallback({ className = "" }: { className?: string 
             style={{ stopColor: "color-mix(in srgb, var(--color-aubergine) 25%, var(--color-muted-plum))" }}
           />
         </linearGradient>
-        <clipPath id={`${id}-cap-clip`}>
-          <path d={cap.d} />
-        </clipPath>
+        {PIECE_KEYS.filter((key) => ASSEMBLY.pieceMaterials[key] === "porcelain").map((key) => (
+          <clipPath key={key} id={`${id}-clip-${key}`}>
+            <path d={MARK.pieces[key].d} />
+          </clipPath>
+        ))}
       </defs>
-      <path d={cap.d} fill={`url(#${id}-cap)`} />
-      <path
-        d={cap.d}
-        fill="none"
-        clipPath={`url(#${id}-cap-clip)`}
-        strokeWidth="1"
-        style={{ stroke: "color-mix(in srgb, var(--color-cool-silver) 70%, transparent)" }}
-      />
-      <path d={left.d} fill={`url(#${id}-silver)`} />
-      <path d={right.d} fill={`url(#${id}-glass)`} />
+      {PIECE_KEYS.map((key) => {
+        const kind = ASSEMBLY.pieceMaterials[key];
+        const d = MARK.pieces[key].d;
+        return (
+          <g key={key}>
+            <path d={d} fill={`url(#${id}-${kind})`} />
+            {kind === "porcelain" ? (
+              <path
+                d={d}
+                fill="none"
+                clipPath={`url(#${id}-clip-${key})`}
+                strokeWidth="1"
+                style={{ stroke: "color-mix(in srgb, var(--color-cool-silver) 70%, transparent)" }}
+              />
+            ) : null}
+          </g>
+        );
+      })}
     </svg>
   );
 }

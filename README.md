@@ -336,6 +336,16 @@ kameramozgás.
 | `inline` | mobil, tablet, alacsony ablak | nincs rögzítés; az embléma akkor áll össze, amikor a színpad a viewport közepéig ér (0,3–0,62 × viewport út, kisebb széthúzás) |
 | `static` | `prefers-reduced-motion`, WebGL-hiba, JS nélkül | összeállt, statikus embléma, extra görgetési szakasz nélkül; WebGL nélkül token-alapú SVG-fallback |
 
+**Anyagok és főcím.** Felső rombusz: szatén, szálcsiszolt ezüstszürke
+(`#BEC1C7`); bal pillér: matt porcelánfehér (`#F4F3F1`); jobb pillér:
+füstös padlizsánüveg (`#493447`). A H1 három kifejezése ugyanezt követi
+(Biztonság. → ezüstszürke, Átláthatóság. → porcelánfehér, Szakmai háttér.
+→ padlizsán), finom, CSS-alapú térhatással (`.jg-headline-phrase`). A
+világos szavak fő felülete önmagában nem éri el a 3:1-et (1,63:1 és 1,0:1),
+a betűformát egy keskeny, minden oldalon legalább 3:1-es színű perem
+rajzolja ki. Ez eltér a fenti „Cool Silver soha nem szöveg világos alapon”
+szabálytól — a prototípusban tudatos, jóváhagyásra váró kivétel.
+
 **Hangolás egy helyen:** `src/components/hero-assembly/config.ts` (kamera,
 széthúzás, görgetési hossz, görbe, anyagok, fények, árnyék, pixel ratio).
 A márkaszíneket a színpad futásidőben a `globals.css` tokenjeiből olvassa.

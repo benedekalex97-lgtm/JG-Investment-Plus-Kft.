@@ -18,6 +18,7 @@
  */
 
 export type AssemblyLayout = "wide" | "compact";
+export type MaterialKind = "porcelain" | "silver" | "glass";
 
 export const ASSEMBLY = {
   /**
@@ -95,18 +96,34 @@ export const ASSEMBLY = {
     creaseAngle: 40,
   },
 
+  /**
+   * ANYAGKIOSZTÁS — melyik emblémaelem milyen anyagot kap. Ezt követi a 3D
+   * színpad, a statikus fallback és a H1 is: a főcím három kifejezése
+   * sorrendben a `headline` elemeinek anyagszínét viseli.
+   */
+  pieceMaterials: { cap: "silver", left: "porcelain", right: "glass" },
+  headline: ["cap", "left", "right"],
+
   materials: {
     /**
-     * Felső rombusz — matt porcelán. A lap tónusleképezés NÉLKÜL jelenik
-     * meg (toneMapped: false), így a megvilágított felülete egy árnyalattal a
-     * Porcelain háttér FÖLÉ emelkedik, és nem olvad bele. falloff: a lágy
-     * fényesés bal felső -> jobb alsó szorzója (1 = teljes fény).
+     * Matt porcelán (Porcelain #F4F3F1) — jelenleg a bal pillér. A lap
+     * tónusleképezés NÉLKÜL jelenik meg (toneMapped: false), így a
+     * megvilágított felülete egy árnyalattal a Porcelain háttér FÖLÉ
+     * emelkedik, és nem olvad bele. falloff: a lágy fényesés bal felső ->
+     * jobb alsó szorzója (1 = teljes fény).
      */
-    porcelain: { roughness: 0.6, envMapIntensity: 0.68, falloff: [1, 0.965] as const },
-    /** Bal pillér — szatén ezüst, finom szálcsiszolt rajzolattal. */
-    silver: { roughness: 0.3, brushed: 0.16, envMapIntensity: 1 },
+    porcelain: { roughness: 0.6, envMapIntensity: 1, falloff: [1, 0.965] as const },
     /**
-     * Jobb pillér — füstös, részben áttetsző padlizsánüveg. A szín a
+     * Szatén, szálcsiszolt ezüstszürke (Cool Silver #BEC1C7) — jelenleg a
+     * felső rombusz. brushed: a vízszintes csiszolásnyomok érdesség-szórása;
+     * brushedRowsPerUnit: a rajzolat sűrűsége logóegységenként, így az elem
+     * méretétől függetlenül ugyanolyan finom. envMapIntensity: a felső elem
+     * a magas softbox közelében tükröz, ezért visszafogott — így a lap
+     * közepe a Cool Silver tónusában marad, nem fehéredik ki.
+     */
+    silver: { roughness: 0.3, brushed: 0.16, brushedRowsPerUnit: 3.4, envMapIntensity: 0.72 },
+    /**
+     * Füstös, részben áttetsző padlizsánüveg — a jobb pillér. A szín a
      * vastagságon át elnyelt fényből adódik (Beer–Lambert): a vastagabb
      * felső rész az Aubergine tónust, a vékonyabb, átvilágított alsó rész a
      * Muted Plum felé húzó tónust adja. thicknessTop / thicknessBottom az
@@ -119,14 +136,14 @@ export const ASSEMBLY = {
       thicknessBottom: 0.5,
       clearcoat: 1,
       clearcoatRoughness: 0.12,
-      envMapIntensity: 0.8,
+      envMapIntensity: 1,
     },
   },
 
   light: {
     /** Tónusleképezés expozíciója (Neutral — a márkaszín-árnyalatot megtartja). */
     exposure: 1,
-    /** A stúdiókörnyezet (nagy, lágy softboxok) ereje. */
+    /** A stúdiókörnyezet (nagy, lágy softboxok) közös szorzója — minden anyag envMapIntensity-jével szorzódik. */
     environment: 1,
     /** Irányított kulcsfény bal felülről. */
     key: 1.1,
