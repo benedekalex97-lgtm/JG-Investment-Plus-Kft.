@@ -8,6 +8,7 @@ import {
   ExtrudeGeometry,
   Group,
   MathUtils,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
@@ -68,6 +69,9 @@ export type StageTokens = {
   ink: string;
 };
 
+/** Téglalap a canvas bal felső sarkától, CSS px-ben. */
+export type EmblemBounds = { top: number; right: number; bottom: number; left: number };
+
 export type AssemblyStage = {
   /** 0 = széthúzott, 1 = összeállt (a görbét a hívó alkalmazza). */
   setAssembly(value: number): void;
@@ -75,6 +79,12 @@ export type AssemblyStage = {
   dispose(): void;
   readonly pieceCount: number;
   readonly renderCount: number;
+  /**
+   * Az ÖSSZEÁLLT embléma látható kerete a canvason (az első átméretezés
+   * előtt null). Az aktuális mérethez és kamerakerethez számolt, de a
+   * pillanatnyi (mozgó) állapottól független — erre épülhet görgetési végpont.
+   */
+  readonly assembledBounds: EmblemBounds | null;
 };
 
 type StageOptions = {
@@ -609,6 +619,16 @@ export function createAssemblyStage(
   const camera = new PerspectiveCamera(ASSEMBLY.camera.fov, 1, 0.1, 50);
   const probe = new Vector3();
 
+  /*
+    Az ÖSSZEÁLLT embléma vetített kerete (frame() végén frissül): minden elem
+    minden csúcspontja az összeállt helyzetében (piece.assembled), a végleges
+    kamerával vetítve. A mesh-ek pillanatnyi pozícióját nem olvassa, így
+    mozgás közben is ugyanazt adja; a csúcs a teljes geometriából jön
+    (élletörés, vastagság, perspektíva), nem a canvas dobozának széléből.
+  */
+  const assembledMatrix = new Matrix4();
+  let assembledBounds: EmblemBounds | null = null;
+
   function placeCamera(distance: number) {
     camera.position.set(0, distance * Math.sin(pitch), distance * Math.cos(pitch));
     camera.lookAt(0, 0, 0);
@@ -667,6 +687,27 @@ export function createAssemblyStage(
       distance = Math.max(minDistance, (distance * extent) / safe);
     }
     placeCamera(distance);
+    assembledBounds = measureAssembled(width, height);
+  }
+
+  function measureAssembled(width: number, height: number): EmblemBounds {
+    const bounds = { top: Infinity, right: -Infinity, bottom: -Infinity, left: Infinity };
+    for (const piece of pieces) {
+      assembledMatrix
+        .compose(piece.assembled, piece.mesh.quaternion, piece.mesh.scale)
+        .premultiply(group.matrixWorld);
+      const position = piece.mesh.geometry.getAttribute("position");
+      for (let i = 0; i < position.count; i++) {
+        probe.fromBufferAttribute(position, i).applyMatrix4(assembledMatrix).project(camera);
+        const x = ((probe.x + 1) / 2) * width;
+        const y = ((1 - probe.y) / 2) * height;
+        bounds.top = Math.min(bounds.top, y);
+        bounds.bottom = Math.max(bounds.bottom, y);
+        bounds.left = Math.min(bounds.left, x);
+        bounds.right = Math.max(bounds.right, x);
+      }
+    }
+    return bounds;
   }
 
   // ---- Igény szerinti renderelés ------------------------------------------
@@ -732,6 +773,9 @@ export function createAssemblyStage(
     },
     get renderCount() {
       return renderCount;
+    },
+    get assembledBounds() {
+      return assembledBounds;
     },
     setAssembly(value: number) {
       const next = MathUtils.clamp(value, 0, 1);

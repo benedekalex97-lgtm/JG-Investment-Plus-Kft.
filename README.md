@@ -327,7 +327,7 @@ koordinátákkal épül fel, enyhe extrudálással és befelé induló élletör
 széthúzva állnak (a rombusz felfelé, a pillérek tükrösen oldalra és a
 súlypont-feltételből számolt mértékben lefelé, így a csoport optikai
 középpontja helyben marad), lefelé görgetve egyetlen normalizált érték
-vezérli mindhárom elemet: `position = lerp(széthúzott, összeállt, ease(p))`.
+vezérli mindhárom elemet: `position = lerp(széthúzott, összeállt, görbe(p))`.
 Megállított görgetésnél a mozgás is megáll (0,3 s scrub), visszagörgetve
 ugyanazon az úton nyílik szét. Nincs loop, forgás, rugózás, morfolás vagy
 kameramozgás.
@@ -335,7 +335,7 @@ kameramozgás.
 | Üzemmód | Mikor | Viselkedés |
 | --- | --- | --- |
 | `pinned` | ≥ 1024 px széles, ≥ 560 px magas ablak, és a hero kifér | natív CSS `sticky` + üres pálya (1 × viewport); a pálya 80%-ánál összeáll, a maradékban összeállva marad, utána a hero ugrás és rés nélkül továbbgördül |
-| `inline` | mobil, tablet, alacsony ablak | nincs rögzítés; az embléma akkor áll össze, amikor a színpad a viewport közepéig ér (0,3–0,62 × viewport út, kisebb széthúzás) |
+| `inline` | mobil, tablet, alacsony ablak | nincs rögzítés; a pálya az oldal tetejéről indul, és ott ér véget, ahol az ÖSSZEÁLLT embléma felső csúcsa 14 px-re a sticky header alsó éle alá ér — a layoutból és a színpad összeállt vetületéből számolva, a header tényleges magasságával; az embléma a pálya 100%-ánál áll össze, egyenletes középszakaszú görbével (kisebb széthúzás) |
 | `static` | `prefers-reduced-motion`, WebGL-hiba, JS nélkül | összeállt, statikus embléma, extra görgetési szakasz nélkül; WebGL nélkül token-alapú SVG-fallback |
 
 **Anyagok és főcím.** Felső rombusz: szatén, szálcsiszolt ezüstszürke
@@ -349,7 +349,12 @@ rajzolja ki. Ez eltér a fenti „Cool Silver soha nem szöveg világos alapon�
 szabálytól — a prototípusban tudatos, jóváhagyásra váró kivétel.
 
 **Hangolás egy helyen:** `src/components/hero-assembly/config.ts` (kamera,
-széthúzás, görgetési hossz, görbe, anyagok, fények, árnyék, pixel ratio).
+széthúzás, görgetési hossz, görbe, anyagok, fények, árnyék, pixel ratio). A
+rögzítés nélküli pálya végpontja (`scroll.inline.endGap`) és görbéje
+(`scroll.inline.ramp`) külön állítható; a desktop rögzített értékek
+(`assembleAt`, `ease`) ettől függetlenek. Tájolásváltáskor, betűtöltés után
+vagy a canvas méretének változásakor a végpont újraszámolódik; a mobil
+böngésző eszköztárának mozgása nem változtat rajta.
 A márkaszíneket a színpad futásidőben a `globals.css` tokenjeiből olvassa.
 
 **Teljesítmény.** Three.js és GSAP csak ezen az oldalon, dinamikus importtal

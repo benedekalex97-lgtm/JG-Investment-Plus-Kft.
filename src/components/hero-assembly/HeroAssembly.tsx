@@ -17,7 +17,7 @@ import type { AssemblyStage, StageTokens } from "./stage";
  *
  * MOZGÁS
  *   Egyetlen normalizált érték vezérli mindhárom elemet:
- *     position = lerp(széthúzott, összeállt, ease(progress / assembleAt))
+ *     position = lerp(széthúzott, összeállt, görbe(progress))
  *   A progress a natív görgetési pozícióból jön (GSAP ScrollTrigger,
  *   rövid scrub-simítással). Megállított görgetésnél a mozgás is megáll,
  *   visszagörgetve ugyanazon az úton nyílik szét. Nincs loop, forgás,
@@ -28,8 +28,11 @@ import type { AssemblyStage, StageTokens } from "./stage";
  *            sticky, alatta egy üres pálya (track) adja a görgetési utat.
  *            A sticky + pálya natív CSS, ezért a rögzítés végén nincs ugrás
  *            és nincs üres rés; a wheel/touch események érintetlenek.
- *   inline — mobil, tablet, alacsony ablak: nincs rögzítés; az embléma
- *            akkor áll össze, amikor a színpad a viewport közepéig ér.
+ *            Görbe: ease(progress / assembleAt).
+ *   inline — mobil, tablet, alacsony ablak: nincs rögzítés. A pálya az oldal
+ *            tetejéről indul, és ott ér véget, ahol az ÖSSZEÁLLT embléma
+ *            felső csúcsa a sticky header alá ér (ld. inlineDistance); az
+ *            embléma a pálya 100%-ánál áll össze. Görbe: ramped(progress).
  *   static — prefers-reduced-motion vagy WebGL-hiba: összeállt, statikus
  *            embléma, extra görgetési szakasz nélkül.
  *   A pinned/inline döntést elsődlegesen a CSS hozza (media query-k, ld.
@@ -83,6 +86,20 @@ function readTokens(element: HTMLElement): StageTokens {
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 
+/**
+ * Trapéz sebességprofilú görbe (a rögzítés nélküli pályához): `ramp` hosszú
+ * lágy indulás és érkezés, közte egyenletes mozgás; 0 = lineáris. Folytonos,
+ * a két végén nulla sebességgel, túllövés nélkül — és nem lassul le idő
+ * előtt, tehát a mozgás nem tűnik késznek, mielőtt a pálya véget ér.
+ */
+function ramped(t: number, ramp: number) {
+  if (ramp <= 0) return t;
+  const speed = 1 / (1 - ramp);
+  if (t < ramp) return (speed * t * t) / (2 * ramp);
+  if (t > 1 - ramp) return 1 - (speed * (1 - t) * (1 - t)) / (2 * ramp);
+  return speed * (t - ramp / 2);
+}
+
 export default function HeroAssembly() {
   const rootRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
@@ -118,9 +135,21 @@ export default function HeroAssembly() {
     const headerOffset = () =>
       parseFloat(getComputedStyle(root).getPropertyValue("--jg-header-h")) || 0;
 
+    /**
+     * A sticky header sávjának TÉNYLEGES alsó éle a viewportban. A sáv a
+     * header első gyermeke, így a nyitott mobilmenü panelje nem számít bele.
+     */
+    const headerBottom = () => {
+      const bar = document.querySelector(".jg-header")?.firstElementChild;
+      return bar ? bar.getBoundingClientRect().bottom : headerOffset();
+    };
+
     /** A normalizált görgetési előrehaladásból az összeállás mértéke (0..1). */
-    const assemblyFor = (value: number) =>
-      mode === "static" ? 1 : ease(clamp01(value / ASSEMBLY.scroll.assembleAt));
+    const assemblyFor = (value: number) => {
+      if (mode === "static") return 1;
+      if (mode === "inline") return ramped(clamp01(value), ASSEMBLY.scroll.inline.ramp);
+      return ease(clamp01(value / ASSEMBLY.scroll.assembleAt));
+    };
 
     function apply() {
       stage?.setAssembly(assemblyFor(progress));
@@ -146,20 +175,39 @@ export default function HeroAssembly() {
       return getComputedStyle(track!).display !== "none" ? "pinned" : "inline";
     }
 
-    /** Rögzítés nélküli pálya: a színpad középpontja a látható terület közepéig ér. */
+    /**
+     * A rögzítés nélküli pálya végét meghatározó geometria (dokumentum-
+     * koordinátában): a hero és a canvas teteje, az összeállt embléma
+     * csúcsa a canvasban és a header alsó éle. A görgetéstől és a progress-től
+     * független — a mobil színpad mérete csak a szélességtől függ, így a
+     * böngésző-eszköztár ki-be csúszása sem változtat rajta.
+     */
+    function inlineGeometry() {
+      const scrollY = window.scrollY;
+      return {
+        start: root!.getBoundingClientRect().top + scrollY - headerOffset(),
+        hostTop: host!.getBoundingClientRect().top + scrollY,
+        emblemTop: stage?.assembledBounds?.top ?? 0,
+        header: headerBottom(),
+      };
+    }
+    const signature = (geometry: ReturnType<typeof inlineGeometry>) =>
+      Object.values(geometry).map((value) => Math.round(value)).join(":");
+    let inlineSignature = "";
+
+    /**
+     * Rögzítés nélküli pálya. A kezdete a ScrollTrigger startja (a hero teteje
+     * a header alatt — az oldal teteje). A vége az a görgetési pozíció, ahol
+     * az ÖSSZEÁLLT embléma látható felső csúcsa endGap px-re kerül a sticky
+     * header alsó éle alá. A csúcs a színpad stabil, összeállt vetületéből
+     * jön, nem a canvas dobozának tetejéből és nem a mozgó elemekből — így
+     * nincs körkörös számítás a progress és a végpont között.
+     */
     function inlineDistance() {
-      const viewport = window.innerHeight;
-      const header = headerOffset();
-      const stageRect = stageEl!.getBoundingClientRect();
-      const rootTop = root!.getBoundingClientRect().top + window.scrollY;
-      const start = rootTop - header;
-      const stageCenter = stageRect.top + window.scrollY + stageRect.height / 2;
-      const target = header + (viewport - header) * ASSEMBLY.scroll.inlineTarget;
-      const distance = stageCenter - target - start;
-      return Math.min(
-        ASSEMBLY.scroll.inlineMax * viewport,
-        Math.max(ASSEMBLY.scroll.inlineMin * viewport, distance),
-      );
+      const geometry = inlineGeometry();
+      inlineSignature = signature(geometry);
+      const end = geometry.hostTop + geometry.emblemTop - geometry.header - ASSEMBLY.scroll.inline.endGap;
+      return Math.max(ASSEMBLY.scroll.inline.minDistance * window.innerHeight, end - geometry.start);
     }
 
     function killTrigger() {
@@ -183,10 +231,14 @@ export default function HeroAssembly() {
         ease: "none",
         scrollTrigger: {
           trigger: root,
+          // A start/end függvényeket a ScrollTrigger minden refresh-kor újra
+          // kiértékeli. invalidateOnRefresh NINCS: az a proxy-tweent
+          // refresh-kor 0-ra visszaállítaná, és ha közben a trigger
+          // előrehaladása nem változik (pl. tájolásváltás után a pozíció a
+          // rövidebb új pálya vége után van), a színpad 0-n ragadna.
           start: () => `top top+=${headerOffset()}`,
           end: () => (mode === "pinned" ? `+=${track!.offsetHeight}` : `+=${inlineDistance()}`),
           scrub: ASSEMBLY.scroll.scrub,
-          invalidateOnRefresh: true,
         },
         onUpdate: () => {
           progress = proxy.value;
@@ -220,8 +272,11 @@ export default function HeroAssembly() {
 
     /**
      * Átméretezés / preferenciaváltás. A sima átméretezést a ScrollTrigger
-     * maga kezeli (debounce-olt refresh); mi csak akkor frissítünk azonnal,
-     * ha az elrendezés üzemmódja (rögzített / folyó / statikus) változott.
+     * maga kezeli (debounce-olt refresh); mi akkor frissítünk azonnal, ha az
+     * elrendezés üzemmódja (rögzített / folyó / statikus) változott, vagy —
+     * rögzítés nélkül — a pálya végét meghatározó geometria eltér attól,
+     * amivel a végpont legutóbb számolódott (tájolásváltás, betűtöltés,
+     * canvas-méret). A böngésző-eszköztár mozgása ezt nem változtatja.
      */
     function relayout() {
       resizeFrame = 0;
@@ -231,7 +286,8 @@ export default function HeroAssembly() {
       updateFit();
       setMode(detectMode());
       measureStage();
-      if (`${mode}|${root!.dataset.fit}` !== previous) triggerApi?.refresh();
+      const moved = mode === "inline" && tween && signature(inlineGeometry()) !== inlineSignature;
+      if (`${mode}|${root!.dataset.fit}` !== previous || moved) triggerApi?.refresh();
     }
 
     function scheduleRelayout() {
@@ -286,8 +342,10 @@ export default function HeroAssembly() {
           return;
         }
 
-        buildTrigger();
+        // Előbb a canvas mérete (ebből jön az összeállt embléma vetülete),
+        // utána a trigger, amelynek rögzítés nélküli végpontja erre épül.
         measureStage();
+        buildTrigger();
       })
       .catch(() => {
         if (!disposed) toFallback();

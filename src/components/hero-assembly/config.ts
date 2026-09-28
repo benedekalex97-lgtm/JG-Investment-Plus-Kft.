@@ -10,7 +10,8 @@
  *   – a mozgás az embléma MAGASSÁGÁHOZ viszonyított arány (1 = teljes
  *     emblémamagasság), így a jelenet mérete nem befolyásolja;
  *   – a geometria logóegységben értendő (az SVG viewBoxa 88 × 99 egység);
- *   – a görgetési hossz a viewport magasságának többszöröse.
+ *   – a rögzített görgetési hossz a viewport magasságának többszöröse; a
+ *     rögzítés nélküli pálya végét a layout adja (ld. scroll.inline).
  *
  * SZÍNEK: itt nincs nyers HEX. Az anyagszíneket a színpad futásidőben a
  * globals.css tokenjeiből olvassa ki (--color-porcelain, --color-cool-silver,
@@ -42,26 +43,43 @@ export const ASSEMBLY = {
      */
     pinnedDistance: 1,
     /**
-     * A pálya ekkora hányadánál áll össze TELJESEN az embléma; a maradék
-     * rövid szakaszban összeállt állapotban marad, mielőtt a hero továbbgördül.
+     * Rögzített változat: a pálya ekkora hányadánál áll össze TELJESEN az
+     * embléma; a maradék rövid szakaszban összeállt állapotban marad, mielőtt
+     * a hero továbbgördül.
      */
     assembleAt: 0.8,
-    /** GSAP scrub: a görgetési pozíciót ennyi másodperc alatt éri utol. */
+    /** GSAP scrub (mindkét változat): a görgetési pozíciót ennyi másodperc alatt éri utol. */
     scrub: 0.3,
     /**
-     * A normalizált előrehaladás görbéje (GSAP ease-név). Mindhárom elem
-     * ugyanezt a görbét és ugyanazt az értéket kapja. Nincs túllövés.
+     * Rögzített változat: a normalizált előrehaladás görbéje (GSAP ease-név).
+     * Mindhárom elem ugyanezt a görbét és ugyanazt az értéket kapja. Nincs
+     * túllövés.
      */
     ease: "sine.inOut",
     /**
-     * Rögzítés nélküli (mobil / tablet / alacsony ablak) változat: az embléma
-     * akkor áll össze, amikor a színpad középpontja a header alatti látható
-     * terület ekkora hányadához ér. A pálya hossza a viewport magasságának
-     * inlineMin–inlineMax többszöröse közé van szorítva.
+     * RÖGZÍTÉS NÉLKÜLI változat (mobil, tablet, alacsony ablak).
+     *
+     * A pálya ott indul, ahol eddig (a hero teteje a header alatt — az oldal
+     * tetején), és a LAYOUTBÓL számolt ponton ér véget: amikor az ÖSSZEÁLLT
+     * embléma látható felső csúcsa `endGap` px-re kerül a sticky header
+     * alsó éle alá. A csúcs helyét a színpad az összeállt geometria kamerás
+     * vetületéből adja — nem a canvas dobozának tetejéből, és nem a
+     * pillanatnyilag mozgó elemekből. Az embléma a pálya 100%-ánál áll össze
+     * (nincs statikus zárószakasz).
      */
-    inlineTarget: 0.5,
-    inlineMin: 0.3,
-    inlineMax: 0.62,
+    inline: {
+      /** Térköz a header alsó éle és az összeállt embléma felső csúcsa között (CSS px). */
+      endGap: 14,
+      /**
+       * A görbe: a pálya két végén `ramp` hosszú lágy indulás és érkezés,
+       * közte egyenletes mozgás (trapéz sebességprofil; 0 = lineáris). A
+       * sine.inOut-tal szemben nem lassul le idő előtt: a pálya utolsó
+       * 10%-ára a mozgás ~5%-a jut (sine.inOut mellett ~2,4%).
+       */
+      ramp: 0.12,
+      /** Biztonsági alsó korlát a pálya hosszára, a viewport magasságának hányadában. */
+      minDistance: 0.3,
+    },
   },
 
   camera: {
