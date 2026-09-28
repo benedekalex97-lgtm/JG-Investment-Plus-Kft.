@@ -313,8 +313,9 @@ export default function HeroAssembly() {
         get renders() {
           return stage?.renderCount ?? 0;
         },
+        /** Csak a hero saját ScrollTriggerei (az oldal más szekcióié nem). */
         get triggers() {
-          return triggerApi?.getAll().length ?? 0;
+          return triggerApi?.getAll().filter((trigger) => trigger.trigger === root).length ?? 0;
         },
         get range() {
           const trigger = tween?.scrollTrigger;

@@ -312,11 +312,13 @@ látható, minden módban; a szöveg megjelenése soha nem függ az animációt�
 minden környezetben, nincs a navigációban, és nincs sitemap. A homepage
 Heróját **nem** cseréli le (`src/app/page.tsx` változatlan).
 
-Az előnézet a valódi headerrel, a valódi hero-copyval (`hero`,
-`statusNotice` a `homepage.ts`-ből — szöveg, CTA-cél és státuszközlés
-karakterre azonos) és utána a meglévő 01 Rólunk szakasszal mutatja a
-mozgást. Porcelain felület, bal oldalon a copy és a CTA, jobb oldalon
-(mobilon alatta) a WebGL-színpad.
+Az előnézet a teljes homepage-et mutatja a `page.tsx` szekciósorrendjében
+(HeroAssembly → 01 Rólunk → 02 Szolgáltatások → 03 Miért mi? → 04 Hivatalos
+dokumentumok → 05 Kapcsolat → footer), a valódi headerrel és a valódi
+hero-copyval (`hero`, `statusNotice` a `homepage.ts`-ből — szöveg, CTA-cél és
+státuszközlés karakterre azonos). Két szekció tér el a homepage-től: a hero és
+a Szolgáltatások (ld. lent). A hero Porcelain felületen áll, bal oldalon a copy
+és a CTA, jobb oldalon (mobilon alatta) a WebGL-színpad.
 
 **Mozgás.** A JG-embléma három eleme — felső rombusz, bal és jobb pillér —
 a mester-SVG (`Logo.tsx`, `JG_MARK_PATH`) három subpathjából, az eredeti
@@ -354,12 +356,12 @@ A márkaszíneket a színpad futásidőben a `globals.css` tokenjeiből olvassa.
 töltődik; igény szerinti renderelés (csak görgetés-, méret- vagy
 láthatóságváltozáskor), pixel ratio plafon 2, képernyőn kívül nincs
 renderelés, lebontáskor minden GPU-erőforrás és eseménykezelő felszabadul;
-pontosan egy ScrollTrigger él (StrictMode kettős mountnál is).
+a herónak pontosan egy saját ScrollTriggere él (StrictMode kettős mountnál is).
 
 **Beillesztés a homepage-be (később, jóváhagyás után):** a `page.tsx`-ben a
-`<Hero />` helyére `<HeroAssembly />`, az `<About />` pedig
-`transitionFrom="canvas"`-t kap (különben sötét sáv jelenne meg a világos
-hero alatt).
+`<Hero />` helyére `<HeroAssembly />`, a `<Services />` helyére
+`<ServicesShowcase />` kerül, az `<About />` pedig `transitionFrom="canvas"`-t
+kap (különben sötét sáv jelenne meg a világos hero alatt).
 
 > **Logóhasználati kivétel:** a `docs/brand/logo-system-v1.md` §15 szűk,
 > feladatspecifikus kivételként rögzíti a 3D-megjelenítést, az anyagokat, az
@@ -368,6 +370,58 @@ hero alatt).
 > header és a footer SVG-logója változatlanok.
 > Koncepció és prototípus: Alex kérésére engedélyezett · végleges vizuális
 > elfogadás: nyitott · production bevezetés: még nincs engedélyezve.
+
+## Szolgáltatások — kép–szöveg blokkok (előnézet)
+
+**Komponens:** `src/components/services-showcase/ServicesShowcase.tsx` —
+kizárólag a `/preview/hero-motion` oldalon; a homepage `Services.tsx`-e
+változatlan. Ugyanaz az id (`#szolgaltatasok`), fejléc, bevezető, négy
+szolgáltatásszöveg, közös jogi közlés és CTA, mint a homepage-en — mind a
+`homepage.ts`-ből, karakterre azonosan. A korábbi 2×2 szövegrács helyett négy
+nagy, egymást követő kép–szöveg blokk; a régi rács nem jelenik meg mellette.
+
+| # | Vizuál (`src/assets/services/`) | Szolgáltatás |
+| --- | --- | --- |
+| 01 | `szolgaltatas-01-penzugyi-lehetosegek-negy-fuggoleges-panel.jpg` | Pénzügyi lehetőségek bemutatása |
+| 02 | `szolgaltatas-02-megtakaritas-adozas-negy-vizszintes-reteg.jpg` | Megtakarítási és adózási lehetőségek |
+| 03 | `szolgaltatas-03-digitalis-megoldasok-harom-nyitott-keret.jpg` | Digitális pénzügyi megoldások |
+| 04 | `szolgaltatas-04-kapcsolattartas-edukacio-ket-ives-forma.jpg` | Kapcsolattartás és pénzügyi edukáció |
+
+Az összerendelés a szolgáltatás CÍME alapján történik (`satisfies`-szal
+ellenőrzött térkép): ha egy cím változik vagy kép nélküli szolgáltatás kerül
+be, a build elbukik — rossz kép nem kerülhet szöveg mellé.
+
+**Elrendezés.** Desktopon (≥ 1024 px) 12 oszlopos rács a többi szakasszal
+közös tartalomszélességben: szöveg 5, kép 6 oszlop, váltakozva (1, 3: szöveg
+balra; 2, 4: kép balra), a szöveg a képhez függőlegesen középre igazítva,
+112 px sorköz. Mobilon és tableten mindig cím és szöveg → kép (a DOM-sorrend
+minden méreten ez). Címek: Newsreader, Ink, h3 a szakasz h2-je alatt; a
+sorszám (01–04) dekoratív (`aria-hidden`).
+
+**Képfelület.** A képek saját, meleg világosszürke hátterűek (vignettával), a
+tárgyak árnyéka a kép széléig fut, ezért teljes összeolvadás nem lehetséges
+vágás vagy átszínezés nélkül. Helyette következetes, szándékos képfelület: a
+teljes, vágatlan négyzetes kép egységes kártya-lekerekítéssel (a sarkokban csak
+háttér van), keret és árnyék nélkül, a meglévő fehér (surface) szakaszfelületen.
+
+**Mozgás** (`ShowcaseMotion.tsx`, a meglévő GSAP + ScrollTrigger, dinamikus
+importtal): blokkonként egyszeri belépés — opacity + 20 px (mobilon 16 px),
+620 ms, a kép és a szöveg között 100 ms eltolással —, desktopon a teljes kép
+görgetéshez kötött, ±16 px-es (összesen 32 px) függőleges elmozdulása. Nincs
+pin, lebegés, zoom vagy pattogás; mobilon nincs parallax. A rejtett
+kiindulóállapotot csak a script állítja be, és csak a még teljesen a viewport
+alatt lévő elemekre: JavaScript nélkül, `prefers-reduced-motion` esetén vagy
+GSAP-hiba esetén minden statikusan látszik. A közös közlés és a CTA a meglévő
+Reveal-lel lép be, mint a homepage-en.
+
+**Képkezelés.** Az eredeti 1024 × 1024-es JPEG-ek (48–65 KB) forrásként a
+`src/assets/services/`-ben; a `next/image` statikus importtal rögzített
+méretet (nincs layout shift), elmosott előnézetet, reszponzív `srcset`-et és
+`sizes`-t ad, lazy loadinggal, priority/preload nélkül. A szerver WebP-t küld
+az alapértelmezett 75-ös minőségen (mérve 43,6–45,8 dB PSNR az eredetihez
+képest, az üvegátmenetek és az árnyékok sávosodás nélkül); a forrásnál
+nagyobb méretre nem skáláz fel (a 1080–3840 px-es kérés is 1024 px-et kap).
+Mért átvitel képenként: 1× pixelsűrűségen 2–9 KB, 2–3×-on 5–17 KB.
 
 ## Futtatás
 
@@ -400,7 +454,8 @@ src/
                               .hero-cta-primary, reduced-motion (globális CSS-effektek)
     layout.tsx                next/font/google (Newsreader, Inter)
     page.tsx                  skip link + szakaszok összeállítása
-    preview/hero-motion/      noindex előnézet: HeroAssembly + 01 Rólunk
+    preview/hero-motion/      noindex előnézet: a teljes homepage HeroAssemblyvel
+                              és ServicesShowcase-szel
   components/
     Header.tsx                logó-lockup, navigáció, billentyűzetes mobilmenü + focus trap
     Logo.tsx                  JG Logo System v1.0 (mark / horizontal / stacked)
@@ -422,6 +477,10 @@ src/
       geometry.ts              a mester-SVG három subpathja, súlypont-megtartó széthúzás
       stage.ts                 Three.js-színpad (anyagok, stúdiófény, kontaktárnyék)
       EmblemFallback.tsx       statikus SVG-fallback (WebGL-hiba / JS nélkül)
+    services-showcase/         négy kép–szöveg blokkos Szolgáltatások (előnézet)
+      ServicesShowcase.tsx     szakasz, blokkok, kép ↔ szolgáltatás összerendelés
+      ShowcaseMotion.tsx       belépés + desktop parallax (GSAP, reduced-motion-biztos)
+  assets/services/             a négy szolgáltatási vizuál eredetiben (forrás)
   content/
     homepage.ts                TARTALMI SOURCE OF TRUTH
 ```
