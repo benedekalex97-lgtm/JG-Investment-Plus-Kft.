@@ -255,6 +255,9 @@ Do not:
 - build K&H- or Patria-style co-brand lockups, or imitate their logos or colours
 - use the mark to suggest guaranteed safety, return, growth or capital protection
 
+> **Scoped exception:** §15 records one task-specific exception for the HeroAssembly
+> hero-illustration prototype. It does not relax any rule in this list for any other use.
+
 ## 12. Website Implementation
 
 | Location | Implementation |
@@ -296,3 +299,36 @@ There is no outlined wordmark asset yet (see §7).
 4. **Micro mark** for the favicon (gap widened 9 → 14 units).
 5. **Favicon tile**: Porcelain micro mark on a Carbon rounded tile.
 6. **Commissioning an outlined wordmark master** before print or off-web use.
+7. **HeroAssembly hero illustration** (§15): final visual acceptance and production rollout.
+
+## 15. Scoped exception — HeroAssembly 3D hero illustration (prototype)
+
+**[APPROVED — prototype only]** At Alex's explicit request (task *JG — görgetésre összeálló
+3D hero — prototípus*, September 2026), the HeroAssembly hero illustration may depart from §6
+and §11 in exactly these four ways:
+
+1. a three-dimensional rendering of the mark: slight extrusion, a restrained inward bevel and a
+   soft contact shadow;
+2. materials: matte porcelain (Porcelain `#F4F3F1`, upper cap), satin silver (Cool Silver
+   `#BEC1C7`, left pillar) and smoky, partly translucent aubergine glass (Aubergine `#493447`,
+   with Muted Plum `#755D70` in the backlit areas, right pillar);
+3. separating the three elements (a symmetric, exploded start state);
+4. a scroll-driven assembly back into the master silhouette.
+
+Scope and limits:
+
+- Applies only to the hero illustration in `src/components/hero-assembly/`, currently shown
+  only on the noindex preview route `/preview/hero-motion`.
+- The geometry still comes only from `JG_MARK_PATH` (§3). In the assembled state the
+  silhouette, proportions, symmetry and negative spaces of §3–§4 are preserved. No element is
+  added, removed or reshaped, and no colour outside the list above is used.
+- The general rules (§1–§14) do not change. Every other use of the mark remains subject to
+  §6 and §11 as written.
+- The official SVG logo in the header and footer (`Logo.tsx`, `public/brand/*.svg`) and the
+  favicon stay unchanged flat vectors.
+
+| Item | Status |
+| --- | --- |
+| Concept and prototype | **[APPROVED]** at Alex's request |
+| Final visual acceptance | **[ALEX APPROVAL REQUIRED]** — open |
+| Production rollout (replacing the homepage hero) | **Not permitted yet** — needs a separate, explicit approval |

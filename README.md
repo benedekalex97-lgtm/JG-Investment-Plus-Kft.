@@ -351,11 +351,13 @@ pontosan egy ScrollTrigger él (StrictMode kettős mountnál is).
 `transitionFrom="canvas"`-t kap (különben sötét sáv jelenne meg a világos
 hero alatt).
 
-> **ALEX APPROVAL REQUIRED:** a `docs/brand/logo-system-v1.md` §11 a jelre
-> alkalmazott 3D-, fémes, bevel- és árnyékhatást, valamint az elemek
-> szétválasztását tiltott használatként sorolja fel. A hero-illusztráció
-> ettől tudatosan, a brief kérésére tér el; a header és a footer SVG-logója
-> változatlan. Élesítés előtt a logódokumentációban rögzítendő a kivétel.
+> **Logóhasználati kivétel:** a `docs/brand/logo-system-v1.md` §15 szűk,
+> feladatspecifikus kivételként rögzíti a 3D-megjelenítést, az anyagokat, az
+> elemek szétválasztását és a görgetéses összeállást — kizárólag erre a
+> hero-illusztrációs prototípusra. A §6 és §11 általános szabályai, valamint a
+> header és a footer SVG-logója változatlanok.
+> Koncepció és prototípus: Alex kérésére engedélyezett · végleges vizuális
+> elfogadás: nyitott · production bevezetés: még nincs engedélyezve.
 
 ## Futtatás
 
