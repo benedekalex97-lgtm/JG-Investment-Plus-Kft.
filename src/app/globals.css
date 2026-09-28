@@ -880,6 +880,115 @@ body {
 }
 
 /* ==========================================================================
+   HERO ASSEMBLY — görgetésre összeálló 3D JG-embléma (HeroAssembly.tsx)
+   --------------------------------------------------------------------------
+   Előnézet: /preview/hero-motion. Porcelain felület, bal oldalon a hero
+   copy, jobb oldalon (mobilon alatta) a WebGL-színpad.
+
+   RÖGZÍTÉS — natív CSS sticky + üres pálya, nincs JS-es pin és nincs
+   smooth-scroll könyvtár. A pin doboz a header alá tapad, a pálya magassága
+   adja a görgetési utat (--jg-assembly-distance × 100svh, a config.ts-ből).
+   A pálya végén a szekció természetesen továbbgördül: nincs ugrás, nincs
+   üres rés, a wheel/touch eseményeket senki nem nyeli el.
+
+   A rögzítés feltételei (mind teljesül):
+     – desktop szélesség (≥ 1024 px) és legalább 560 px magas ablak;
+     – nincs prefers-reduced-motion: reduce;
+     – fut JavaScript (scripting: enabled) — JS nélkül nincs üres pálya;
+     – a tartalom kifér (a JS data-fit="false"-szal kapcsolja ki, ha nem);
+     – van működő WebGL (data-static="true" esetén statikus fallback).
+   Minden más esetben a hero normál folyású szekció, extra görgetési
+   szakasz nélkül.
+
+   A 100svh a mobilböngészők legkisebb (címsávos) viewportja: a tartalom
+   így sosem lóg ki a látható területből, és a címsáv mozgása nem rángatja
+   az elrendezést.
+   ========================================================================== */
+.jg-assembly {
+  /* A header külső magassága (ld. Header.tsx és html { scroll-padding-top }). */
+  --jg-header-h: 72px;
+  --jg-assembly-avail: calc(100svh - var(--jg-header-h));
+
+  position: relative;
+  background-color: var(--color-canvas);
+  /* clip (nem hidden): nem hoz létre görgetési konténert, a sticky működik. */
+  overflow-x: clip;
+}
+
+@media (min-width: 1024px) {
+  .jg-assembly {
+    --jg-header-h: 80px;
+  }
+}
+
+.jg-assembly__pin {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--jg-assembly-avail);
+}
+
+.jg-assembly__track {
+  display: none;
+  height: calc(var(--jg-assembly-distance, 1) * 100svh);
+}
+
+@media (min-width: 1024px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  .jg-assembly:not([data-fit="false"]):not([data-static="true"]) .jg-assembly__pin {
+    position: sticky;
+    top: var(--jg-header-h);
+  }
+
+  .jg-assembly:not([data-fit="false"]):not([data-static="true"]) .jg-assembly__track {
+    display: block;
+  }
+}
+
+/* A színpad dekoratív: soha nem kap kattintást, a CTA fölé sem kerülhet. */
+.jg-assembly__stage {
+  pointer-events: none;
+}
+
+/* A canvas az első kész képkocka után, egyszer, lágyan jelenik meg. */
+.jg-assembly__canvas-host {
+  opacity: 0;
+  transition: opacity 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.jg-assembly__stage[data-state="ready"] .jg-assembly__canvas-host {
+  opacity: 1;
+}
+
+.jg-assembly__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+  Elsődleges CTA a világos heróban — Aubergine felület, fehér felirat
+  (11.26:1, AAA). Semleges élkezelés, hoverre 1 px emelkedés; nincs glow,
+  nincs pulzálás. A fókuszgyűrű az alapértelmezett Aubergine (--focus),
+  3 px offsettel a Porcelain háttérre esik (10.15:1).
+*/
+.jg-assembly-cta {
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 14%),
+    0 1px 2px rgb(24 24 27 / 12%),
+    0 14px 30px -18px rgb(39 38 42 / 55%);
+  transition:
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
+}
+
+.jg-assembly-cta:hover {
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 18%),
+    0 1px 2px rgb(24 24 27 / 14%),
+    0 18px 36px -18px rgb(39 38 42 / 62%);
+}
+
+/* ==========================================================================
    REDUCED MOTION — globális, dekoratív CSS-effektekre (smooth scroll, hover/
    accordion/menüátmenetek). A Hero háttéranimációja NEM CSS-alapú, ezért itt
    nem kapcsolható ki: a HeroMarketMotion komponens maga figyeli a

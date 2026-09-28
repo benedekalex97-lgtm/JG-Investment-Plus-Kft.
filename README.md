@@ -306,6 +306,57 @@ nem maradt arany, sárga vagy mustár árnyalat.
 A Hero — és az oldal egésze — a betöltés után AZONNAL, teljes egészében
 látható, minden módban; a szöveg megjelenése soha nem függ az animációtól.
 
+## Hero-mozgás prototípus — görgetésre összeálló 3D embléma (előnézet)
+
+**Útvonal:** `/preview/hero-motion` — belső előnézet, `noindex, nofollow`
+minden környezetben, nincs a navigációban, és nincs sitemap. A homepage
+Heróját **nem** cseréli le (`src/app/page.tsx` változatlan).
+
+Az előnézet a valódi headerrel, a valódi hero-copyval (`hero`,
+`statusNotice` a `homepage.ts`-ből — szöveg, CTA-cél és státuszközlés
+karakterre azonos) és utána a meglévő 01 Rólunk szakasszal mutatja a
+mozgást. Porcelain felület, bal oldalon a copy és a CTA, jobb oldalon
+(mobilon alatta) a WebGL-színpad.
+
+**Mozgás.** A JG-embléma három eleme — felső rombusz, bal és jobb pillér —
+a mester-SVG (`Logo.tsx`, `JG_MARK_PATH`) három subpathjából, az eredeti
+koordinátákkal épül fel, enyhe extrudálással és befelé induló élletöréssel
+(a sziluett és a rések nem nőnek). Kezdőállapotban szimmetrikusan
+széthúzva állnak (a rombusz felfelé, a pillérek tükrösen oldalra és a
+súlypont-feltételből számolt mértékben lefelé, így a csoport optikai
+középpontja helyben marad), lefelé görgetve egyetlen normalizált érték
+vezérli mindhárom elemet: `position = lerp(széthúzott, összeállt, ease(p))`.
+Megállított görgetésnél a mozgás is megáll (0,3 s scrub), visszagörgetve
+ugyanazon az úton nyílik szét. Nincs loop, forgás, rugózás, morfolás vagy
+kameramozgás.
+
+| Üzemmód | Mikor | Viselkedés |
+| --- | --- | --- |
+| `pinned` | ≥ 1024 px széles, ≥ 560 px magas ablak, és a hero kifér | natív CSS `sticky` + üres pálya (1 × viewport); a pálya 80%-ánál összeáll, a maradékban összeállva marad, utána a hero ugrás és rés nélkül továbbgördül |
+| `inline` | mobil, tablet, alacsony ablak | nincs rögzítés; az embléma akkor áll össze, amikor a színpad a viewport közepéig ér (0,3–0,62 × viewport út, kisebb széthúzás) |
+| `static` | `prefers-reduced-motion`, WebGL-hiba, JS nélkül | összeállt, statikus embléma, extra görgetési szakasz nélkül; WebGL nélkül token-alapú SVG-fallback |
+
+**Hangolás egy helyen:** `src/components/hero-assembly/config.ts` (kamera,
+széthúzás, görgetési hossz, görbe, anyagok, fények, árnyék, pixel ratio).
+A márkaszíneket a színpad futásidőben a `globals.css` tokenjeiből olvassa.
+
+**Teljesítmény.** Three.js és GSAP csak ezen az oldalon, dinamikus importtal
+töltődik; igény szerinti renderelés (csak görgetés-, méret- vagy
+láthatóságváltozáskor), pixel ratio plafon 2, képernyőn kívül nincs
+renderelés, lebontáskor minden GPU-erőforrás és eseménykezelő felszabadul;
+pontosan egy ScrollTrigger él (StrictMode kettős mountnál is).
+
+**Beillesztés a homepage-be (később, jóváhagyás után):** a `page.tsx`-ben a
+`<Hero />` helyére `<HeroAssembly />`, az `<About />` pedig
+`transitionFrom="canvas"`-t kap (különben sötét sáv jelenne meg a világos
+hero alatt).
+
+> **ALEX APPROVAL REQUIRED:** a `docs/brand/logo-system-v1.md` §11 a jelre
+> alkalmazott 3D-, fémes, bevel- és árnyékhatást, valamint az elemek
+> szétválasztását tiltott használatként sorolja fel. A hero-illusztráció
+> ettől tudatosan, a brief kérésére tér el; a header és a footer SVG-logója
+> változatlan. Élesítés előtt a logódokumentációban rögzítendő a kivétel.
+
 ## Futtatás
 
 ```bash
@@ -337,6 +388,7 @@ src/
                               .hero-cta-primary, reduced-motion (globális CSS-effektek)
     layout.tsx                next/font/google (Newsreader, Inter)
     page.tsx                  skip link + szakaszok összeállítása
+    preview/hero-motion/      noindex előnézet: HeroAssembly + 01 Rólunk
   components/
     Header.tsx                logó-lockup, navigáció, billentyűzetes mobilmenü + focus trap
     Logo.tsx                  JG Logo System v1.0 (mark / horizontal / stacked)
@@ -352,6 +404,12 @@ src/
     LegalRiskBlock.tsx         jogi tájékoztató, panaszkezelés, impresszum
     Footer.tsx
     Section.tsx                közös szakaszkeret
+    hero-assembly/             görgetésre összeálló 3D hero (előnézet: /preview/hero-motion)
+      HeroAssembly.tsx         szekció, copy, üzemmódok, ScrollTrigger-vezérlés
+      config.ts                KÖZPONTI HANGOLÁS (kamera, széthúzás, scroll, anyagok)
+      geometry.ts              a mester-SVG három subpathja, súlypont-megtartó széthúzás
+      stage.ts                 Three.js-színpad (anyagok, stúdiófény, kontaktárnyék)
+      EmblemFallback.tsx       statikus SVG-fallback (WebGL-hiba / JS nélkül)
   content/
     homepage.ts                TARTALMI SOURCE OF TRUTH
 ```
