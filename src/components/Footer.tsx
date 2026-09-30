@@ -8,9 +8,9 @@ import SectionTransition from "./SectionTransition";
 /**
  * Footer — a SOT 10. szakaszának kötelező rövid változata, teljes szöveggel.
  * A márkaazonosító elsődlegesen a JG Logo System v1.0 horizontal lockupja
- * (ld. Logo.tsx). A legalsó, önálló sávban — preview kör, Alex kérésére,
- * Reni jóváhagyására várva — megjelenik a K&H Értékpapír logója is, a JG
- * brandnél vizuálisan kisebb súllyal, a kötelező compliance-mondat mellett.
+ * (ld. Logo.tsx). A legalsó, önálló sávban megjelenik a K&H Értékpapír
+ * logója is (Reni által elfogadva), a JG brandnél vizuálisan kisebb súllyal,
+ * a kötelező compliance-mondat mellett.
  *
  * v1.4: a footer a legmélyebb felületre (surface-sink) került, felső élén
  * szakaszhatár-fényvonallal és nagyon gyenge Aubergine atmoszférával; a
@@ -120,7 +120,7 @@ export default function Footer() {
         </div>
 
         {/*
-          K&H FOOTER LOGO PREVIEW — külön, alárendelt sáv a copyright alatt:
+          K&H-LOGÓ — külön, alárendelt sáv a copyright alatt:
           a lap legkevésbé hangsúlyos pontja, szándékosan a JG saját
           brandingja (a footer tetején, ld. fent) UTÁN. A logó statikus, nem
           kattintható, nincs keret/árnyék/hover-CTA — pusztán másodlagos

@@ -13,11 +13,11 @@
  * MÓDOSÍTÁSI SZABÁLY: compliance-visszajelzés esetén kizárólag ezt a fájlt
  * kell szerkeszteni. A komponensek nem tartalmaznak beégetett üzleti szöveget.
  *
- * STÁTUSZ: v1.1 — Hero motion + hero-referencia (Lovable) preview-copy. Nem
- * MNB-megfelelő, nem jogilag végleges, nem K&H-jóváhagyott, nem publikálásra
- * kész, nem production-ready. Élesítés előtt a K&H Compliance/Kommunikáció
- * írásbeli jóváhagyása szükséges — a Hero preview-copy mezőire külön is
- * (ld. a `hero` konstans figyelmeztetését).
+ * STÁTUSZ: v1.0 — LEZÁRT weboldal (Alex megerősítése, 2026.09.30.). A K&H
+ * részéről a jóváhagyás Alex közlése szerint megtörtént (Jánosi Renáta, K&H
+ * Compliance — ideértve a footerben megjelenő K&H-logót is). Írásos
+ * jóváhagyó dokumentum nincs a repóban. Innentől minden szövegváltozás
+ * új compliance-visszajelzésből induljon.
  */
 
 export const meta = {
@@ -80,15 +80,13 @@ export const nav = {
 /**
  * SOT 1. Főoldal – Hero
  *
- * v1.1 PUBLIC-READY COPY — compliance-review candidate
- * ----------------------------------------------------
+ * v1.0 — LEZÁRT szövegezés
+ * ------------------------
  * A Hero szövegezése konverziófókuszú, de a jogállás mindenhol a docx SOT
  * szerinti „függő ügynök". A korábbi preview-copy három nyitott pontja
  * (a „partnereként" fordulat, a „KÖZVETÍTŐ" megjelölés és az
- * MNB-nyilvántartásra hivatkozó állítás) MIND VISSZAVONVA.
- *
- * Írásbeli K&H Compliance/Kommunikáció jóváhagyás nélkül a verzió továbbra
- * sem nevezhető K&H-approved vagy compliance-approved változatnak.
+ * MNB-nyilvántartásra hivatkozó állítás) MIND VISSZAVONVA. A lezárás
+ * státuszát ld. a fájl elején.
  */
 export const hero = {
   /**
@@ -462,12 +460,9 @@ export const contact: {
  */
 
 /**
- * v-preview — K&H FOOTER LOGO PREVIEW (külön preview kör, Alex kérésére;
- * NEM production, NEM main-re szánt): a `khPartnerLogo.complianceLine`
- * szövege Alex által megadott, szó szerint átveendő mondat — nem
- * marketingesíthető, nem rövidíthető, nem írható át. A Footer.tsx korábbi
- * megjegyzése (a footerben eddig nem jelent meg K&H-logó) erre a preview
- * körre nem vonatkozik; a végső döntés Reni jóváhagyásától függ.
+ * K&H-logó a footerben (Reni által elfogadva, Alex közlése szerint): a
+ * `khPartnerLogo.complianceLine` szövege szó szerint átveendő mondat — nem
+ * marketingesíthető, nem rövidíthető, nem írható át.
  */
 
 /** SOT 10. Lábléc – kötelező rövid változat */
