@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { footer } from "@/content/homepage";
-import khLogo from "../../public/brand/kh-logo-preview-dark.png";
+import khLogo from "../../public/brand/kh-logo-dark.png";
 import Logo from "./Logo";
 import SectionTransition from "./SectionTransition";
 
