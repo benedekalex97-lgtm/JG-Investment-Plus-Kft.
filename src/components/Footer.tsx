@@ -127,10 +127,18 @@ export default function Footer() {
           információs jelzés a kötelező compliance-mondat mellett.
         */}
         <div className="mt-8 flex flex-col items-start gap-4 border-t border-white/12 pt-8 sm:flex-row sm:items-center">
+          {/*
+            A logó magassága szándékosan a mellette futó szöveg 2 sornyi
+            magasságához igazodik (text-xs · leading-relaxed = 1.625 →
+            2 × 1.625 × 0.75rem = 2.4375rem), NEM önálló fix méretből indul —
+            így a logó vizuális súlya mindig a szöveghez, nem egy tetszőleges
+            pixelértékhez van kötve. A szélesség a logó saját arányából adódik
+            (w-auto, a kép natív méretarányát megtartva).
+          */}
           <Image
             src={khLogo}
             alt={footer.khPartnerLogo.alt}
-            className="h-auto w-[90px] shrink-0 opacity-90 sm:w-[100px] lg:w-[120px]"
+            className="h-[2.4375rem] w-auto shrink-0 opacity-90"
           />
           <p className="max-w-[60ch] text-xs leading-relaxed text-cool-silver">
             {footer.khPartnerLogo.complianceLine}
