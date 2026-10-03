@@ -2,6 +2,8 @@
 
 Branch: `feature/jg-email-template-v2` · Státusz: **COMPLIANCE REVIEW REQUIRED BEFORE EXTERNAL USE**
 
+**Kézbesítési architektúra (canonical):** privát e-mail sablon → CID inline képek → Google Apps Script → Gmail piszkozat → emberi ellenőrzés → kézi küldés. Nincs publikus képhosting, nincs online változat, nincs automatikus küldés. Részletek: §8.
+
 ## 1. Source of truth
 
 | Terület | Forrás |
@@ -17,7 +19,7 @@ A screenshot hibás emblémája **nincs** felhasználva: se asset, se trace, se 
 
 - Geometria: `M44 0 80 18 44 36 8 18Z M0 23 32 39 32 83 0 99Z M88 23 56 39 56 83 88 99Z`, viewBox `0 0 88 99`. Változatlan.
 - `render-assets.mjs` a kanonikus pathból renderel, és leáll, ha a `Logo.tsx` vagy a `public/brand/*.svg` eltér tőle.
-- Asset: `public/email/jg-mark-porcelain@2x.png` (Porcelain jel Carbon alapon, fejléc) és `jg-mark-carbon@2x.png` (Carbon jel Porcelain alapon, lábléc), 80×90 px, megjelenítés 40×45 px.
+- Asset: `emails/assets/jg-mark-porcelain@2x.png` (CID `jgMarkPorcelain`; Porcelain jel Carbon alapon, fejléc) és `emails/assets/jg-mark-carbon@2x.png` (CID `jgMarkCarbon`; Carbon jel Porcelain alapon, lábléc), 80×90 px, megjelenítés 40×45 px. Privát fájlok, a weboldal nem szolgálja ki őket.
 - A háttérszín bele van égetve (nem átlátszó PNG): ha egy kliens dark módban invertálja a háttereket, a jel nem tűnik el. Ilyenkor a jel egy kis, saját alapszínű téglalapon látszik — ez szándékos kompromisszum.
 - Wordmark: élő szöveg (`JG Investment Plus`, CSS-sel nagybetűs), Inter 500, 0,12em tracking, fallback `Inter, Arial, Helvetica, sans-serif`. Fejlécben 18 px → jel 2,5em = 45 px, térköz 14 px (≈ 1,25X), a logo-system §5 horizontális lockupja szerint.
 - A lockupban a jel `alt=""`: a nevet a mellette álló wordmark adja (logo-system §5 akadálymentességi szabály), így a képek letiltásakor sem duplázódik.
@@ -28,7 +30,7 @@ A screenshot hibás emblémája **nincs** felhasználva: se asset, se trace, se 
 | --- | --- |
 | Szélesség | 640 px konténer, középre; mobilon 100% |
 | Külső háttér | `#E9E7E3` (meleg, a Porcelain-nél kissé sötétebb); konténer Porcelain `#F4F3F1` |
-| View-in-browser | 11 px, jobbra zárt, `{{VIEW_ONLINE_URL}}` |
+| View-in-browser | **Megszűnt.** Nincs publikus online változat, ezért a sor és a `{{VIEW_ONLINE_URL}}` helyőrző kikerült. A konténer fölött 28 px térköz maradt. |
 | Fejléc | Kompakt (24 px függőleges padding, mobilon 18 px). Carbon `#18181B`; bal: jel + wordmark + `hero.eyebrowLines`; jobb: hajszálvonal + „Szakmai rend, emberi kapcsolattal.” (Newsreader 16 px). Mobilon a tagline egy sorban, 14 px, Cool Silver színnel a wordmark alá igazítva. |
 | Hero | Kép nélküli, tipográfiai: 32×2 px-es Signal Berry jelzővonal (a weboldal lábléc-osztójának mintájára), Newsreader 40/46 főcím (mobilon 31/37), „Átláthatóság.” Signal Berry `#8E3F67`; intro Inter 16/26 (mobilon 15/24), asztali nézetben 90 px jobb oldali térközzel a sorhossz miatt |
 | Státuszközlés | `#ECE9E6` doboz, saját „i” ikon (rombusz + pillér), függőleges elválasztó, `statusNotice.body` szó szerint |
@@ -61,12 +63,13 @@ Nem került be: telefonszám (a brief szerint a jobb oldalon csak ellenőrzött 
 | `relationship` | Két egymás felé dőlő elem, köztük összekötő modul, alattuk nyitott tér | Kapcsolat két fél között |
 | `notice` | Rombusz + pillér (absztrakt „i”) | Tájékoztatás |
 
-SVG-forrás: `emails/src/icons/`; e-mailben: `public/email/icons/*.png` (64×64, @2x, háttérszín beégetve).
+SVG-forrás: `emails/src/icons/`; e-mailben: `emails/assets/icons/*.png` (64×64, @2x, háttérszín beégetve), CID inline képként (`noticeIcon`, `opportunitiesIcon`, `savingsIcon`, `digitalIcon`, `relationshipIcon`).
 
 ## 6. Technikai szabályok
 
 - Table-alapú elrendezés, `role="presentation"`, inline CSS; a `<style>` csak reset, mobil media query (`max-width: 639px`) és hover.
 - Nincs JS, inline SVG, data URI, emoji, ikonfont, CSS-változó, flex vagy grid.
+- Minden kép `src="cid:<kulcs>"` (rögzített kulcsok: `emails/scripts/cid-assets.mjs`); nincs hostolt kép-URL.
 - Minden `<img>`-nek van `alt`, `width` és `height` attribútuma; dekoratív kép `alt=""`.
 - Outlook: MSO feltételes 640 px-es ghost table, VML gomb, Arial/Georgia font override, `o:PixelsPerInch`.
 - Webfontok (Inter, Newsreader) Google Fonts `<link>`-kel; Gmail és Outlook nem tölti be őket, ott a Georgia/Arial fallback él (`desktop-fallback.png`).
@@ -77,18 +80,33 @@ SVG-forrás: `emails/src/icons/`; e-mailben: `public/email/icons/*.png` (64×64,
 
 - Gmail mobilalkalmazásban nem Google-fiókkal (IMAP/„GANGA”) a media query-k nem futnak: ott az asztali elrendezés jelenik meg.
 - A screenshotok Linux Chromiumban készültek; a Georgia nincs telepítve, ezért a fallback screenshot Liberation Serifet mutat. A Georgia szélesebb, így asztali nézetben a főcím első sora két sorra törhet. Ez rendezett tördelés, nem overflow.
-- Valódi kliensteszt (Gmail web/iOS/Android, Outlook desktop, Apple Mail) még nem történt; ehhez élő asset-URL kell.
+- Valódi kliensteszt (Gmail web/iOS/Android, Outlook desktop, Apple Mail) még nem történt. Az első lépés: egy Apps Scripttel létrehozott próbapiszkozat (ld. `emails/apps-script/README.md`).
+- A CID inline képeket egyes kliensek a levél alján csatolmányként is listázhatják; ez kliensfüggő, a valódi teszten kell ellenőrizni.
 
-## 8. Domain és URL-szerepek (LOCKED)
+## 8. Kézbesítés és URL-szerepek (LOCKED)
 
-- **Ügyfélnek szánt (production):** `https://www.jginvst.hu`; kapcsolat: `https://www.jginvst.hu/#kapcsolat`; képek: `https://www.jginvst.hu/email/…`; jogi oldalak: `https://www.jginvst.hu/jogi-tajekoztato` (`#panaszkezeles`), `https://www.jginvst.hu/adatkezelesi-tajekoztato`.
-- **Fejlesztői review:** a feature branch Vercel Preview deploymentje, `/email-preview/jg-introduction-v2.html` útvonalon. Ez `*.vercel.app` URL lehet, de soha nem kerülhet a küldendő e-mailbe.
-- A `check-email.mjs` FAIL-t ad, ha a küldendő HTML vagy a TXT `vercel.app`-ot, `localhost`-ot, relatív képet vagy nem a `#kapcsolat`-ra mutató CTA-t tartalmaz, illetve ha a review preview nincs szinkronban a sablonnal.
+### Képek: CID inline
 
-### Review preview
+- A HTML képei `cid:` hivatkozások; a hét PNG a MIME-üzenet `multipart/related` része, `Content-ID: <kulcs>` és `Content-Disposition: inline` fejléccel.
+- Forrás: `emails/assets/` (privát). A `public/email/` és a `public/email-preview/` mappa megszűnt; a weboldal semmilyen e-mail-fájlt nem szolgál ki.
+- A korábbi `https://www.jginvst.hu/email/…` képhosting és a Vercel review preview csak fejlesztés közbeni megoldás volt, **nem** production függőség.
 
-`public/email-preview/jg-introduction-v2.html`, generálja: `build-preview.mjs`. A küldendő sablontól csak ennyiben tér el: relatív `/email/…` képek, `{{VIEW_ONLINE_URL}}` → `#`, `noindex, nofollow` meta. Nyitott pont: mivel a `public/` része, merge után a productionön is elérhető lenne. Merge előtt el kell dönteni, hogy maradjon-e (noindex mellett), vagy kerüljön ki.
+### Gmail-piszkozat: Google Apps Script
+
+- Csomag: `emails/apps-script/` (`Code.gs`, `Assets.gs`, `JGIntroductionV2.html`, `JGIntroductionV2Text.html`, `Index.html`, `appsscript.json`).
+- A piszkozatot a Gmail API `users.drafts.create` hozza létre (Apps Script Gmail advanced service), egyetlen OAuth scope-pal: `https://www.googleapis.com/auth/gmail.compose`. A `GmailApp.createDraft()` a teljes `https://mail.google.com/` scope-ot igényelné, ezért a script a MIME-üzenetet maga állítja össze.
+- Nincs küldési hívás. A `check-email.mjs` send guardja FAIL-t ad bármilyen `send…`, `MailApp`, `GmailApp`, `Users.Messages` vagy `UrlFetchApp` használatra.
+- Fiók: a piszkozat abban a Google-fiókban jön létre, amelyik a scriptet futtatja (web app: *Execute as: User accessing the web app*). Nincs beégetett fiók.
+
+### Linkek
+
+- Ügyfélnek szánt: `https://www.jginvst.hu`; kapcsolat: `https://www.jginvst.hu/#kapcsolat`; jogi oldalak: `https://www.jginvst.hu/jogi-tajekoztato` (`#panaszkezeles`), `https://www.jginvst.hu/adatkezelesi-tajekoztato`; K&H: `https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok`.
+- A `check-email.mjs` FAIL-t ad, ha a küldendő HTML vagy a TXT `vercel.app`-ot, `localhost`-ot, hostolt képet, `{{…}}` helyőrzőt vagy nem a `#kapcsolat`-ra mutató CTA-t tartalmaz.
+
+### Helyi előnézet
+
+`emails/preview/jg-introduction-v2.preview.html`, generálja: `build-preview.mjs`. A küldendő sablontól csak ennyiben tér el: `cid:<kulcs>` → `../assets/<fájl>`, valamint `noindex` meta. Csak fejlesztői ellenőrzésre szolgál: nem publikus és nem küldendő.
 
 ## 9. Review-screenshotok
 
-`docs/email/screenshots/`, a preview HTTP-n kiszolgálva: `desktop.png` (1440×900, webfontokkal), `desktop-fallback.png` (webfontok nélkül), `mobile.png` (390×844, 2×), `images-off.png` (390×844, képek letiltva). Mindegyiknél HTTP 200, 0 px vízszintes túlcsordulás, 0 törött kép, 0 console error.
+`docs/email/screenshots/`, a helyi előnézet HTTP-n kiszolgálva: `desktop.png` (1440×900, webfontokkal), `desktop-fallback.png` (webfontok nélkül), `mobile.png` (390×844, 2×), `images-off.png` (390×844, képek letiltva). Mindegyiknél 0 px vízszintes túlcsordulás, 0 törött kép, 0 console error.
