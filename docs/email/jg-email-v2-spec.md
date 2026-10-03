@@ -36,9 +36,10 @@ A screenshot hibás emblémája **nincs** felhasználva: se asset, se trace, se 
 | Státuszközlés | `#ECE9E6` doboz, saját „i” ikon (rombusz + pillér), függőleges elválasztó, `statusNotice.body` szó szerint |
 | Miben segítünk? | Aubergine tracked címke + hajszálvonal, `services.lead`, majd 4 kompakt sor: 32 px ikon, Newsreader 20 px cím, Inter 14/22 szöveg |
 | Idézet | `about.quote`, Newsreader italic 21/31, Signal Berry „ ” (mint az About szakaszban), két oldalt hajszálvonal |
-| CTA | Bulletproof gomb: `<a>` + Outlookhoz VML `roundrect`; Aubergine `#493447`, Porcelain szöveg; felirat = `contact.heading` nagybetűvel; alatta szöveges link; mindhárom cél: `https://www.jginvst.hu/#kapcsolat` |
+| CTA | Bulletproof gomb: `<a>` + Outlookhoz VML `roundrect`; Aubergine `#493447`, Porcelain szöveg; felirat = `contact.heading` nagybetűvel; mindkét cél (gomb + VML): `https://www.jginvst.hu/#kapcsolat`. A gomb alatti szöveges `www.jginvst.hu/#kapcsolat` link **megszűnt**; a plain textben a kapcsolati URL megmarad. |
 | Lábléc | Carbon jel + wordmark + eyebrow sorok; jobbra: E-mail `info@jginvst.com`, Weboldal `www.jginvst.hu` (href `https://www.jginvst.hu`) |
 | Jogi rész | `footer.statusLine`, a `footer.disclaimerLine` e-mailre igazítva, `footer.brandLine`, jogi linkek, `footer.copyright` |
+| K&H partner sor | A footer legvégén, a copyright után: a weboldal Footer.tsx legalsó sávjának e-mailes megfelelője. `cid:khPartnerLogo` (byte-azonos másolat: `public/brand/kh-logo-dark.png` → `emails/assets/kh-logo-dark.png`), alt „K&H Értékpapír logó”, 50×39 px (39 px magas, mint a weboldalon), nem kattintható. Mellette Cool Silver 12/19 px-es szövegként a `footer.khPartnerLogo.complianceLine` szó szerint; mobilon a szöveg a logó alá tördel. **Aubergine `#493447` sávon áll**, mert a kanonikus logó fehér, sötét alapra készült (a weboldalon is sötét footeren van); átszínezni vagy vágni tilos. |
 
 ## 4. Tartalom
 
@@ -87,7 +88,7 @@ SVG-forrás: `emails/src/icons/`; e-mailben: `emails/assets/icons/*.png` (64×64
 
 ### Képek: CID inline
 
-- A HTML képei `cid:` hivatkozások; a hét PNG a MIME-üzenet `multipart/related` része, `Content-ID: <kulcs>` és `Content-Disposition: inline` fejléccel.
+- A HTML képei `cid:` hivatkozások; a nyolc PNG (7 JG + a K&H partnerlogó) a MIME-üzenet `multipart/related` része, `Content-ID: <kulcs>` és `Content-Disposition: inline` fejléccel.
 - Forrás: `emails/assets/` (privát). A `public/email/` és a `public/email-preview/` mappa megszűnt; a weboldal semmilyen e-mail-fájlt nem szolgál ki.
 - A korábbi `https://www.jginvst.hu/email/…` képhosting és a Vercel review preview csak fejlesztés közbeni megoldás volt, **nem** production függőség.
 

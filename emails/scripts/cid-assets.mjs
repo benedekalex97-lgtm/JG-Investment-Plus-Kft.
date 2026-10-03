@@ -15,6 +15,9 @@ export const CID_ASSETS = {
   savingsIcon: { file: "icons/savings.png", mimeType: "image/png" },
   digitalIcon: { file: "icons/digital.png", mimeType: "image/png" },
   relationshipIcon: { file: "icons/relationship.png", mimeType: "image/png" },
+  // Byte-identical private copy of the canonical website asset
+  // public/brand/kh-logo-dark.png (copied by render-assets.mjs).
+  khPartnerLogo: { file: "kh-logo-dark.png", mimeType: "image/png" },
 };
 
 /** Private email asset directory, relative to the repository root. */

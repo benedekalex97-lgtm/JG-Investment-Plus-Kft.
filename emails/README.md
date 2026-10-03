@@ -59,6 +59,7 @@ fejlesztés közbeni, **megszűnt** megoldás volt, nem production függőség.
 | `savingsIcon` | `assets/icons/savings.png` |
 | `digitalIcon` | `assets/icons/digital.png` |
 | `relationshipIcon` | `assets/icons/relationship.png` |
+| `khPartnerLogo` | `assets/kh-logo-dark.png` — byte-azonos másolat: `public/brand/kh-logo-dark.png` (a `render-assets.mjs` másolja) |
 
 ## Linkek (LOCKED)
 

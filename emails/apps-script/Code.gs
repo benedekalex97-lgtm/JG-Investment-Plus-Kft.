@@ -22,7 +22,7 @@
  *
  * Files in this project:
  *   Code.gs                  — this file (server logic)
- *   Assets.gs                — generated: the 7 inline PNGs (base64) by CID
+ *   Assets.gs                — generated: the 8 inline PNGs (base64) by CID
  *   JGIntroductionV2.html    — generated: the email HTML (src="cid:…")
  *   JGIntroductionV2Text.html — generated: the plain-text alternative
  *   Index.html               — internal draft-generator UI (doGet)

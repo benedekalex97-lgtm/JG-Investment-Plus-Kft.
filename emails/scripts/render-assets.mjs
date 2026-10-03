@@ -5,7 +5,10 @@
  *   - the JG mark from the CANONICAL path (public/brand/jg-mark.svg and
  *     src/components/Logo.tsx; the script stops if they disagree with the
  *     approved v1.0 geometry),
- *   - the icons from emails/src/icons/*.svg.
+ *   - the icons from emails/src/icons/*.svg,
+ *   - the K&H partner logo: a BYTE-IDENTICAL copy, never re-rendered —
+ *       SOURCE:            public/brand/kh-logo-dark.png (canonical website asset)
+ *       EMAIL PRIVATE COPY: emails/assets/kh-logo-dark.png (CID khPartnerLogo)
  *
  * The email has no hero image: the candlestick hero was rejected in review
  * (brand: no trading / chart visuals), so the hero is typographic only.
@@ -21,7 +24,7 @@
  *
  *   NODE_PATH="$(npm root -g)" node emails/scripts/render-assets.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
@@ -81,6 +84,15 @@ async function renderSvg(browser, svg, width, height, bg, file) {
 }
 
 assertCanonicalMark();
+
+// K&H partner logo: copied byte for byte from the canonical website asset
+// (white on transparent, made for dark backgrounds — the email shows it on
+// the Aubergine partner band). Not recoloured, cropped or re-rendered.
+const KH_SOURCE = join(ROOT, "public/brand/kh-logo-dark.png");
+const KH_COPY = join(OUT, "kh-logo-dark.png");
+copyFileSync(KH_SOURCE, KH_COPY);
+if (!readFileSync(KH_SOURCE).equals(readFileSync(KH_COPY))) throw new Error("K&H logo copy is not byte-identical");
+console.log("  emails/assets/kh-logo-dark.png (byte-identical copy of public/brand/kh-logo-dark.png)");
 console.log("Canonical JG mark geometry verified.");
 
 const browser = await chromium.launch();

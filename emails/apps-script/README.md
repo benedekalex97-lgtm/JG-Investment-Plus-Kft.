@@ -14,7 +14,7 @@ privát sablon → CID inline képek → Apps Script → Gmail PISZKOZAT → emb
 | Fájl | Mi ez | Forrás |
 | --- | --- | --- |
 | `Code.gs` | Szerverlogika: validálás, MIME összeállítás, piszkozat létrehozása, `doGet()` | kézzel írt |
-| `Assets.gs` | A 7 inline PNG base64-ben, a rögzített CID-nevek szerint | **generált** (`build-apps-script.mjs`) |
+| `Assets.gs` | A 8 inline PNG (7 JG + K&H partnerlogó) base64-ben, a rögzített CID-nevek szerint | **generált** (`build-apps-script.mjs`) |
 | `JGIntroductionV2.html` | Az e-mail HTML (`src="cid:…"`) | **generált** — `emails/jg-introduction-v2.html` másolata |
 | `JGIntroductionV2Text.html` | Plain-text alternatíva | **generált** — `emails/jg-introduction-v2.txt` másolata |
 | `Index.html` | Belső kezelőfelület (web app) | kézzel írt |
@@ -26,7 +26,7 @@ A generált fájlokat ne szerkeszd kézzel. A források módosítása után futt
 ## Hogyan működik
 
 - A levél `multipart/related` MIME-üzenet: `multipart/alternative` (text/plain +
-  text/html) és 7 inline PNG (`Content-ID: <jgMarkPorcelain>` stb.). A HTML a képekre
+  text/html) és 8 inline PNG (`Content-ID: <jgMarkPorcelain>` … `<khPartnerLogo>`). A HTML a képekre
   `cid:` hivatkozással mutat, ezért **semmilyen külső képet nem tölt be**.
 - A piszkozatot a Gmail API `users.drafts.create` hívása hozza létre (Apps Script
   **Gmail advanced service**). Ehhez elég a `gmail.compose` scope.

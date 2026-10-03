@@ -57,6 +57,7 @@
     .foot-contact { padding: 22px 0 0 0 !important; }
     .foot-contact table { border-left: 0 !important; }
     .foot-contact-inner { padding: 0 !important; }
+    .kh-text { padding: 12px 0 0 0 !important; }
   }
 </style>
 </head>
@@ -250,9 +251,6 @@
           <!--[if !mso]><!-->
           <a class="cta" href="https://www.jginvst.hu/#kapcsolat" style="display:inline-block; background-color:#493447; color:#F4F3F1; font-family:Inter, Arial, Helvetica, sans-serif; font-size:13px; line-height:20px; font-weight:600; letter-spacing:0.14em; text-align:center; text-decoration:none; padding:16px 34px; border-radius:4px; mso-hide:all;"><span style="color:#F4F3F1;">LÉPJEN KAPCSOLATBA VELÜNK</span>&nbsp;&nbsp;<span style="color:#F4F3F1;">&#8594;</span></a>
           <!--<![endif]-->
-          <p style="margin:14px 0 0 0; font-family:Inter, Arial, Helvetica, sans-serif; font-size:13px; line-height:20px;">
-            <a href="https://www.jginvst.hu/#kapcsolat" style="color:#493447; text-decoration:underline;">www.jginvst.hu/#kapcsolat</a>
-          </p>
         </td>
       </tr>
 
@@ -294,7 +292,7 @@
 
       <!-- ============ LEGAL — forrás: footer (statusLine, disclaimerLine e-mailre igazítva, brandLine, links, copyright) ============ -->
       <tr>
-        <td class="px" style="padding:30px 40px 40px 40px;">
+        <td class="px" style="padding:30px 40px 32px 40px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #D6D2CE;">
             <tr>
               <td style="padding-top:22px; font-family:Inter, Arial, Helvetica, sans-serif; font-size:12px; line-height:19px; color:#5E5A63;">
@@ -309,6 +307,25 @@
                 </p>
                 <p style="margin:14px 0 0 0; color:#6A6670;">© 2026 JG Investment Plus Kft. – Minden jog fenntartva.</p>
               </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- ============ K&H PARTNER SOR — forrás: footer.khPartnerLogo (Footer.tsx) ============
+           A weboldal footerének legalsó, alárendelt sávja e-mailre átültetve: a JG
+           branding UTÁN, nem kattintható, nincs keret/CTA. A kanonikus K&H logó
+           (public/brand/kh-logo-dark.png) fehér, sötét alapra készült — ezért, a
+           weboldallal egyezően, sötét (Aubergine) sávon áll; a logó nincs átszínezve
+           vagy vágva. Magasság 39 px (weboldal: 2.4375rem), szélesség a képarányból. -->
+      <tr>
+        <td class="px kh-band" bgcolor="#493447" style="background-color:#493447; padding:22px 40px; border-radius:0 0 5px 5px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td class="stack" valign="middle" width="50" style="width:50px; vertical-align:middle;">
+                <img src="cid:khPartnerLogo" width="50" height="39" alt="K&amp;H Értékpapír logó" style="display:block; width:50px; height:39px; border:0; background-color:#493447; color:#F4F3F1; font-family:Inter, Arial, Helvetica, sans-serif; font-size:11px;">
+              </td>
+              <td class="stack kh-text" valign="middle" style="vertical-align:middle; padding-left:16px; font-family:Inter, Arial, Helvetica, sans-serif; font-size:12px; line-height:19px; color:#BEC1C7;">JG Investment Plus Kft. a Patria Finance Magyarországi Fióktelepe, kereskedelmi nevén K&amp;H Értékpapír függő ügynöke.</td>
             </tr>
           </table>
         </td>

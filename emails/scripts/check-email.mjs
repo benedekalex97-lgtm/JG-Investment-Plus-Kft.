@@ -80,6 +80,7 @@ const approved = {
   "footer.disclaimerLine (email adaptation)": `A jelen e-mail ${disclaimerTail}`,
   "footer.brandLine": footer.brandLine,
   "footer.copyright": footer.copyright,
+  "footer.khPartnerLogo.complianceLine": footer.khPartnerLogo.complianceLine,
   "meta.wordmark": meta.wordmark,
   "contact e-mail": contact.details.find((d) => d.label === "E-mail").value,
 };
@@ -237,6 +238,25 @@ function checkMarkRaster(file, bg, fg) {
 }
 checkMarkRaster(CID_ASSETS.jgMarkPorcelain.file, AUBERGINE, "#F4F3F1");
 checkMarkRaster(CID_ASSETS.jgMarkCarbon.file, "#F4F3F1", "#18181B");
+
+// ---- 5c. CTA fallback removed / K&H partner row ----------------------------
+// The CTA is the only visible way to the contact anchor in the HTML: the old
+// underlined „www.jginvst.hu/#kapcsolat” line below the button is gone. The
+// plain text keeps the URL (it has no button), checked in section 5.
+if (visible.includes("jginvst.hu/#kapcsolat")) fail("HTML still shows the CTA fallback URL www.jginvst.hu/#kapcsolat");
+const contactHrefCount = (htmlRaw.match(/href="https:\/\/www\.jginvst\.hu\/#kapcsolat"/g) ?? []).length;
+if (contactHrefCount !== 2) fail(`Contact URL must appear only on the CTA (button + Outlook VML): found ${contactHrefCount} hrefs`);
+
+if (Object.keys(CID_ASSETS).length !== 8) fail(`Expected 8 CID assets, found ${Object.keys(CID_ASSETS).length}`);
+const khImg = htmlRaw.match(/<img src="cid:khPartnerLogo"[^>]*>/)?.[0] ?? "";
+if (!khImg) fail("K&H partner logo (cid:khPartnerLogo) missing");
+const khAlt = khImg.match(/alt="([^"]*)"/)?.[1]?.replace(/&amp;/g, "&");
+if (khAlt !== footer.khPartnerLogo.alt) fail(`K&H logo alt must be „${footer.khPartnerLogo.alt}”, got „${khAlt}”`);
+if (!/width="50"/.test(khImg) || !/height="39"/.test(khImg)) fail("K&H logo must render 50×39 (39 px tall, native 1024:800 ratio)");
+if (/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*cid:khPartnerLogo/.test(htmlRaw)) fail("K&H logo must not be a link");
+if (htmlRaw.indexOf("cid:khPartnerLogo") < htmlRaw.indexOf(footer.copyright)) fail("K&H partner row must come after the copyright line");
+const khCanonical = readFileSync(join(ROOT, "public/brand/kh-logo-dark.png"));
+if (!khCanonical.equals(readFileSync(join(ROOT, ASSET_DIR, CID_ASSETS.khPartnerLogo.file)))) fail("emails/assets/kh-logo-dark.png is not a byte-identical copy of public/brand/kh-logo-dark.png");
 
 // ---- 6. Local preview (emails/preview/) ------------------------------------
 const previewPath = join(ROOT, PREVIEW_FILE);
