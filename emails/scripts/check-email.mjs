@@ -94,6 +94,8 @@ const forbidden = [
   [/személyre szabott (befektetési )?(ajánlás|tanácsadás)t? (ad|nyújt|készít)/i, "personalised advice claim"],
   [/biztonságos befektetés/i, "„biztonságos befektetés” claim"],
   [/garantált|garantáljuk/i, "guarantee claim"],
+  // Rejected in review: trading / candlestick hero (brand: no chart visuals).
+  [/jg-email-hero|hero-market-corridor|candlestick/i, "rejected trading hero image"],
 ];
 for (const [re, label] of forbidden) {
   if (re.test(htmlRaw)) fail(`HTML contains ${label}`);

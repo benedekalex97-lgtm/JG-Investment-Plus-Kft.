@@ -9,7 +9,7 @@ Branch: `feature/jg-email-template-v2` · Státusz: **COMPLIANCE REVIEW REQUIRED
 | Vizuális irány | Alex által csatolt e-mail screenshot (art direction; **nem** logó- és nem tartalmi forrás) |
 | Logó | JG Logo System v1.0: `src/components/Logo.tsx`, `public/brand/jg-mark*.svg`, `docs/brand/logo-system-v1.md` |
 | Tartalom / compliance | `src/content/homepage.ts` |
-| Hero kép | `src/assets/hero-market-corridor.webp` (csak olvasva, módosítatlan) |
+| Hero kép | **Nincs.** A candlestick hero-képet (`hero-market-corridor.webp`-ből) Alex review-ja elutasította: túl „traderes”, ellentétes a JG márkairánnyal. A hero tipográfiai. |
 
 A screenshot hibás emblémája **nincs** felhasználva: se asset, se trace, se formai referencia.
 
@@ -29,9 +29,8 @@ A screenshot hibás emblémája **nincs** felhasználva: se asset, se trace, se 
 | Szélesség | 640 px konténer, középre; mobilon 100% |
 | Külső háttér | `#E9E7E3` (meleg, a Porcelain-nél kissé sötétebb); konténer Porcelain `#F4F3F1` |
 | View-in-browser | 11 px, jobbra zárt, `{{VIEW_ONLINE_URL}}` |
-| Fejléc | Carbon `#18181B`; bal: jel + wordmark + `hero.eyebrowLines`; jobb: hajszálvonal + „Szakmai rend, emberi kapcsolattal.” (Newsreader) |
-| Hero | Newsreader 36/42 főcím, „Átláthatóság.” Signal Berry `#8E3F67` (mint a weboldalon); intro Inter 15/25; jobb oldalt 200×300 px hero-kép, Porcelainbe olvadó széllel |
-| Mobil hero | A jobb oldali kép rejtett; helyette 640×200-as sötét sáv a fejléc alatt (`jg-email-hero-mobile.jpg`) |
+| Fejléc | Kompakt (24 px függőleges padding, mobilon 18 px). Carbon `#18181B`; bal: jel + wordmark + `hero.eyebrowLines`; jobb: hajszálvonal + „Szakmai rend, emberi kapcsolattal.” (Newsreader 16 px). Mobilon a tagline egy sorban, 14 px, Cool Silver színnel a wordmark alá igazítva. |
+| Hero | Kép nélküli, tipográfiai: 32×2 px-es Signal Berry jelzővonal (a weboldal lábléc-osztójának mintájára), Newsreader 40/46 főcím (mobilon 31/37), „Átláthatóság.” Signal Berry `#8E3F67`; intro Inter 16/26 (mobilon 15/24), asztali nézetben 90 px jobb oldali térközzel a sorhossz miatt |
 | Státuszközlés | `#ECE9E6` doboz, saját „i” ikon (rombusz + pillér), függőleges elválasztó, `statusNotice.body` szó szerint |
 | Miben segítünk? | Aubergine tracked címke + hajszálvonal, `services.lead`, majd 4 kompakt sor: 32 px ikon, Newsreader 20 px cím, Inter 14/22 szöveg |
 | Idézet | `about.quote`, Newsreader italic 21/31, Signal Berry „ ” (mint az About szakaszban), két oldalt hajszálvonal |
@@ -77,7 +76,6 @@ SVG-forrás: `emails/src/icons/`; e-mailben: `public/email/icons/*.png` (64×64,
 ## 7. Ismert korlátok
 
 - Gmail mobilalkalmazásban nem Google-fiókkal (IMAP/„GANGA”) a media query-k nem futnak: ott az asztali elrendezés jelenik meg.
-- A mobil hero-sávot a media query kapcsolja be; media query nélküli kliensben nem jelenik meg (az asztali hero kép viszont igen).
 - A screenshotok Linux Chromiumban készültek; a Georgia nincs telepítve, ezért a fallback screenshot Liberation Serifet mutat. A Georgia szélesebb, így asztali nézetben a főcím első sora két sorra törhet. Ez rendezett tördelés, nem overflow.
 - Valódi kliensteszt (Gmail web/iOS/Android, Outlook desktop, Apple Mail) még nem történt; ehhez élő asset-URL kell.
 

@@ -44,10 +44,12 @@
     .px { padding-left: 24px !important; padding-right: 24px !important; }
     .stack { display: block !important; width: 100% !important; box-sizing: border-box; }
     .hide-m { display: none !important; width: 0 !important; max-height: 0 !important; overflow: hidden !important; }
-    .show-m { display: block !important; max-height: none !important; overflow: visible !important; }
-    .head-tag { border-left: 0 !important; padding: 18px 0 0 0 !important; }
-    .hero-text { padding: 32px 24px 0 24px !important; }
-    .h1 { font-size: 31px !important; line-height: 37px !important; }
+    .head { padding-top: 18px !important; padding-bottom: 18px !important; }
+    .head-tag { border-left: 0 !important; padding: 12px 0 0 54px !important; }
+    .head-tag-text { font-size: 14px !important; line-height: 20px !important; color: #BEC1C7 !important; }
+    .hero { padding-top: 30px !important; }
+    .h1 { font-size: 31px !important; line-height: 37px !important; margin-top: 16px !important; }
+    .hero-intro { padding-right: 0 !important; font-size: 15px !important; line-height: 24px !important; }
     .icon-col { width: 46px !important; }
     .quote-rule { display: none !important; }
     .quote-text { padding: 0 !important; font-size: 19px !important; line-height: 29px !important; }
@@ -84,9 +86,9 @@
     <td style="background-color:#F4F3F1; border:1px solid #DEDAD6; border-radius:6px; overflow:hidden;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 
-      <!-- ============ HEADER (Carbon) ============ -->
+      <!-- ============ HEADER (Carbon) — kompakt ============ -->
       <tr>
-        <td class="px" bgcolor="#18181B" style="background-color:#18181B; padding:30px 40px; border-radius:5px 5px 0 0;">
+        <td class="px head" bgcolor="#18181B" style="background-color:#18181B; padding:24px 40px; border-radius:5px 5px 0 0;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>
               <td class="stack" valign="middle" style="vertical-align:middle;">
@@ -103,45 +105,30 @@
                   </tr>
                 </table>
               </td>
-              <td class="stack head-tag" valign="middle" width="190" style="width:190px; vertical-align:middle; border-left:1px solid #45434B; padding-left:26px;">
-                <div class="serif" style="font-family:Newsreader, Georgia, 'Times New Roman', serif; font-size:17px; line-height:23px; color:#F4F3F1;">Szakmai rend,<br>emberi kapcsolattal.</div>
+              <td class="stack head-tag" valign="middle" width="180" style="width:180px; vertical-align:middle; border-left:1px solid #45434B; padding-left:24px;">
+                <div class="serif head-tag-text" style="font-family:Newsreader, Georgia, 'Times New Roman', serif; font-size:16px; line-height:22px; color:#F4F3F1;">Szakmai rend,<br class="hide-m"> emberi kapcsolattal.</div>
               </td>
             </tr>
           </table>
         </td>
       </tr>
 
-      <!-- ============ HERO — mobil sáv (asztali nézetben rejtett) ============ -->
-      <!--[if !mso]><!-->
+      <!-- ============ HERO — tipográfiai, kép nélkül ============ -->
       <tr>
-        <td style="font-size:0; line-height:0;">
-          <div class="show-m" style="display:none; max-height:0; overflow:hidden; mso-hide:all;">
-            <img src="/email/jg-email-hero-mobile.jpg" width="640" height="200" alt="" style="display:block; width:100%; max-width:640px; height:auto; border:0; background-color:#18181B;">
-          </div>
-        </td>
-      </tr>
-      <!--<![endif]-->
-
-      <!-- ============ HERO ============ -->
-      <tr>
-        <td>
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <td class="px hero" style="padding:44px 40px 0 40px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
             <tr>
-              <td class="stack hero-text" valign="top" style="vertical-align:top; padding:46px 0 0 40px;">
-                <h1 class="h1 serif" style="margin:0; font-family:Newsreader, Georgia, 'Times New Roman', serif; font-size:36px; line-height:42px; font-weight:500; letter-spacing:-0.01em; color:#27262A; mso-line-height-rule:exactly;">Biztonság. <span style="color:#8E3F67;">Átláthatóság.</span><br>Szakmai háttér.</h1>
-                <p style="margin:22px 0 0 0; font-family:Inter, Arial, Helvetica, sans-serif; font-size:15px; line-height:25px; color:#4D4A52;">Tájékoztatás a K&amp;H Értékpapírnál elérhető befektetési szolgáltatásokról és pénzügyi eszközökről, személyes kapcsolattartással és érthető folyamatokkal.</p>
-              </td>
-              <td class="hide-m" valign="top" width="200" style="width:200px; vertical-align:top; font-size:0; line-height:0;">
-                <img src="/email/jg-email-hero.jpg" width="200" height="300" alt="" style="display:block; width:200px; height:300px; border:0;">
-              </td>
+              <td width="32" height="2" bgcolor="#8E3F67" style="width:32px; height:2px; background-color:#8E3F67; font-size:0; line-height:0;">&nbsp;</td>
             </tr>
           </table>
+          <h1 class="h1 serif" style="margin:20px 0 0 0; font-family:Newsreader, Georgia, 'Times New Roman', serif; font-size:40px; line-height:46px; font-weight:500; letter-spacing:-0.01em; color:#27262A; mso-line-height-rule:exactly;">Biztonság. <span style="color:#8E3F67;">Átláthatóság.</span><br>Szakmai háttér.</h1>
+          <p class="hero-intro" style="margin:20px 0 0 0; padding-right:90px; font-family:Inter, Arial, Helvetica, sans-serif; font-size:16px; line-height:26px; color:#4D4A52;">Tájékoztatás a K&amp;H Értékpapírnál elérhető befektetési szolgáltatásokról és pénzügyi eszközökről, személyes kapcsolattartással és érthető folyamatokkal.</p>
         </td>
       </tr>
 
       <!-- ============ STATUS NOTICE — forrás: statusNotice.body ============ -->
       <tr>
-        <td class="px" style="padding:20px 40px 0 40px;">
+        <td class="px" style="padding:28px 40px 0 40px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ECE9E6" style="background-color:#ECE9E6; border:1px solid #E0DCD8; border-radius:4px;">
             <tr>
               <td class="notice-icon" width="70" align="center" valign="middle" style="width:70px; vertical-align:middle; padding:18px 0;">

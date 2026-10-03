@@ -19,7 +19,7 @@ vagy JavaScript-függősége. A weboldal UI-ját nem érinti.
 | `scripts/render-assets.mjs` | PNG/JPG-k generálása a `public/email/` mappába |
 | `scripts/build-preview.mjs` | Review-előnézet + screenshotok (`docs/email/screenshots/`) |
 | `scripts/check-email.mjs` | QA: approved copy, linkek, képek, tiltott elemek |
-| `../public/email/` | E-mail képek (logó, hero, ikonok) |
+| `../public/email/` | E-mail képek (logó, ikonok; hero-kép nincs) |
 | `../docs/email/jg-email-v2-spec.md` | Részletes specifikáció és döntések |
 
 ## URL-ek (LOCKED)
