@@ -19,7 +19,7 @@ A screenshot hibás emblémája **nincs** felhasználva: se asset, se trace, se 
 
 - Geometria: `M44 0 80 18 44 36 8 18Z M0 23 32 39 32 83 0 99Z M88 23 56 39 56 83 88 99Z`, viewBox `0 0 88 99`. Változatlan.
 - `render-assets.mjs` a kanonikus pathból renderel, és leáll, ha a `Logo.tsx` vagy a `public/brand/*.svg` eltér tőle.
-- Asset: `emails/assets/jg-mark-porcelain@2x.png` (CID `jgMarkPorcelain`; Porcelain jel Carbon alapon, fejléc) és `emails/assets/jg-mark-carbon@2x.png` (CID `jgMarkCarbon`; Carbon jel Porcelain alapon, lábléc), 80×90 px, megjelenítés 40×45 px. Privát fájlok, a weboldal nem szolgálja ki őket.
+- Asset: `emails/assets/jg-mark-porcelain@2x.png` (CID `jgMarkPorcelain`; Porcelain jel Aubergine `#493447` alapon, fejléc) és `emails/assets/jg-mark-carbon@2x.png` (CID `jgMarkCarbon`; Carbon jel Porcelain alapon, lábléc), 80×90 px, megjelenítés 40×45 px. Privát fájlok, a weboldal nem szolgálja ki őket.
 - A háttérszín bele van égetve (nem átlátszó PNG): ha egy kliens dark módban invertálja a háttereket, a jel nem tűnik el. Ilyenkor a jel egy kis, saját alapszínű téglalapon látszik — ez szándékos kompromisszum.
 - Wordmark: élő szöveg (`JG Investment Plus`, CSS-sel nagybetűs), Inter 500, 0,12em tracking, fallback `Inter, Arial, Helvetica, sans-serif`. Fejlécben 18 px → jel 2,5em = 45 px, térköz 14 px (≈ 1,25X), a logo-system §5 horizontális lockupja szerint.
 - A lockupban a jel `alt=""`: a nevet a mellette álló wordmark adja (logo-system §5 akadálymentességi szabály), így a képek letiltásakor sem duplázódik.
@@ -31,7 +31,7 @@ A screenshot hibás emblémája **nincs** felhasználva: se asset, se trace, se 
 | Szélesség | 640 px konténer, középre; mobilon 100% |
 | Külső háttér | `#E9E7E3` (meleg, a Porcelain-nél kissé sötétebb); konténer Porcelain `#F4F3F1` |
 | View-in-browser | **Megszűnt.** Nincs publikus online változat, ezért a sor és a `{{VIEW_ONLINE_URL}}` helyőrző kikerült. A konténer fölött 28 px térköz maradt. |
-| Fejléc | Kompakt (24 px függőleges padding, mobilon 18 px). Carbon `#18181B`; bal: jel + wordmark + `hero.eyebrowLines`; jobb: hajszálvonal + „Szakmai rend, emberi kapcsolattal.” (Newsreader 16 px). Mobilon a tagline egy sorban, 14 px, Cool Silver színnel a wordmark alá igazítva. |
+| Fejléc | Kompakt (24 px függőleges padding, mobilon 18 px). **Aubergine `#493447`, pontosan a CTA gomb színe (LOCKED)**; a jel PNG-jének háttere is `#493447`, ezért nincs körülötte eltérő folt. Bal: jel + wordmark + `hero.eyebrowLines` (Porcelain / Cool Silver); jobb: Muted Plum `#755D70` hajszálvonal + „Szakmai rend, emberi kapcsolattal.” (Newsreader 16 px). Mobilon a tagline egy sorban, 14 px, Cool Silver színnel a wordmark alá igazítva. |
 | Hero | Kép nélküli, tipográfiai: 32×2 px-es Signal Berry jelzővonal (a weboldal lábléc-osztójának mintájára), Newsreader 40/46 főcím (mobilon 31/37), „Átláthatóság.” Signal Berry `#8E3F67`; intro Inter 16/26 (mobilon 15/24), asztali nézetben 90 px jobb oldali térközzel a sorhossz miatt |
 | Státuszközlés | `#ECE9E6` doboz, saját „i” ikon (rombusz + pillér), függőleges elválasztó, `statusNotice.body` szó szerint |
 | Miben segítünk? | Aubergine tracked címke + hajszálvonal, `services.lead`, majd 4 kompakt sor: 32 px ikon, Newsreader 20 px cím, Inter 14/22 szöveg |

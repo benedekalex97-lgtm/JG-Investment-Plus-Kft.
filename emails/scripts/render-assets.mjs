@@ -87,7 +87,8 @@ const browser = await chromium.launch();
 try {
   // Logo marks: displayed at 40×45 CSS px (88:99), rendered @2x = 80×90.
   await renderSvg(browser, markSvg(COLORS.carbon), 80, 90, COLORS.porcelain, join(OUT, "jg-mark-carbon@2x.png"));
-  await renderSvg(browser, markSvg(COLORS.porcelain), 80, 90, COLORS.carbon, join(OUT, "jg-mark-porcelain@2x.png"));
+  // Header mark: Porcelain on Aubergine — the header background (= CTA colour).
+  await renderSvg(browser, markSvg(COLORS.porcelain), 80, 90, COLORS.aubergine, join(OUT, "jg-mark-porcelain@2x.png"));
 
   // Icons: displayed at 32×32, rendered @2x = 64×64.
   for (const name of ["opportunities", "savings", "digital", "relationship"]) {

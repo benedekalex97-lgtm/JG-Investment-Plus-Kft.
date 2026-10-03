@@ -28,6 +28,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
+import { inflateSync } from "node:zlib";
 import { toPreview, PREVIEW_FILE } from "./build-preview.mjs";
 import { CID_ASSETS, ASSET_DIR } from "./cid-assets.mjs";
 import { generateAppsScriptFiles, APPS_SCRIPT_DIR } from "./build-apps-script.mjs";
@@ -166,6 +167,76 @@ for (const [name, body] of [["HTML", htmlRaw], ["Plain text", text]]) {
 const ctaHrefs = [...htmlRaw.matchAll(/class="cta" href="([^"]+)"|<v:roundrect[^>]*href="([^"]+)"/g)].map((m) => m[1] ?? m[2]);
 if (ctaHrefs.length !== 2 || ctaHrefs.some((h) => h !== CONTACT_URL)) fail(`CTA hrefs must both be ${CONTACT_URL}: ${ctaHrefs}`);
 if (!visible.includes("www.jginvst.hu")) fail("Visible website label www.jginvst.hu is missing");
+
+// ---- 5b. Header colour = CTA colour (Aubergine) ----------------------------
+// LOCKED: the whole header uses exactly the CTA background, #493447. Carbon
+// stays legitimate elsewhere (e.g. the footer wordmark), so it is only
+// forbidden on the header cell itself.
+const AUBERGINE = "#493447";
+const headerCell = htmlRaw.match(/<td class="px head"[^>]*>/)?.[0] ?? "";
+if (!headerCell) fail("Header cell (td.px.head) not found");
+if (!headerCell.includes(`bgcolor="${AUBERGINE}"`) || !headerCell.includes(`background-color:${AUBERGINE}`)) fail(`Header background must be ${AUBERGINE}: ${headerCell}`);
+if (/18181B/i.test(headerCell)) fail("Header cell still uses Carbon #18181B");
+const headerMark = htmlRaw.match(/<img src="cid:jgMarkPorcelain"[^>]*>/)?.[0] ?? "";
+if (!headerMark.includes(`background-color:${AUBERGINE}`)) fail("Header mark <img> background must be Aubergine");
+const ctaLink = htmlRaw.match(/<a class="cta"[^>]*>/)?.[0] ?? "";
+if (!ctaLink.includes(`background-color:${AUBERGINE}`)) fail(`CTA background must be ${AUBERGINE}`);
+if (!new RegExp(`<v:roundrect[^>]*fillcolor="${AUBERGINE}"`).test(htmlRaw)) fail(`Outlook CTA fillcolor must be ${AUBERGINE}`);
+
+/** Minimal PNG decoder (8-bit RGB/RGBA, non-interlaced) → pixel rows. */
+function decodePng(buffer) {
+  let offset = 8;
+  const idat = [];
+  let width, height, colorType;
+  while (offset < buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.toString("ascii", offset + 4, offset + 8);
+    const data = buffer.subarray(offset + 8, offset + 8 + length);
+    if (type === "IHDR") [width, height, colorType] = [data.readUInt32BE(0), data.readUInt32BE(4), data[9]];
+    if (type === "IDAT") idat.push(data);
+    offset += 12 + length;
+  }
+  const bpp = colorType === 6 ? 4 : 3;
+  const raw = inflateSync(Buffer.concat(idat));
+  const stride = width * bpp;
+  const out = Buffer.alloc(height * stride);
+  for (let y = 0; y < height; y++) {
+    const filter = raw[y * (stride + 1)];
+    for (let x = 0; x < stride; x++) {
+      const v = raw[y * (stride + 1) + 1 + x];
+      const a = x >= bpp ? out[y * stride + x - bpp] : 0;
+      const b = y > 0 ? out[(y - 1) * stride + x] : 0;
+      const c = x >= bpp && y > 0 ? out[(y - 1) * stride + x - bpp] : 0;
+      const p = a + b - c;
+      const pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+      const pred = [0, a, b, (a + b) >> 1, pa <= pb && pa <= pc ? a : pb <= pc ? b : c][filter];
+      out[y * stride + x] = (v + pred) & 255;
+    }
+  }
+  return { width, height, bpp, pixel: (x, y) => [...out.subarray(y * stride + x * bpp, y * stride + x * bpp + 3)] };
+}
+const hex = (rgb) => "#" + rgb.map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase();
+/** Every pixel must be a blend of `bg` and `fg` (anti-aliasing) — no third colour, no halo. */
+function checkMarkRaster(file, bg, fg) {
+  const img = decodePng(readFileSync(join(ROOT, ASSET_DIR, file)));
+  const [B, F] = [bg, fg].map((h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)));
+  // Background probes: the two top corners and the open aperture at the bottom
+  // centre (the bottom corners are the pillars' own tips, not background).
+  for (const [x, y] of [[0, 0], [img.width - 1, 0], [img.width >> 1, img.height - 1]]) {
+    if (hex(img.pixel(x, y)) !== bg.toUpperCase()) fail(`${file}: corner (${x},${y}) is ${hex(img.pixel(x, y))}, expected ${bg}`);
+  }
+  let offBlend = 0;
+  for (let y = 0; y < img.height; y++) {
+    for (let x = 0; x < img.width; x++) {
+      const px = img.pixel(x, y);
+      const t = (px[0] - B[0]) / (F[0] - B[0]);
+      if (t < -0.02 || t > 1.02 || px.some((v, i) => Math.abs(v - (B[i] + t * (F[i] - B[i]))) > 3)) offBlend++;
+    }
+  }
+  if (offBlend) fail(`${file}: ${offBlend} pixel(s) are not ${fg} on ${bg} (foreign background / halo)`);
+}
+checkMarkRaster(CID_ASSETS.jgMarkPorcelain.file, AUBERGINE, "#F4F3F1");
+checkMarkRaster(CID_ASSETS.jgMarkCarbon.file, "#F4F3F1", "#18181B");
 
 // ---- 6. Local preview (emails/preview/) ------------------------------------
 const previewPath = join(ROOT, PREVIEW_FILE);
