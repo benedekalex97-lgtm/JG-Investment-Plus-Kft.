@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <!--
+    JG Email Draft Generator — internal UI (Apps Script web app).
+    The JavaScript below belongs to this internal tool only; the email itself
+    contains no JavaScript. The tool creates Gmail DRAFTS only, never sends.
+  -->
+  <style>
+    :root { --carbon:#18181B; --porcelain:#F4F3F1; --aubergine:#493447; --ink:#27262A; --plum:#755D70; --silver:#BEC1C7; --berry:#8E3F67; --line:#D6D2CE; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--porcelain); color:var(--ink); font-family:Inter, Arial, Helvetica, sans-serif; }
+    header { background:var(--carbon); color:var(--porcelain); padding:20px 24px; display:flex; align-items:center; gap:14px; }
+    header svg { width:32px; height:36px; flex:none; }
+    .wordmark { font-size:15px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; }
+    .sub { margin-top:4px; font-size:10px; letter-spacing:0.16em; color:var(--silver); }
+    main { max-width:560px; margin:0 auto; padding:32px 24px 48px; }
+    h1 { font-family:Georgia, 'Times New Roman', serif; font-weight:500; font-size:26px; margin:0 0 6px; }
+    p.lead { margin:0 0 24px; color:var(--plum); font-size:14px; line-height:1.6; }
+    label { display:block; font-size:11px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--aubergine); margin:18px 0 6px; }
+    input { width:100%; padding:12px 14px; font:inherit; font-size:15px; color:var(--ink); background:#fff; border:1px solid var(--line); border-radius:4px; }
+    input:focus { outline:2px solid var(--aubergine); outline-offset:1px; }
+    .hint { font-size:12px; color:var(--plum); margin-top:6px; }
+    button { margin-top:26px; width:100%; padding:15px 20px; border:0; border-radius:4px; background:var(--aubergine); color:var(--porcelain); font:inherit; font-size:13px; font-weight:600; letter-spacing:0.14em; cursor:pointer; }
+    button:hover { background:#3B2C3B; }
+    button:disabled { opacity:0.6; cursor:progress; }
+    .status { margin-top:22px; padding:14px 16px; border-radius:4px; font-size:14px; line-height:1.6; display:none; }
+    .status.ok { display:block; background:#ECE9E6; border:1px solid #E0DCD8; border-left:3px solid var(--aubergine); }
+    .status.err { display:block; background:#F5E9EF; border:1px solid #E6CCD9; border-left:3px solid var(--berry); }
+    .status small { color:var(--plum); }
+    .note { margin-top:28px; padding-top:18px; border-top:1px solid var(--line); font-size:12px; line-height:1.6; color:var(--plum); }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Canonical JG mark (Logo System v1.0), Porcelain on Carbon. -->
+    <svg viewBox="0 0 88 99" aria-hidden="true" focusable="false"><path fill="#F4F3F1" d="M44 0 80 18 44 36 8 18Z M0 23 32 39 32 83 0 99Z M88 23 56 39 56 83 88 99Z"/></svg>
+    <div>
+      <div class="wordmark">JG Investment Plus</div>
+      <div class="sub">EMAIL DRAFT GENERATOR</div>
+    </div>
+  </header>
+
+  <main>
+    <h1>Bemutatkozó e-mail — piszkozat</h1>
+    <p class="lead">Az eszköz Gmail-piszkozatot hoz létre a bejelentkezett fiók postafiókjában. Nem küld e-mailt: a piszkozatot a Gmailben ellenőrizze, majd kézzel küldje el.</p>
+
+    <form id="draftForm" novalidate>
+      <label for="to">Címzett e-mail</label>
+      <input id="to" name="to" type="email" multiple autocomplete="off" placeholder="nev@ceg.hu" required>
+      <div class="hint">Több címzett vesszővel elválasztva adható meg.</div>
+
+      <label for="subject">Tárgy</label>
+      <input id="subject" name="subject" type="text" required value="JG Investment Plus Kft. · A K&amp;H Értékpapír függő ügynöke">
+
+      <button id="submit" type="submit">GMAIL PISZKOZAT LÉTREHOZÁSA</button>
+    </form>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+
+    <p class="note">A piszkozat abban a Google-fiókban jön létre, amellyel ezt az oldalt megnyitotta. Az e-mail képei (logó, ikonok) a levélbe ágyazott inline képek; az e-mail nem tölt be külső képet.</p>
+  </main>
+
+  <script>
+    (function () {
+      var form = document.getElementById('draftForm');
+      var button = document.getElementById('submit');
+      var status = document.getElementById('status');
+
+      function show(kind, html) {
+        status.className = 'status ' + kind;
+        status.innerHTML = html;
+      }
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var to = document.getElementById('to').value.trim();
+        var subject = document.getElementById('subject').value.trim();
+        if (!to || !subject) {
+          show('err', 'A címzett és a tárgy kitöltése kötelező.');
+          return;
+        }
+        button.disabled = true;
+        show('ok', 'Piszkozat létrehozása…');
+        google.script.run
+          .withSuccessHandler(function (result) {
+            button.disabled = false;
+            show('ok',
+              '<strong>A Gmail piszkozat elkészült.</strong><br>' +
+              'Nyissa meg a Gmail Piszkozatok mappáját az ellenőrzéshez.<br>' +
+              '<small>Címzett: ' + escapeHtml(result.to) + ' · Piszkozat azonosító: ' + escapeHtml(result.draftId) + '</small>');
+          })
+          .withFailureHandler(function (error) {
+            button.disabled = false;
+            show('err', '<strong>A piszkozat nem jött létre.</strong><br>' + escapeHtml(error && error.message ? error.message : error));
+          })
+          .createDraftFromUi({ to: to, subject: subject });
+      });
+    })();
+  </script>
+</body>
+</html>
