@@ -7,6 +7,11 @@
  *   - no <script>, no inline <svg>, no data: URIs, no emoji, no icon fonts;
  *   - every <img> has alt, width and height, and points at an existing asset;
  *   - every link is on the allow-list (verified URL or documented placeholder);
+ *   - customer-facing URLs are on https://www.jginvst.hu: no vercel.app, no
+ *     localhost, CTA = https://www.jginvst.hu/#kapcsolat, images from
+ *     https://www.jginvst.hu/email/ (absolute, never relative);
+ *   - the review preview (public/email-preview/) is in sync with the send
+ *     template and loads its images from existing /email/… files;
  *   - none of the retired March 2026 claims are present;
  *   - the HTML stays under Gmail's ~102 KB clipping limit.
  *
@@ -18,6 +23,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { toPreview, PREVIEW_ROUTE } from "./build-preview.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const { hero, statusNotice, services, about, contact, footer, meta } = await import(
@@ -99,6 +105,7 @@ if (emoji.test(htmlRaw)) fail("HTML contains an emoji");
 if (emoji.test(text)) fail("Plain text contains an emoji");
 
 // ---- 3. Images -------------------------------------------------------------
+const ASSET_BASE = "https://www.jginvst.hu/email/";
 const imgs = [...htmlRaw.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
 if (imgs.length === 0) fail("No <img> found");
 for (const img of imgs) {
@@ -106,15 +113,16 @@ for (const img of imgs) {
     if (!new RegExp(`\\s${attr}="`).test(img)) fail(`<img> without ${attr}: ${img.slice(0, 90)}`);
   }
   const src = img.match(/src="([^"]+)"/)?.[1] ?? "";
-  if (!src.startsWith("{{ASSET_BASE_URL}}/email/")) fail(`<img> src is not an email asset: ${src}`);
-  const local = join(ROOT, "public", src.replace("{{ASSET_BASE_URL}}/", ""));
+  if (!src.startsWith(ASSET_BASE) || src.includes("/email/email/")) fail(`<img> src is not a production email asset: ${src}`);
+  const local = join(ROOT, "public/email", src.slice(ASSET_BASE.length));
   if (!existsSync(local)) fail(`Missing asset: ${local.replace(ROOT + "/", "")}`);
 }
 
 // ---- 4. Links --------------------------------------------------------------
 const allowed = [
   /^\{\{VIEW_ONLINE_URL\}\}$/,
-  /^https:\/\/jg-investment-plus-kft\.vercel\.app(\/(#kapcsolat|jogi-tajekoztato(#panaszkezeles)?|adatkezelesi-tajekoztato))?$/,
+  // Public JG domain — only routes that exist in src/app (+ the #kapcsolat anchor).
+  /^https:\/\/www\.jginvst\.hu(\/(#kapcsolat|jogi-tajekoztato(#(panaszkezeles|impresszum))?|adatkezelesi-tajekoztato))?$/,
   /^https:\/\/www\.khertekpapir\.hu\/ugyfeltamogatas\/dokumentumok$/,
   /^mailto:info@jginvst\.com$/,
   /^https:\/\/fonts\.googleapis\.com\/css2\?/,
@@ -128,7 +136,33 @@ for (const url of textUrls) {
   if (!allowed.some((re) => re.test(url))) fail(`Unverified link in plain text: ${url}`);
 }
 
-// ---- 5. Size ---------------------------------------------------------------
+// ---- 5. Customer-facing domain ----------------------------------------------
+const CONTACT_URL = "https://www.jginvst.hu/#kapcsolat";
+for (const [name, body] of [["HTML", htmlRaw], ["Plain text", text]]) {
+  for (const bad of ["vercel.app", "localhost", "127.0.0.1", "{{ASSET_BASE_URL}}", "{{CONTACT_URL}}"]) {
+    if (body.includes(bad)) fail(`${name} contains ${bad}`);
+  }
+  if (!body.includes(CONTACT_URL)) fail(`${name} does not contain ${CONTACT_URL}`);
+}
+if (!htmlRaw.includes(ASSET_BASE)) fail(`HTML does not load images from ${ASSET_BASE}`);
+if (/\bsrc="(?!https:\/\/)/.test(htmlRaw)) fail("HTML has a relative or non-HTTPS image src");
+const ctaHrefs = [...htmlRaw.matchAll(/class="cta" href="([^"]+)"|<v:roundrect[^>]*href="([^"]+)"/g)].map((m) => m[1] ?? m[2]);
+if (ctaHrefs.length !== 2 || ctaHrefs.some((h) => h !== CONTACT_URL)) fail(`CTA hrefs must both be ${CONTACT_URL}: ${ctaHrefs}`);
+if (!visible.includes("www.jginvst.hu")) fail("Visible website label www.jginvst.hu is missing");
+
+// ---- 6. Review preview (public/email-preview/) -----------------------------
+const previewPath = join(ROOT, "public", PREVIEW_ROUTE);
+if (!existsSync(previewPath)) {
+  fail(`Missing review preview: public${PREVIEW_ROUTE} — run build-preview.mjs`);
+} else {
+  const preview = readFileSync(previewPath, "utf8");
+  if (preview !== toPreview(htmlRaw)) fail("Review preview is out of date — run build-preview.mjs");
+  for (const [, src] of preview.matchAll(/<img\b[^>]*src="([^"]+)"/g)) {
+    if (!src.startsWith("/email/") || !existsSync(join(ROOT, "public", src))) fail(`Preview image not served from /email/: ${src}`);
+  }
+}
+
+// ---- 7. Size ---------------------------------------------------------------
 const kb = Buffer.byteLength(htmlRaw) / 1024;
 if (kb > 100) fail(`HTML is ${kb.toFixed(1)} KB — Gmail clips messages above ~102 KB`);
 

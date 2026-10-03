@@ -35,8 +35,8 @@ A screenshot hibás emblémája **nincs** felhasználva: se asset, se trace, se 
 | Státuszközlés | `#ECE9E6` doboz, saját „i” ikon (rombusz + pillér), függőleges elválasztó, `statusNotice.body` szó szerint |
 | Miben segítünk? | Aubergine tracked címke + hajszálvonal, `services.lead`, majd 4 kompakt sor: 32 px ikon, Newsreader 20 px cím, Inter 14/22 szöveg |
 | Idézet | `about.quote`, Newsreader italic 21/31, Signal Berry „ ” (mint az About szakaszban), két oldalt hajszálvonal |
-| CTA | Bulletproof gomb: `<a>` + Outlookhoz VML `roundrect`; Aubergine `#493447`, Porcelain szöveg; felirat = `contact.heading` nagybetűvel; alatta szöveges link |
-| Lábléc | Carbon jel + wordmark + eyebrow sorok; jobbra: E-mail `info@jginvst.com`, Weboldal `jg-investment-plus-kft.vercel.app` |
+| CTA | Bulletproof gomb: `<a>` + Outlookhoz VML `roundrect`; Aubergine `#493447`, Porcelain szöveg; felirat = `contact.heading` nagybetűvel; alatta szöveges link; mindhárom cél: `https://www.jginvst.hu/#kapcsolat` |
+| Lábléc | Carbon jel + wordmark + eyebrow sorok; jobbra: E-mail `info@jginvst.com`, Weboldal `www.jginvst.hu` (href `https://www.jginvst.hu`) |
 | Jogi rész | `footer.statusLine`, a `footer.disclaimerLine` e-mailre igazítva, `footer.brandLine`, jogi linkek, `footer.copyright` |
 
 ## 4. Tartalom
@@ -81,6 +81,16 @@ SVG-forrás: `emails/src/icons/`; e-mailben: `public/email/icons/*.png` (64×64,
 - A screenshotok Linux Chromiumban készültek; a Georgia nincs telepítve, ezért a fallback screenshot Liberation Serifet mutat. A Georgia szélesebb, így asztali nézetben a főcím első sora két sorra törhet. Ez rendezett tördelés, nem overflow.
 - Valódi kliensteszt (Gmail web/iOS/Android, Outlook desktop, Apple Mail) még nem történt; ehhez élő asset-URL kell.
 
-## 8. Review-screenshotok
+## 8. Domain és URL-szerepek (LOCKED)
 
-`docs/email/screenshots/`: `desktop.png` (1440 px, webfontokkal), `desktop-fallback.png` (webfontok nélkül), `mobile.png` (390 px, 2×), `images-off.png` (390 px, képek letiltva). Mindegyiknél 0 px vízszintes túlcsordulás.
+- **Ügyfélnek szánt (production):** `https://www.jginvst.hu`; kapcsolat: `https://www.jginvst.hu/#kapcsolat`; képek: `https://www.jginvst.hu/email/…`; jogi oldalak: `https://www.jginvst.hu/jogi-tajekoztato` (`#panaszkezeles`), `https://www.jginvst.hu/adatkezelesi-tajekoztato`.
+- **Fejlesztői review:** a feature branch Vercel Preview deploymentje, `/email-preview/jg-introduction-v2.html` útvonalon. Ez `*.vercel.app` URL lehet, de soha nem kerülhet a küldendő e-mailbe.
+- A `check-email.mjs` FAIL-t ad, ha a küldendő HTML vagy a TXT `vercel.app`-ot, `localhost`-ot, relatív képet vagy nem a `#kapcsolat`-ra mutató CTA-t tartalmaz, illetve ha a review preview nincs szinkronban a sablonnal.
+
+### Review preview
+
+`public/email-preview/jg-introduction-v2.html`, generálja: `build-preview.mjs`. A küldendő sablontól csak ennyiben tér el: relatív `/email/…` képek, `{{VIEW_ONLINE_URL}}` → `#`, `noindex, nofollow` meta. Nyitott pont: mivel a `public/` része, merge után a productionön is elérhető lenne. Merge előtt el kell dönteni, hogy maradjon-e (noindex mellett), vagy kerüljön ki.
+
+## 9. Review-screenshotok
+
+`docs/email/screenshots/`, a preview HTTP-n kiszolgálva: `desktop.png` (1440×900, webfontokkal), `desktop-fallback.png` (webfontok nélkül), `mobile.png` (390×844, 2×), `images-off.png` (390×844, képek letiltva). Mindegyiknél HTTP 200, 0 px vízszintes túlcsordulás, 0 törött kép, 0 console error.
