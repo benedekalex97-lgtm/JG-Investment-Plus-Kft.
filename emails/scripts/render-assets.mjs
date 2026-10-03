@@ -10,8 +10,9 @@
  * The email has no hero image: the candlestick hero was rejected in review
  * (brand: no trading / chart visuals), so the hero is typographic only.
  *
- * Email clients do not render inline SVG reliably, so the email uses these
- * rasters. Each one has its cell's background colour baked in (no
+ * Output: emails/assets/ (private; see emails/scripts/cid-assets.mjs for the
+ * CID names). Email clients do not render inline SVG reliably, so the email
+ * uses these rasters, embedded as CID inline MIME parts. Each one has its cell's background colour baked in (no
  * transparency), so the mark stays readable when a client inverts colours in
  * dark mode.
  *
@@ -29,7 +30,8 @@ const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const OUT = join(ROOT, "public/email");
+// Private email assets — embedded as CID inline images, never hosted publicly.
+const OUT = join(ROOT, "emails/assets");
 
 /** JG Logo System v1.0 — docs/brand/logo-system-v1.md §3. Never edit here. */
 const CANONICAL_PATH =

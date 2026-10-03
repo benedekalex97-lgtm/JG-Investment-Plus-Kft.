@@ -4,9 +4,9 @@
 <!--
   JG Investment Plus — bemutatkozó e-mail v2
   STÁTUSZ: COMPLIANCE REVIEW REQUIRED BEFORE EXTERNAL USE
-  Tartalmi forrás: src/content/homepage.ts · Logó: JG Logo System v1.0 (public/email/*, a kanonikus SVG-ből renderelve)
-  Képek: https://www.jginvst.hu/email/ (élesben csak a feature branch merge + production deploy után érhetők el)
-  Helyőrző küldés előtt: {{VIEW_ONLINE_URL}} — ld. emails/README.md
+  Tartalmi forrás: src/content/homepage.ts · Logó: JG Logo System v1.0 (a kanonikus SVG-ből renderelve)
+  Képek: CID inline MIME képek (cid:…) — emails/assets/, ld. emails/scripts/cid-assets.mjs. Nincs publikus képhosting.
+  Kézbesítés: Google Apps Script → Gmail PISZKOZAT → emberi ellenőrzés → kézi küldés (emails/apps-script/)
 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -68,17 +68,10 @@
 <div role="article" aria-roledescription="email" aria-label="JG Investment Plus" lang="hu" style="background-color:#E9E7E3;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#E9E7E3;">
 <tr>
-<td align="center" class="outer-pad" style="padding:0 16px 40px 16px;">
+<td align="center" class="outer-pad" style="padding:28px 16px 40px 16px;">
 
 <!--[if mso]><table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td><![endif]-->
 <table role="presentation" class="wrap" width="640" cellpadding="0" cellspacing="0" border="0" align="center" style="width:640px; max-width:640px;">
-
-  <!-- ============ VIEW-IN-BROWSER ============ -->
-  <tr>
-    <td align="right" style="padding:18px 4px 12px 4px; font-family:Inter, Arial, Helvetica, sans-serif; font-size:11px; line-height:16px; color:#6A6670;">
-      Ha a levél nem jelenik meg megfelelően, <a href="{{VIEW_ONLINE_URL}}" style="color:#6A6670; text-decoration:underline;">kattintson ide</a>.
-    </td>
-  </tr>
 
   <tr>
     <td style="background-color:#F4F3F1; border:1px solid #DEDAD6; border-radius:6px; overflow:hidden;">
@@ -93,7 +86,7 @@
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td valign="middle" width="40" style="width:40px; vertical-align:middle;">
-                      <img src="https://www.jginvst.hu/email/jg-mark-porcelain@2x.png" width="40" height="45" alt="" style="display:block; width:40px; height:45px; background-color:#18181B;">
+                      <img src="cid:jgMarkPorcelain" width="40" height="45" alt="" style="display:block; width:40px; height:45px; background-color:#18181B;">
                     </td>
                     <td width="14" style="width:14px; font-size:0; line-height:0;">&nbsp;</td>
                     <td valign="middle" style="vertical-align:middle;">
@@ -130,7 +123,7 @@
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ECE9E6" style="background-color:#ECE9E6; border:1px solid #E0DCD8; border-radius:4px;">
             <tr>
               <td class="notice-icon" width="70" align="center" valign="middle" style="width:70px; vertical-align:middle; padding:18px 0;">
-                <img src="https://www.jginvst.hu/email/icons/notice.png" width="32" height="32" alt="" style="display:block; width:32px; height:32px; margin:0 auto;">
+                <img src="cid:noticeIcon" width="32" height="32" alt="" style="display:block; width:32px; height:32px; margin:0 auto;">
               </td>
               <td class="notice-text" valign="middle" style="vertical-align:middle; padding:16px 22px 16px 20px; border-left:1px solid #CFCAC5; font-family:Inter, Arial, Helvetica, sans-serif; font-size:13px; line-height:21px; color:#3F3C44;">
                 A JG Investment Plus Kft. a K&amp;H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltatást a K&amp;H Értékpapír nyújtja. A JG Investment Plus Kft. nem nyújt befektetési tanácsadást.
@@ -164,7 +157,7 @@
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td class="icon-col" width="58" valign="top" style="width:58px; vertical-align:top; padding-top:3px;">
-                      <img src="https://www.jginvst.hu/email/icons/opportunities.png" width="32" height="32" alt="" style="display:block; width:32px; height:32px;">
+                      <img src="cid:opportunitiesIcon" width="32" height="32" alt="" style="display:block; width:32px; height:32px;">
                     </td>
                     <td valign="top" style="vertical-align:top;">
                       <h2 class="serif" style="margin:0; font-family:Newsreader, Georgia, 'Times New Roman', serif; font-size:20px; line-height:26px; font-weight:500; color:#27262A;">Pénzügyi lehetőségek bemutatása</h2>
@@ -180,7 +173,7 @@
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td class="icon-col" width="58" valign="top" style="width:58px; vertical-align:top; padding-top:3px;">
-                      <img src="https://www.jginvst.hu/email/icons/savings.png" width="32" height="32" alt="" style="display:block; width:32px; height:32px;">
+                      <img src="cid:savingsIcon" width="32" height="32" alt="" style="display:block; width:32px; height:32px;">
                     </td>
                     <td valign="top" style="vertical-align:top;">
                       <h2 class="serif" style="margin:0; font-family:Newsreader, Georgia, 'Times New Roman', serif; font-size:20px; line-height:26px; font-weight:500; color:#27262A;">Megtakarítási és adózási lehetőségek</h2>
@@ -196,7 +189,7 @@
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td class="icon-col" width="58" valign="top" style="width:58px; vertical-align:top; padding-top:3px;">
-                      <img src="https://www.jginvst.hu/email/icons/digital.png" width="32" height="32" alt="" style="display:block; width:32px; height:32px;">
+                      <img src="cid:digitalIcon" width="32" height="32" alt="" style="display:block; width:32px; height:32px;">
                     </td>
                     <td valign="top" style="vertical-align:top;">
                       <h2 class="serif" style="margin:0; font-family:Newsreader, Georgia, 'Times New Roman', serif; font-size:20px; line-height:26px; font-weight:500; color:#27262A;">Digitális pénzügyi megoldások</h2>
@@ -212,7 +205,7 @@
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td class="icon-col" width="58" valign="top" style="width:58px; vertical-align:top; padding-top:3px;">
-                      <img src="https://www.jginvst.hu/email/icons/relationship.png" width="32" height="32" alt="" style="display:block; width:32px; height:32px;">
+                      <img src="cid:relationshipIcon" width="32" height="32" alt="" style="display:block; width:32px; height:32px;">
                     </td>
                     <td valign="top" style="vertical-align:top;">
                       <h2 class="serif" style="margin:0; font-family:Newsreader, Georgia, 'Times New Roman', serif; font-size:20px; line-height:26px; font-weight:500; color:#27262A;">Kapcsolattartás és pénzügyi edukáció</h2>
@@ -272,7 +265,7 @@
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td valign="middle" width="40" style="width:40px; vertical-align:middle;">
-                      <img src="https://www.jginvst.hu/email/jg-mark-carbon@2x.png" width="40" height="45" alt="" style="display:block; width:40px; height:45px;">
+                      <img src="cid:jgMarkCarbon" width="40" height="45" alt="" style="display:block; width:40px; height:45px;">
                     </td>
                     <td width="14" style="width:14px; font-size:0; line-height:0;">&nbsp;</td>
                     <td valign="middle" style="vertical-align:middle;">
