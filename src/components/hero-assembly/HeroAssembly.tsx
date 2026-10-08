@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { hero, statusNotice } from "@/content/homepage";
 import { ASSEMBLY, type AssemblyLayout, type MaterialKind } from "./config";
 import EmblemFallback from "./EmblemFallback";
+import { ramped } from "../motion/curves";
 import type { AssemblyStage, StageTokens } from "./stage";
 
 /**
@@ -85,20 +86,6 @@ function readTokens(element: HTMLElement): StageTokens {
 }
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
-
-/**
- * Trapéz sebességprofilú görbe (a rögzítés nélküli pályához): `ramp` hosszú
- * lágy indulás és érkezés, közte egyenletes mozgás; 0 = lineáris. Folytonos,
- * a két végén nulla sebességgel, túllövés nélkül — és nem lassul le idő
- * előtt, tehát a mozgás nem tűnik késznek, mielőtt a pálya véget ér.
- */
-function ramped(t: number, ramp: number) {
-  if (ramp <= 0) return t;
-  const speed = 1 / (1 - ramp);
-  if (t < ramp) return (speed * t * t) / (2 * ramp);
-  if (t > 1 - ramp) return 1 - (speed * (1 - t) * (1 - t)) / (2 * ramp);
-  return speed * (t - ramp / 2);
-}
 
 export default function HeroAssembly() {
   const rootRef = useRef<HTMLElement>(null);

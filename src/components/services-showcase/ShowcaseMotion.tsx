@@ -140,8 +140,11 @@ function choreograph(gsap: Gsap, ScrollTrigger: Trigger, root: HTMLElement, wide
     const media = block.querySelector("[data-showcase-media]");
     const textReveal = text?.querySelector("[data-showcase-reveal]");
     const mediaReveal = media?.querySelector("[data-showcase-reveal]");
+    // A parallax opcionális: a rétegjelenetes blokknál (SavingsLayers) a
+    // képlap nem kap scroll-elmozdulást — ott a rétegek belső mozgása váltja
+    // fel, így nem halmozódik két görgetéses transzformáció.
     const image = media?.querySelector("[data-showcase-shift]");
-    if (!text || !media || !textReveal || !mediaReveal || !image) continue;
+    if (!text || !media || !textReveal || !mediaReveal) continue;
 
     if (!wide) {
       reveal(text, [textReveal]);
@@ -150,6 +153,7 @@ function choreograph(gsap: Gsap, ScrollTrigger: Trigger, root: HTMLElement, wide
     }
 
     reveal(block, [mediaReveal, textReveal]);
+    if (!image) continue;
     // A kép egy hajszállal lassabban halad, mint a szöveg: belépéskor 16 px-lel
     // feljebb, kilépéskor 16 px-lel lejjebb áll, középen pontosan a helyén.
     gsap.fromTo(

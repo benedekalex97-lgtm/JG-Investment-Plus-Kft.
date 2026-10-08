@@ -2,6 +2,7 @@ import Image, { type StaticImageData } from "next/image";
 
 import Reveal from "../Reveal";
 import Section from "../Section";
+import SavingsLayers from "./SavingsLayers";
 import ShowcaseMotion from "./ShowcaseMotion";
 import panels from "@/assets/services/szolgaltatas-01-penzugyi-lehetosegek-negy-fuggoleges-panel.jpg";
 import layers from "@/assets/services/szolgaltatas-02-megtakaritas-adozas-negy-vizszintes-reteg.jpg";
@@ -23,6 +24,13 @@ const VISUALS = {
   "Digitális pénzügyi megoldások": frames, // három nyitott keret
   "Kapcsolattartás és pénzügyi edukáció": curves, // két egymás felé forduló íves forma
 } satisfies Record<ServiceTitle, StaticImageData>;
+
+/**
+ * Az a szolgáltatás, amelynek képe görgetéshez kötött 3D-rétegjelenetet kap
+ * (SavingsLayers). A cím típusellenőrzött: ha a tartalomban megváltozik, a
+ * build elbukik. A másik három kép a meglévő állókép + parallax megoldás.
+ */
+const LAYERED_SERVICE: ServiceTitle = "Megtakarítási és adózási lehetőségek";
 
 /**
  * A kép renderelt szélessége a layouttal egyezően (ld. a rácsot lent):
@@ -80,6 +88,15 @@ export default function ServicesShowcase() {
         <ul className="grid gap-y-16 sm:gap-y-20 lg:gap-y-28">
           {services.items.map((item, index) => {
             const imageLeft = index % 2 === 1;
+            const image = (
+              <Image
+                src={VISUALS[item.title]}
+                alt=""
+                sizes={IMAGE_SIZES}
+                placeholder="blur"
+                className="block aspect-square h-auto w-full rounded-card"
+              />
+            );
             return (
               <li
                 key={item.title}
@@ -111,15 +128,13 @@ export default function ServicesShowcase() {
                   className={`w-full max-w-xl lg:col-span-6 lg:row-start-1 lg:max-w-none ${imageLeft ? "lg:col-start-1" : "lg:col-start-7"}`}
                 >
                   <div data-showcase-reveal="">
-                    <div data-showcase-shift="">
-                      <Image
-                        src={VISUALS[item.title]}
-                        alt=""
-                        sizes={IMAGE_SIZES}
-                        placeholder="blur"
-                        className="block aspect-square h-auto w-full rounded-card"
-                      />
-                    </div>
+                    {item.title === LAYERED_SERVICE ? (
+                      // Görgetéshez kötött 3D-rétegjelenet; az állókép a
+                      // fallback és az első 3D-képkockáig látszó helyőrző.
+                      <SavingsLayers>{image}</SavingsLayers>
+                    ) : (
+                      <div data-showcase-shift="">{image}</div>
+                    )}
                   </div>
                 </div>
               </li>

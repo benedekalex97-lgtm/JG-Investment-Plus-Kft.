@@ -419,6 +419,36 @@ alatt lévő elemekre: JavaScript nélkül, `prefers-reduced-motion` esetén vag
 GSAP-hiba esetén minden statikusan látszik. A közös közlés és a CTA a meglévő
 Reveal-lel lép be, mint a homepage-en.
 
+**3D-rétegjelenet — „Megtakarítási és adózási lehetőségek”**
+(`SavingsLayers.tsx`, `layers-stage.ts`, hangolás: `layers-config.ts`). Ennél
+az egy blokknál a referencia állóképe fölött görgetéshez kötött Three.js-jelenet
+fut: pontosan négy különálló, merev, vízszintes lap (négyzetes alaprajz,
+lekerekített sarkok, befelé induló élletörés), alulról felfelé matt porcelán,
+szálcsiszolt ezüst, tompa szilvaszínű és füstös padlizsánüveg (a két felső
+valóban áttetsző, sötétebb, füstös éllel). Rögzített, ~20°-os felülnézetű, közel
+ortografikus kamera; lágy kontaktárnyékok. Egyetlen normalizált progress
+csökkenti a réseket (desktop 0,30 → 0,17, mobil 0,25 → 0,17 oldalhossz,
+középtől középig): a felső lapok lefelé, az alsók felfelé mozdulnak, a
+kompozíció közepe helyben marad; a végállapot is lebegő, különálló réteg.
+Kizárólag függőleges mozgás — nincs forgás, kameramozgás, rugózás, ismétlés.
+
+- Pálya: indul, amikor a képmező teteje a viewport 88%-ánál van; kész, amikor a
+  képmező közepe a sticky header alatti terület 31%-ánál (≈ a viewport 37%-a).
+  A header tényleges magasságával számol; nincs pin és nincs extra pálya. A
+  görbe rövid lágy indulású és érkezésű, hosszú egyenletes középpel
+  (`motion/curves.ts`, ugyanaz, mint a hero mobil pályáján); scrub 0,3 s.
+- Ennél a blokknál a képlap parallaxa elmarad (a rétegek belső mozgása
+  váltja fel); a belépő animáció ugyanaz, mint a többi blokknál.
+- Betöltés: csak a viewport közelében (egy viewportnyi előtöltéssel), dinamikus
+  importtal. A statikus kép az első 3D-képkockáig látszik, a canvas ezután tűnik
+  fölé. A shaderfordítás külön feladatban (párhuzamos fordításnál aszinkron)
+  fut, az első kép a képlap belépése előtt elkészül. Igény szerinti
+  renderelés: nyugalomban és képernyőn kívül nincs rajzolás; pixel ratio
+  plafon 2 (mobilon 1,5), mobilon fél felbontású üveg-transmission.
+- Fallback: reduced motion esetén a jelenet létre sem jön; JS nélkül,
+  WebGL-hiba vagy context loss esetén a referencia állóképe látszik. A canvas
+  dekoratív (aria-hidden, nem fókuszálható).
+
 **Képkezelés.** Az eredeti 1024 × 1024-es JPEG-ek (48–65 KB) forrásként a
 `src/assets/services/`-ben; a `next/image` statikus importtal rögzített
 méretet (nincs layout shift), elmosott előnézetet, reszponzív `srcset`-et és
@@ -485,6 +515,11 @@ src/
     services-showcase/         négy kép–szöveg blokkos Szolgáltatások (előnézet)
       ServicesShowcase.tsx     szakasz, blokkok, kép ↔ szolgáltatás összerendelés
       ShowcaseMotion.tsx       belépés + desktop parallax (GSAP, reduced-motion-biztos)
+      SavingsLayers.tsx        a megtakarítási blokk görgetéses 3D-rétegjelenete (vezérlés, fallback)
+      layers-stage.ts          négy lap, anyagok, kontaktárnyék, kamera (Three.js)
+      layers-config.ts         a rétegjelenet KÖZPONTI HANGOLÁSA
+    three/studio.ts            közös Three.js-segédek (stúdiófény, szálcsiszolás, WebGL-ellenőrzés)
+    motion/curves.ts           közös görgetési görbe (ramped)
   assets/services/             a négy szolgáltatási vizuál eredetiben (forrás)
   content/
     homepage.ts                TARTALMI SOURCE OF TRUTH
