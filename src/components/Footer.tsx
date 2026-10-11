@@ -77,6 +77,17 @@ export default function Footer() {
             <p className="max-w-[80ch] text-[0.9375rem] leading-relaxed text-cool-silver">
               {footer.brandLine}
             </p>
+            <p className="max-w-[80ch] text-[0.9375rem] leading-relaxed text-cool-silver">
+              {footer.licenseLine.label}{" "}
+              <a
+                href={footer.licenseLine.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="font-medium text-porcelain underline decoration-white/30 underline-offset-4 transition-colors hover:text-signal-berry-light hover:decoration-signal-berry-light"
+              >
+                {footer.licenseLine.number}
+              </a>
+            </p>
             <p className="max-w-[80ch] text-sm leading-relaxed text-cool-silver">
               {footer.disclaimerLine}
             </p>
