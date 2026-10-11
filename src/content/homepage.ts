@@ -407,7 +407,6 @@ export const contact: {
     { label: "E-mail", value: "info@jginvst.com", href: "mailto:info@jginvst.com" },
     { label: "Lengyel Gábor", value: "+36 30 563 2835", href: "tel:+36305632835" },
     { label: "Regdon Bence", value: "+36 30 485 0895", href: "tel:+36304850895" },
-    { label: "Székhely", value: "2336 Dunavarsány, Nagyvarsányi utca 133." },
   ],
   businessHours: {
     heading: "Ügynöki üzleti órák",

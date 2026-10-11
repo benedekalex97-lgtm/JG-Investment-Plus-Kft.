@@ -7,8 +7,8 @@ import { contact } from "@/content/homepage";
  *
  * v1.3: a korábbi szürke kártyahalom helyett teljes szélességű, mély sötét
  * KONVERZIÓS szekció. Az e-mail és a két kapcsolattartó nagy, jól
- * kattintható elem (min. 64 px magas sorok), egyenrangú blokként; a székhely,
- * az üzleti órák és a K&H ügyfélszolgálat vizuálisan másodlagos, hogy ne
+ * kattintható elem (min. 64 px magas sorok), egyenrangú blokként; az
+ * üzleti órák és a K&H ügyfélszolgálat vizuálisan másodlagos, hogy ne
  * versenyezzenek a fő kapcsolatfelvétellel.
  *
  * Nincs űrlap, nincs adatgyűjtés, nincs stockfotó vagy portré.
