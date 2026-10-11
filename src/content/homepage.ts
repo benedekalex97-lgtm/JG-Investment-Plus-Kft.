@@ -355,7 +355,8 @@ const KH_COMPLAINTS_URL = "https://www.khertekpapir.hu/ugyfelvedelem/panaszkezel
 const KH_TERMS_URL = "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok/dokumentum/4756";
 const KH_EXECUTION_POLICY_URL =
   "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok/dokumentum/3493";
-const KH_FEE_SCHEDULE_URL = "https://www.khertekpapir.hu/ugyfeltamogatas/dokumentumok?dm=9&ds=10";
+const KH_FEE_SCHEDULE_URL =
+  "https://www.khertekpapir.hu/filestorage/23932/KH_ertekpapir_list_of_fees_2026_10_01_hu.pdf?t=1789037278";
 
 export const officialDocuments: {
   sectionNumber: string;
