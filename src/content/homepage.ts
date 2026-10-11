@@ -468,6 +468,7 @@ export const contact: {
 export const footer: {
   statusLine: string;
   brandLine: string;
+  licenseLine: { label: string; number: string; href: string };
   disclaimerLine: string;
   links: readonly FooterLink[];
   copyright: string;
@@ -477,6 +478,11 @@ export const footer: {
     "JG Investment Plus Kft. · A K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke.",
   brandLine:
     "A „K&H Értékpapír” a Patria Finance Magyarországi Fióktelepe által használt márkanév; az ügyfelek tényleges befektetési szolgáltatója a Fióktelep.",
+  licenseLine: {
+    label: "MNB-határozat száma:",
+    number: "H-EN-III-636/2025",
+    href: "https://intezmenykereso.mnb.hu/Details/Index?LId=277913&EntityType=Institute&expandAccordions=IntezmenyAlapadatok",
+  },
   disclaimerLine:
     "A weboldal általános tájékoztatást tartalmaz; nem minősül személyre szóló befektetési tanácsadásnak, ajánlatnak, befektetési vagy pénzügyi elemzésnek, illetve adó- vagy jogi tanácsadásnak. A tőkepiaci befektetések kockázattal járnak, és tőkevesztést okozhatnak. A múltbeli hozam nem jelent garanciát a jövőbeni teljesítményre.",
   /*
