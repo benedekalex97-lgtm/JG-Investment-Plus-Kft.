@@ -880,6 +880,202 @@ body {
 }
 
 /* ==========================================================================
+   HERO ASSEMBLY — görgetésre összeálló 3D JG-embléma (HeroAssembly.tsx)
+   --------------------------------------------------------------------------
+   Előnézet: /preview/hero-motion. Porcelain felület, bal oldalon a hero
+   copy, jobb oldalon (mobilon alatta) a WebGL-színpad.
+
+   RÖGZÍTÉS — natív CSS sticky + üres pálya, nincs JS-es pin és nincs
+   smooth-scroll könyvtár. A pin doboz a header alá tapad, a pálya magassága
+   adja a görgetési utat (--jg-assembly-distance × 100svh, a config.ts-ből).
+   A pálya végén a szekció természetesen továbbgördül: nincs ugrás, nincs
+   üres rés, a wheel/touch eseményeket senki nem nyeli el.
+
+   A rögzítés feltételei (mind teljesül):
+     – desktop szélesség (≥ 1024 px) és legalább 560 px magas ablak;
+     – nincs prefers-reduced-motion: reduce;
+     – fut JavaScript (scripting: enabled) — JS nélkül nincs üres pálya;
+     – a tartalom kifér (a JS data-fit="false"-szal kapcsolja ki, ha nem);
+     – van működő WebGL (data-static="true" esetén statikus fallback).
+   Minden más esetben a hero normál folyású szekció, extra görgetési
+   szakasz nélkül.
+
+   A 100svh a mobilböngészők legkisebb (címsávos) viewportja: a tartalom
+   így sosem lóg ki a látható területből, és a címsáv mozgása nem rángatja
+   az elrendezést.
+   ========================================================================== */
+.jg-assembly {
+  /* A header külső magassága (ld. Header.tsx és html { scroll-padding-top }). */
+  --jg-header-h: 72px;
+  --jg-assembly-avail: calc(100svh - var(--jg-header-h));
+
+  position: relative;
+  background-color: var(--color-canvas);
+  /* clip (nem hidden): nem hoz létre görgetési konténert, a sticky működik. */
+  overflow-x: clip;
+}
+
+@media (min-width: 1024px) {
+  .jg-assembly {
+    --jg-header-h: 80px;
+  }
+}
+
+.jg-assembly__pin {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--jg-assembly-avail);
+}
+
+.jg-assembly__track {
+  display: none;
+  height: calc(var(--jg-assembly-distance, 1) * 100svh);
+}
+
+@media (min-width: 1024px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  .jg-assembly:not([data-fit="false"]):not([data-static="true"]) .jg-assembly__pin {
+    position: sticky;
+    top: var(--jg-header-h);
+  }
+
+  .jg-assembly:not([data-fit="false"]):not([data-static="true"]) .jg-assembly__track {
+    display: block;
+  }
+}
+
+/* A színpad dekoratív: soha nem kap kattintást, a CTA fölé sem kerülhet. */
+.jg-assembly__stage {
+  pointer-events: none;
+}
+
+/* A canvas az első kész képkocka után, egyszer, lágyan jelenik meg. */
+.jg-assembly__canvas-host {
+  opacity: 0;
+  transition: opacity 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.jg-assembly__stage[data-state="ready"] .jg-assembly__canvas-host {
+  opacity: 1;
+}
+
+.jg-assembly__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+  H1 — A HÁROM KIFEJEZÉS AZ EMBLÉMA ANYAGSZÍNEIT VISELI
+  (ld. config.ts: pieceMaterials, headline):
+    Biztonság.       -> felső elem, ezüstszürke   (Cool Silver #BEC1C7)
+    Átláthatóság.    -> bal elem, porcelánfehér   (Porcelain #F4F3F1)
+    Szakmai háttér.  -> jobb elem, padlizsán      (Aubergine #493447)
+
+  Finom, CSS-alapú térhatás — sekély, anyagszerű betűvastagság, bal felső
+  fénnyel (mint az emblémán):
+    – a betű fő felülete PONTOSAN a kért szín;
+    – keskeny perem a betűforma körül: a fényoldalon (bal/felső) egy
+      árnyalattal világosabb, az árnyékoldalon (jobb/alsó) sötétebb;
+    – 1–2 px-es sötétebb alsó/oldalsó „vastagság”, felül halvány fényél;
+    – rövid, lágy árnyék.
+  A perem text-shadow, NEM -webkit-text-stroke: a változó Newsreader
+  betűkontúrjai egymásba fedő részekből állnak, amelyeken a stroke belső
+  varratokat rajzolna; az árnyék a kitöltött betűformából készül.
+  Nincs mozgás, nincs ragyogás, nincs kemény vagy hosszú vetett árnyék.
+
+  KONTRASZT (Porcelain háttéren): a fő felület önmagában az ezüstnél
+  1,63:1, a porcelánnál 1,0:1 — nagy szövegre sem elég. A betűformát
+  ezért a perem rajzolja ki, amelynek MINDEN oldala legalább 3:1-es színű
+  (ezüst: 4,3 / 4,8:1, porcelán: 4,1 / 4,4:1); a padlizsán felület 10,15:1.
+  A renderelt pixeleken mért eredmény a riportban.
+*/
+.jg-headline-phrase {
+  /* A vastagság és az árnyék mérete; mobilon (kisebb betűméret) sekélyebb. */
+  --jg-depth-1: 0.5px 1.3px;
+  --jg-depth-2: 0.3px 1.8px;
+  --jg-drop: 0 3px 4px;
+
+  color: var(--jg-face);
+  text-shadow:
+    /* perem — fényoldal (egész pixel: 1x kijelzőn is teljes fedésű) */
+    -0.7px -0.7px 0 var(--jg-edge-lit),
+    0 -1px 0 var(--jg-edge-lit),
+    -1px 0 0 var(--jg-edge-lit),
+    0.7px -0.7px 0 var(--jg-edge-lit),
+    -0.7px 0.7px 0 var(--jg-edge-lit),
+    /* perem — árnyékoldal */
+    1px 0 0 var(--jg-edge-dark),
+    0 1px 0 var(--jg-edge-dark),
+    0.7px 0.7px 0 var(--jg-edge-dark),
+    /* sekély vastagság */
+    var(--jg-depth-1) 0 var(--jg-side),
+    var(--jg-depth-2) 0 var(--jg-side),
+    /* felső fényél */
+    0 -1.5px 0 var(--jg-light),
+    /* rövid, lágy árnyék */
+    var(--jg-drop) var(--jg-shade);
+}
+
+@media (max-width: 639px) {
+  .jg-headline-phrase {
+    --jg-depth-1: 0.4px 1px;
+    --jg-depth-2: 0.2px 1.4px;
+    --jg-drop: 0 2px 3px;
+  }
+}
+
+.jg-headline-phrase[data-tone="silver"] {
+  --jg-face: var(--color-cool-silver);
+  --jg-edge-lit: color-mix(in srgb, var(--color-cool-silver) 50%, var(--color-ink));
+  --jg-edge-dark: color-mix(in srgb, var(--color-cool-silver) 42%, var(--color-ink));
+  --jg-side: color-mix(in srgb, var(--color-cool-silver) 62%, var(--color-ink));
+  --jg-light: rgb(255 255 255 / 90%);
+  --jg-shade: rgb(39 38 42 / 20%);
+}
+
+.jg-headline-phrase[data-tone="porcelain"] {
+  --jg-face: var(--color-porcelain);
+  --jg-edge-lit: color-mix(in srgb, var(--color-porcelain) 38%, var(--color-ink));
+  --jg-edge-dark: color-mix(in srgb, var(--color-porcelain) 36%, var(--color-ink));
+  --jg-side: color-mix(in srgb, var(--color-porcelain) 56%, var(--color-ink));
+  --jg-light: rgb(255 255 255 / 95%);
+  --jg-shade: rgb(39 38 42 / 20%);
+}
+
+.jg-headline-phrase[data-tone="glass"] {
+  --jg-face: var(--color-aubergine);
+  --jg-edge-lit: color-mix(in srgb, var(--color-aubergine) 72%, var(--color-surface));
+  --jg-edge-dark: color-mix(in srgb, var(--color-aubergine) 72%, var(--color-carbon));
+  --jg-side: color-mix(in srgb, var(--color-aubergine) 58%, var(--color-carbon));
+  --jg-light: rgb(255 255 255 / 70%);
+  --jg-shade: rgb(39 38 42 / 22%);
+}
+
+/*
+  Elsődleges CTA a világos heróban — Aubergine felület, fehér felirat
+  (11.26:1, AAA). Semleges élkezelés, hoverre 1 px emelkedés; nincs glow,
+  nincs pulzálás. A fókuszgyűrű az alapértelmezett Aubergine (--focus),
+  3 px offsettel a Porcelain háttérre esik (10.15:1).
+*/
+.jg-assembly-cta {
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 14%),
+    0 1px 2px rgb(24 24 27 / 12%),
+    0 14px 30px -18px rgb(39 38 42 / 55%);
+  transition:
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
+}
+
+.jg-assembly-cta:hover {
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 18%),
+    0 1px 2px rgb(24 24 27 / 14%),
+    0 18px 36px -18px rgb(39 38 42 / 62%);
+}
+
+/* ==========================================================================
    REDUCED MOTION — globális, dekoratív CSS-effektekre (smooth scroll, hover/
    accordion/menüátmenetek). A Hero háttéranimációja NEM CSS-alapú, ezért itt
    nem kapcsolható ki: a HeroMarketMotion komponens maga figyeli a
