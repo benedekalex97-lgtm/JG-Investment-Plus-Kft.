@@ -7,6 +7,7 @@ import { privacyPolicy } from "@/content/privacy-policy";
 
 export const metadata: Metadata = {
   title: `${privacyPolicy.title} · ${meta.wordmark}`,
+  alternates: { canonical: "/adatkezelesi-tajekoztato" },
 };
 
 /** Ékezetek nélküli, kötőjeles azonosító a címsorokhoz (csak horgony-cél, nem tartalom). */
