@@ -144,7 +144,7 @@ export const legalNotice: {
       { label: "Székhely", value: "2336 Dunavarsány, Nagyvarsányi utca 133." },
       { label: "Cégjegyzékszám", value: "13-09-236124" },
       { label: "Adószám", value: "32643804-2-13" },
-      { label: "E-mail", value: "info@jginvst.com" },
+      { label: "E-mail", value: "info@jginvst.hu" },
       {
         label: "Függő ügynöki jogállás",
         value:
