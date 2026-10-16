@@ -405,7 +405,7 @@ export const contact: {
    * változatlan.
    */
   details: [
-    { label: "E-mail", value: "info@jginvst.com", href: "mailto:info@jginvst.com" },
+    { label: "E-mail", value: "info@jginvst.hu", href: "mailto:info@jginvst.hu" },
     { label: "Lengyel Gábor", value: "+36 30 563 2835", href: "tel:+36305632835" },
     { label: "Regdon Bence", value: "+36 30 485 0895", href: "tel:+36304850895" },
   ],
