@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 /*
@@ -49,24 +50,17 @@ const inter = Inter({
 const isProductionEnvironment = process.env.VERCEL_ENV === "production";
 
 /*
- * v1.0 — PRODUCTION CANONICAL HOST.
- *
- * A jelenlegi, hivatalos production hostname a Vercel-projekt stabil
- * vercel.app domainje — ez NEM egy feature preview URL és NEM egy
- * commit-specifikus deployment URL, hanem a projekt "Production Branch"-éhez
- * (main) tartozó, állandó cím. Ha később egyedi domain érkezik, ezt az
- * értéket egy külön, célzott commitban kell majd az új domainre cserélni —
- * ez a mostani érték nem végleges, csak a jelenlegi valóságot tükrözi.
+ * PRODUCTION CANONICAL HOST — ld. src/lib/site.ts (SITE_URL).
  *
  * A `metadataBase` innen ad abszolút alapot minden relatív URL-nek
  * (canonical, Open Graph); enélkül a Next.js a build-környezet URL-jét
  * (pl. egy preview deployment címét) használná alapértelmezésként, ami
- * helytelen canonicalt eredményezne.
+ * helytelen canonicalt eredményezne. A canonical oldalanként más, ezért
+ * azt az egyes oldalak saját metadata exportja adja meg.
  */
-const PRODUCTION_URL = "https://jg-investment-plus-kft.vercel.app";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(PRODUCTION_URL),
+  metadataBase: new URL(SITE_URL),
   title: "JG Investment Plus Kft. · A K&H Értékpapír függő ügynöke",
   description:
     "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a JG Investment Plus Kft. nem nyújt befektetési tanácsadást.",
