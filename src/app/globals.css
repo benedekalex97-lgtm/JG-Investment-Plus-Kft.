@@ -307,7 +307,7 @@ body {
    (AAA), és mindig marad egy vékony Ink kontúr is a Porcelain gyűrű körül,
    hogy világos elemeken (pl. gomb) se olvadjon bele a háttérbe. */
 .on-dark :focus-visible,
-.on-dark.focus-visible {
+.on-dark:focus-visible {
   outline-color: var(--color-text-on-dark);
   box-shadow: 0 0 0 1px var(--color-ink);
 }

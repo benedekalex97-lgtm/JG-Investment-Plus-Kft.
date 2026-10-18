@@ -32,10 +32,15 @@ import Logo from "./Logo";
  * állapotváltás (nincs villanás, nincs layout shift), és a sticky állapot
  * ugyanolyan olvasható marad. Porcelain szöveg a sávon 15.05–16.85:1 (AAA).
  *
- * A mobilmenü billentyűzettel is teljesen használható: a gomb aria-expanded
- * állapotot közöl, nyitáskor a fókusz a panel első linkjére kerül, Tab/
- * Shift+Tab a panelen belül csapdázva marad (focus trap), Escape zár és
- * visszaadja a fókuszt a nyitó gombra.
+ * A mobilmenü NEM modális, lenyitható navigáció (disclosure): nem dialog és
+ * nem ARIA menu widget, nincs fókuszcsapda, a háttér nem inert. A gomb
+ * aria-expanded állapotot közöl; billentyűzetes nyitás után a fókusz a
+ * gombon marad, és a természetes Tab/Shift+Tab sorrend (gomb → linkek)
+ * viszi tovább. Escape zár és a fókuszt a gombra viszi vissza. Ha a fókusz
+ * a gombon és a panelen kívülre lép, vagy a gombon/panelen kívülre kattintanak,
+ * a panel bezárul — a fókuszt és a kattintott elem működését nem
+ * befolyásolva. A panel a header alatt lebeg (absolute), nem tolja el a
+ * tartalmat, így a bezárás nem mozdítja a kattintás célpontját.
  */
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -46,39 +51,58 @@ export default function Header() {
   useEffect(() => {
     if (!open) return;
 
-    const panel = panelRef.current;
-    const focusable = panel
-      ? Array.from(
-          panel.querySelectorAll<HTMLElement>(
-            'a[href], button:not([disabled])',
-          ),
-        )
-      : [];
-    focusable[0]?.focus();
+    const inMenu = (node: EventTarget | null) =>
+      node instanceof Node &&
+      (toggleRef.current?.contains(node) || panelRef.current?.contains(node));
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setOpen(false);
-        toggleRef.current?.focus();
-        return;
-      }
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      toggleRef.current?.focus();
+    }
 
-      if (event.key !== "Tab" || focusable.length === 0) return;
+    // A navigáción kívülre lépő fókusz zárja a panelt; a fókuszt nem mozgatjuk.
+    function onFocusIn(event: FocusEvent) {
+      if (!inMenu(event.target)) setOpen(false);
+    }
 
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
+    // Külső kattintás/érintés zár: ha a lenyomás ÉS a felengedés is a menün
+    // kívül történt. Érintős görgetésnél a böngésző pointercancel-t küld, így
+    // az oldal görgetése nem zárja a menüt. A panel nem tolja el a tartalmat,
+    // ezért a bezárás nem mozdítja el a kattintott elemet; az esemény útját
+    // nem állítjuk meg, így az elem saját működése és fókusza érintetlen.
+    let downOutside = false;
+    function onPointerDown(event: PointerEvent) {
+      downOutside = !inMenu(event.target);
+    }
+    function onPointerUp(event: PointerEvent) {
+      if (downOutside && !inMenu(event.target)) setOpen(false);
+      downOutside = false;
+    }
+    function onPointerCancel() {
+      downOutside = false;
+    }
 
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+    // Asztali szélességen a panel és a gomb rejtett: az állapot ne maradjon nyitva.
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    function onBreakpoint(event: MediaQueryListEvent) {
+      if (event.matches) setOpen(false);
     }
 
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("pointerup", onPointerUp);
+    document.addEventListener("pointercancel", onPointerCancel);
+    desktop.addEventListener("change", onBreakpoint);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("pointerup", onPointerUp);
+      document.removeEventListener("pointercancel", onPointerCancel);
+      desktop.removeEventListener("change", onBreakpoint);
+    };
   }, [open]);
 
   /*
@@ -152,7 +176,7 @@ export default function Header() {
           type="button"
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
-          aria-controls={panelId}
+          aria-controls={open ? panelId : undefined}
           aria-label={open ? nav.closeMenuAccessible : nav.openMenuAccessible}
           className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-2.5 rounded-[0.5rem] border border-white/20 bg-white/[0.04] px-3.5 text-sm font-medium text-porcelain transition-colors hover:border-white/35 hover:bg-white/[0.08] lg:hidden"
         >
@@ -168,15 +192,26 @@ export default function Header() {
         </button>
       </div>
 
-      {/* A panel csak nyitva renderelődik, így zárt állapotban nem fókuszálható. */}
+      {/*
+        A panel csak nyitva renderelődik, így zárt állapotban nem fókuszálható
+        (és az aria-controls is csak ekkor hivatkozik rá). A header alatt
+        lebeg (absolute, top-full) — a sticky header a pozicionálási
+        szülő —, tehát nyitása/zárása nem tolja el az oldal tartalmát. A
+        magassága a header alatti képernyőhelyre korlátozott (72 px = a sáv
+        magassága), és ha nem fér el (alacsony viewport, 200–400%-os
+        nagyítás), belül görgethető — a fókuszált link így is láthatóvá
+        görgetődik. Az ul felső/alsó paddingje (6/14 px, együtt a korábbi
+        4/16 px-szel) azért kapott 2 px eltolást, hogy a görgethető doboz
+        a legfelső link fókuszgyűrűjét (6 px) ne vágja le.
+      */}
       {open ? (
         <div
           ref={panelRef}
           id={panelId}
-          className="border-t border-white/10 bg-surface-sink shadow-[0_24px_48px_-28px_rgb(0_0_0/90%)] lg:hidden"
+          className="absolute inset-x-0 top-full max-h-[calc(100svh-72px)] scroll-py-2 overflow-y-auto overscroll-contain border-t border-white/10 bg-surface-sink shadow-[0_24px_48px_-28px_rgb(0_0_0/90%)] lg:hidden"
         >
           <nav aria-label={nav.menuLabel}>
-            <ul className="jg-safe-x mx-auto w-full max-w-[1280px] pt-1 pb-4">
+            <ul className="jg-safe-x mx-auto w-full max-w-[1280px] pt-1.5 pb-3.5">
               {nav.items.map((item) => (
                 <li key={item.href}>
                   <a
