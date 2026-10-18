@@ -66,11 +66,21 @@ export default function Header() {
       if (!inMenu(event.target)) setOpen(false);
     }
 
-    // Külső kattintás/érintés zár. A panel nem tolja el a tartalmat, ezért a
-    // bezárás nem mozdítja el a kattintott elemet; az esemény útját nem
-    // állítjuk meg, így az elem saját működése és fókusza érintetlen marad.
+    // Külső kattintás/érintés zár: ha a lenyomás ÉS a felengedés is a menün
+    // kívül történt. Érintős görgetésnél a böngésző pointercancel-t küld, így
+    // az oldal görgetése nem zárja a menüt. A panel nem tolja el a tartalmat,
+    // ezért a bezárás nem mozdítja el a kattintott elemet; az esemény útját
+    // nem állítjuk meg, így az elem saját működése és fókusza érintetlen.
+    let downOutside = false;
     function onPointerDown(event: PointerEvent) {
-      if (!inMenu(event.target)) setOpen(false);
+      downOutside = !inMenu(event.target);
+    }
+    function onPointerUp(event: PointerEvent) {
+      if (downOutside && !inMenu(event.target)) setOpen(false);
+      downOutside = false;
+    }
+    function onPointerCancel() {
+      downOutside = false;
     }
 
     // Asztali szélességen a panel és a gomb rejtett: az állapot ne maradjon nyitva.
@@ -82,11 +92,15 @@ export default function Header() {
     document.addEventListener("keydown", onKeyDown);
     document.addEventListener("focusin", onFocusIn);
     document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("pointerup", onPointerUp);
+    document.addEventListener("pointercancel", onPointerCancel);
     desktop.addEventListener("change", onBreakpoint);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("focusin", onFocusIn);
       document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("pointerup", onPointerUp);
+      document.removeEventListener("pointercancel", onPointerCancel);
       desktop.removeEventListener("change", onBreakpoint);
     };
   }, [open]);
@@ -182,16 +196,22 @@ export default function Header() {
         A panel csak nyitva renderelődik, így zárt állapotban nem fókuszálható
         (és az aria-controls is csak ekkor hivatkozik rá). A header alatt
         lebeg (absolute, top-full) — a sticky header a pozicionálási
-        szülő —, tehát nyitása/zárása nem tolja el az oldal tartalmát.
+        szülő —, tehát nyitása/zárása nem tolja el az oldal tartalmát. A
+        magassága a header alatti képernyőhelyre korlátozott (72 px = a sáv
+        magassága), és ha nem fér el (alacsony viewport, 200–400%-os
+        nagyítás), belül görgethető — a fókuszált link így is láthatóvá
+        görgetődik. Az ul felső/alsó paddingje (6/14 px, együtt a korábbi
+        4/16 px-szel) azért kapott 2 px eltolást, hogy a görgethető doboz
+        a legfelső link fókuszgyűrűjét (6 px) ne vágja le.
       */}
       {open ? (
         <div
           ref={panelRef}
           id={panelId}
-          className="absolute inset-x-0 top-full border-t border-white/10 bg-surface-sink shadow-[0_24px_48px_-28px_rgb(0_0_0/90%)] lg:hidden"
+          className="absolute inset-x-0 top-full max-h-[calc(100svh-72px)] scroll-py-2 overflow-y-auto overscroll-contain border-t border-white/10 bg-surface-sink shadow-[0_24px_48px_-28px_rgb(0_0_0/90%)] lg:hidden"
         >
           <nav aria-label={nav.menuLabel}>
-            <ul className="jg-safe-x mx-auto w-full max-w-[1280px] pt-1 pb-4">
+            <ul className="jg-safe-x mx-auto w-full max-w-[1280px] pt-1.5 pb-3.5">
               {nav.items.map((item) => (
                 <li key={item.href}>
                   <a
