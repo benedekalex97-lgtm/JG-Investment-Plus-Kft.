@@ -660,6 +660,314 @@ body {
 }
 
 /* ==========================================================================
+   HERO v1.6 PREVIEW — ELRENDEZÉS + TÉRBELI EMBLÉMA + NYITÓANIMÁCIÓ
+   --------------------------------------------------------------------------
+   A copy és az embléma elrendezése, a rétegek egymásra helyezése, a
+   nyugalmi mozgás és a nyitás állapotai. A mozgás kizárólag transform és
+   opacity; a slot helyét és képarányát az elrendezés előre lefoglalja.
+   ========================================================================== */
+
+.hero-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 3rem;
+  padding-bottom: 2.75rem;
+}
+
+@media (min-width: 640px) {
+  .hero-layout {
+    padding-top: 4rem;
+    padding-bottom: 3.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    align-items: center;
+    column-gap: 3rem;
+    min-height: 620px;
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  /* A kontrasztfátyol desktopon a balra rendezett copy mögé kerül. */
+  .hero-veil {
+    background-image: radial-gradient(
+      ellipse 58% 70% at 28% 46%,
+      rgb(27 22 28 / var(--veil-core)) 0%,
+      rgb(27 22 28 / calc(var(--veil-core) - 10%)) 30%,
+      rgb(27 22 28 / var(--veil-mid)) 52%,
+      rgb(27 22 28 / calc(var(--veil-mid) * 0.4)) 72%,
+      rgb(27 22 28 / 0%) 100%
+    );
+  }
+}
+
+/* Mobilon/tableten az embléma a CTA ALATT, külön méretezve. */
+.hero-emblem-wrap {
+  position: relative;
+  width: min(62vw, 300px);
+  margin-top: 2.25rem;
+}
+
+@media (min-width: 640px) {
+  .hero-emblem-wrap {
+    width: 340px;
+    margin-top: 2.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-emblem-wrap {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 0;
+    justify-self: end;
+  }
+}
+
+/* Alacsony, fekvő viewport: az embléma ne nyomja le aránytalanul az oldalt. */
+@media (max-height: 520px) and (orientation: landscape) and (max-width: 1023px) {
+  .hero-emblem-wrap {
+    width: min(34vw, 240px);
+  }
+}
+
+.hero-emblem-slot {
+  position: relative;
+  width: 100%;
+}
+
+.hero-emblem-root,
+.hero-emblem-tilt,
+.hero-emblem-layer {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 55%;
+}
+
+/*
+  Lágy, szél nélküli háttérfény az embléma mögött — a renderelt vászon nem
+  jelenik meg téglalapként: csak radiális, a peremen teljesen átlátszó
+  gradiensek. Az emblémával együtt mozog (a root része).
+*/
+.hero-emblem-root::before {
+  content: "";
+  position: absolute;
+  inset: -18% -22%;
+  background-image:
+    radial-gradient(ellipse 46% 40% at 50% 46%, rgb(117 93 112 / 22%) 0%, rgb(73 52 71 / 10%) 46%, transparent 72%),
+    radial-gradient(ellipse 30% 6% at 50% 86%, rgb(0 0 0 / 38%) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.hero-emblem-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+/* ---- Nyugalmi mozgás (~8 s) — csak JS-sel, reduced-motion nélkül ---------- */
+@keyframes jg-emblem-float-cap {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -1.3%, 0);
+  }
+}
+
+@keyframes jg-emblem-float-left {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-0.3%, -0.45%, 0);
+  }
+}
+
+@keyframes jg-emblem-float-right {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0.3%, -0.45%, 0);
+  }
+}
+
+@keyframes jg-emblem-tilt {
+  0%,
+  50%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(0.45deg);
+  }
+  75% {
+    transform: rotate(-0.45deg);
+  }
+}
+
+html:not([data-jg-intro]) .hero-emblem-slot[data-idle] .hero-emblem-tilt {
+  animation: jg-emblem-tilt 16s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+html:not([data-jg-intro]) .hero-emblem-slot[data-idle] [data-idle-role="cap"] {
+  animation: jg-emblem-float-cap 8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+html:not([data-jg-intro]) .hero-emblem-slot[data-idle] [data-idle-role="left"] {
+  animation: jg-emblem-float-left 8s cubic-bezier(0.45, 0, 0.55, 1) -0.6s infinite;
+}
+
+html:not([data-jg-intro]) .hero-emblem-slot[data-idle] [data-idle-role="right"] {
+  animation: jg-emblem-float-right 8s cubic-bezier(0.45, 0, 0.55, 1) -1.2s infinite;
+}
+
+/* Megállítva / képernyőn kívül / háttérfülön: a mozgás ott áll meg, ahol tart. */
+html:not([data-jg-intro]) .hero-emblem-slot[data-idle="paused"] :is(.hero-emblem-tilt, .hero-emblem-layer) {
+  animation-play-state: paused;
+}
+
+/* A mozgás megállítása — 44×44 px, visszafogott, az embléma alatt jobbra. */
+.hero-emblem-toggle {
+  position: absolute;
+  right: -0.25rem;
+  bottom: -0.25rem;
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(190 193 199 / 28%);
+  background-color: rgb(21 17 22 / 55%);
+  color: var(--color-cool-silver);
+  transition:
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.hero-emblem-toggle:hover {
+  border-color: rgb(190 193 199 / 60%);
+  color: var(--color-porcelain);
+}
+
+.hero-emblem-toggle-pause,
+.hero-emblem-toggle-play {
+  display: block;
+  width: 10px;
+  height: 12px;
+}
+
+.hero-emblem-toggle-pause {
+  border-left: 3px solid currentColor;
+  border-right: 3px solid currentColor;
+}
+
+.hero-emblem-toggle-play {
+  background-color: currentColor;
+  clip-path: polygon(10% 0, 100% 50%, 10% 100%);
+}
+
+/* ---- Nyitóanimáció állapotai (ld. hero-intro/introScript.ts) ------------- */
+
+/* Alapból (és JS nélkül) a takarás és a kihagyó gomb nem létezik. */
+.jg-intro-cover,
+.jg-intro-skip {
+  display: none;
+}
+
+html[data-jg-intro] .jg-intro-cover {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background-color: var(--color-surface-deep);
+  background-image:
+    radial-gradient(ellipse 52% 44% at 50% 50%, rgb(73 52 71 / 30%) 0%, transparent 72%),
+    linear-gradient(to bottom, var(--color-surface-raise) 0%, var(--color-surface-deep) 50%, var(--color-surface-sink) 100%);
+}
+
+html[data-jg-intro] .jg-intro-skip {
+  display: inline-flex;
+  position: fixed;
+  z-index: 70;
+  right: calc(1.25rem + env(safe-area-inset-right));
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  min-height: 2.75rem;
+  align-items: center;
+  padding: 0 1.125rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgb(190 193 199 / 42%);
+  background-color: rgb(21 17 22 / 62%);
+  color: var(--color-porcelain);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+html[data-jg-intro] .jg-intro-skip:hover {
+  border-color: rgb(190 193 199 / 75%);
+}
+
+@media (max-width: 639px) {
+  html[data-jg-intro] .jg-intro-skip {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+/* Az embléma a takarás FÖLÖTT mozog; a copy addig rejtett. */
+html[data-jg-intro] .hero-content {
+  z-index: 45;
+}
+
+/*
+  Intro közben rejtett (és így fókuszt sem kaphat): fejléc, skip-link,
+  hero-copy, CTA, státuszközlés, a mozgás-kapcsoló. A „reveal" fázisban a
+  fejléc és a copy már látható — az átlátszatlanságukat ekkor a WAAPI viszi.
+*/
+html[data-jg-intro] :is([data-intro-hidden], a[href="#fotartalom"]),
+html[data-jg-intro]:not([data-jg-intro="reveal"]) :is(.jg-header, [data-intro-reveal]) {
+  visibility: hidden;
+}
+
+html[data-jg-intro="wait"] .hero-emblem-root {
+  opacity: 0;
+}
+
+html[data-jg-intro] .hero-emblem-root,
+html[data-jg-intro] .hero-emblem-img {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-emblem-slot *,
+  .hero-emblem-slot *::before {
+    animation: none !important;
+  }
+
+  .hero-emblem-toggle {
+    display: none;
+  }
+}
+
+/* ==========================================================================
    SÖTÉT SZAKASZOK MÉLYSÉGE — v1.4
    A „Miért minket?" és a Kapcsolat szakasz eddig egyetlen lapos Deep
    felületen állt. Ez a két segédosztály adja meg nekik ugyanazt a nyomdai

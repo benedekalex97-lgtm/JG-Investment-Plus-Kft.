@@ -115,7 +115,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="hu" className={`${newsreader.variable} ${inter.variable}`}>
+    /*
+      suppressHydrationWarning: a főoldali nyitóanimáció vezérlője (ld.
+      hero-intro/introScript.ts) a hidratálás ELŐTT data-jg-intro*
+      attribútumot tehet a <html> elemre. Csak erre az elemre hat.
+    */
+    <html lang="hu" className={`${newsreader.variable} ${inter.variable}`} suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );
