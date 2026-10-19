@@ -5,24 +5,24 @@ import EmblemCanvas from "@/components/hero-3d/EmblemCanvas";
 import { emblemAssets } from "./emblemAssets";
 
 /**
- * HeroEmblem — a JG-embléma a hero saját kompozíciójában (v0.3).
+ * HeroEmblem — a JG-embléma helye a hero saját kompozíciójában (v0.4).
  *
- * Fő látvány: valódi, böngészőben renderelt 3D-jelenet (ld. hero-3d). Egyetlen
- * WebGL-canvas adja az összeállási introt és az élő herót.
+ * Fő látvány: valódi, böngészőben renderelt 3D-jelenet (ld. hero-3d). Az
+ * egyetlen WebGL-canvas a <body> alatt, dokumentum-koordinátákban áll: a
+ * nyitás a képernyő közepén kezdődik, és az embléma EBBE a slotba érkezik.
+ * Nyugalomban az embléma áll (nincs idle mozgás, nincs szünet-gomb); egérre
+ * finoman elfordul.
  *
  * Statikus tartalék: a JG_hero_3D_alap_v01 csomag renderelt PNG-rétegei
- * egymásra helyezve (az emblémát mutató [data-emblem-fallback]) és a render
- * padlófénye. NEM animál: JS nélkül, reduced-motionnél, WebGL- vagy
- * modellhibánál, context lossnál és amíg a 3D nem kész, ez látszik. Amikor a
- * 3D élő, a PNG-rétegek elrejtve maradnak (nincs két párhuzamos megjelenítés).
+ * egymásra helyezve ([data-emblem-fallback]) és a render padlófénye. NEM
+ * animál: JS nélkül, reduced-motionnél, WebGL- vagy modellhibánál és context
+ * lossnál ez látszik. Amikor a 3D élő, a PNG-rétegek rejtve maradnak.
  *
  * A slot helyét és képarányát az elrendezés előre lefoglalja. Dekoratív:
- * aria-hidden. A folyamatos 3D-mozgás a gombbal megállítható; képernyőn kívül
- * és háttérfülön a renderloop szünetel.
+ * aria-hidden.
  */
 export default function HeroEmblem() {
   const [live, setLive] = useState(false);
-  const [paused, setPaused] = useState(false);
 
   const { widths, sizes, layers, width, height, canvas, floorLight, floorRect } = emblemAssets;
   // A padlófény a render-vászon koordinátáiban áll: a vágott slothoz képest
@@ -73,19 +73,7 @@ export default function HeroEmblem() {
         </div>
       </div>
 
-      <EmblemCanvas onLiveChange={setLive} paused={paused} />
-
-      {live ? (
-        <button
-          type="button"
-          className="hero-emblem-toggle"
-          aria-pressed={paused}
-          onClick={() => setPaused((p) => !p)}
-        >
-          <span aria-hidden="true" className={paused ? "hero-emblem-toggle-play" : "hero-emblem-toggle-pause"} />
-          <span className="sr-only">Az embléma mozgásának megállítása</span>
-        </button>
-      ) : null}
+      <EmblemCanvas onLiveChange={setLive} />
     </div>
   );
 }

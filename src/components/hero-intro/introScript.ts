@@ -1,53 +1,91 @@
 /**
- * JG hero — a 3D-nyitás vezérlője (v0.3).
+ * JG hero — a nyitójelenet vezérlője (v0.4).
  *
- * Inline, szinkron script a főoldal elején: az ELSŐ FESTÉS ELŐTT eldönti,
- * hogy a 3D-embléma összeállási introja szóba jöhet-e. Ha igen, a statikus
- * PNG-tartalékot átmenetileg elrejti (hogy ne a kész embléma látszódjon,
- * majd „szétessen"), és egy kis vezérlőt tesz ki a window.jgHeroIntro alá.
+ * Inline, szinkron script a főoldal LEGELEJÉN (a fejléc előtt): az ELSŐ
+ * FESTÉS ELŐTT eldönti, hogy jár-e a külön nyitóképernyő. Ha igen, a
+ * Graphite nyitóháttér (`.jg-intro-overlay`) és a „Kihagyás" gomb már az
+ * első festéskor látszik — a weboldal mögötte marad.
  *
- * A SZÖVEG, A CTA ÉS A FEJLÉC SOHA NINCS ELREJTVE — nincs takaró képernyő.
- * Az intro kizárólag az embléma saját területén zajlik (ld. hero-3d).
+ * A NYITÁS MENETE (a 3D-részt ld. hero-3d):
+ *   pending  — nyitóképernyő; a 3D (modul, GLB, shaderek) itt töltődik.
+ *   playing  — a három elem a képernyő közepén összeáll (a 3D-canvas a
+ *              nyitóháttér fölött).
+ *   flight   — az összeállt embléma nagyobb lesz és a hero helyére érkezik;
+ *              közben a nyitóháttér feloldódik, feltárul a fejléc, a szöveg és
+ *              a CTA (a feloldódás csak akkor indul, amikor az objektum már
+ *              nem takarná a szöveget). A weboldal ettől kezdve kezelhető.
+ *   done     — kész; `result` mondja meg, hogyan.
  *
- * Állapotok (window.jgHeroIntro; `intro`: jár-e összeállási intro):
- *   pending — a 3D-jelenet készül (modul, GLB, shaderek, első képkocka);
- *             a PNG rejtve. Ha `readyBudgetMs`-en belül nem indul, a PNG
- *             jelenik meg (és nincs intro). Intro nélküli érkezésnél is így
- *             kerüljük el, hogy a PNG után a 3D „ráugorjon" ugyanarra a helyre.
- *   playing — az intro fut; a kihagyó gomb látszik.
- *   done    — kész (a `result` mondja meg, hogyan).
- * Diagnosztika és tesztek: window.jgHeroIntro.{state,result}.
+ * HATÁRIDŐK (mind véges; végtelen takarás nem lehetséges):
+ *   readyBudgetMs — ennyit vár a nyitóképernyő a 3D-re (a vezérlő futásától).
+ *                   Ha addig nem indul, a nyitóháttér rövid áttűnéssel
+ *                   eltűnik, a kész oldal látszik (a 3D később a hero helyén
+ *                   jelenik meg, vagy marad a statikus PNG).
+ *   playLimitMs   — a lejátszás biztonsági felső korlátja.
+ *   hardLimitMs   — abszolút korlát a vezérlő futásától: ennél tovább
+ *                   semmilyen állapotban nem takar. Ezek a scriptben futnak,
+ *                   tehát akkor is érvényesek, ha a JS-csomag be sem töltődik.
+ *
+ * NEM JÁR NYITÁS (közvetlenül a kész oldal): nem a főoldal; mélyhivatkozás
+ * (#hash); görgetett helyzet; böngészős vissza/előre és prerender; ha már
+ * volt festés (a nyitóháttér nem takarhat le látott tartalmat); reduced-
+ * motion; adatkímélő vagy 2G/3G hálózat; nincs (működő) WebGL; tiltott
+ * storage; a munkamenetben már megtekintve. JS nélkül a nyitóháttér
+ * CSS-ből rejtett.
+ *
+ * „MEGTEKINTVE" jelző (sessionStorage, `storageKey`): csak sikeres befejezés
+ * vagy tudatos kihagyás (gomb, Escape, billentyű, kattintás, görgetés, Tab)
+ * UTÁN íródik — betöltési hiba, időtúllépés, háttérfül vagy átméretezés után
+ * nem.
+ *
+ * ÚJRAJÁTSZÁS (csak preview/helyi build, `allowReplay`): `/?intro=replay`
+ * a jelzőtől függetlenül lejátssza a nyitást.
+ *
+ * FÓKUSZ: a takart oldal `inert` (a 3D-komponens hidratálás után kapcsolja
+ * be); a hidratálás előtti rövid ablakban az oldalra kerülő fókusz azonnal
+ * lezárja a nyitást, így láthatatlan elemen soha nincs fókusz.
  *
  * Az állapot egy saját <style id="jg-hero-intro"> elemben él a <head>-ben,
- * nem a React által hidratált <html>-en (hidratálási eltérés nélkül).
- * Kliensoldali navigációnál a React nem futtatja ezt a scriptet.
+ * nem a React által hidratált elemeken. Diagnosztika: window.jgHeroIntro.
  */
 
 export type IntroConfig = {
   storageKey: string;
   modelUrl: string;
-  /** Ennyi idő alatt (a vezérlő futásától) kell a 3D-nek elindulnia. */
   readyBudgetMs: number;
-  /** Lassú hálózat: ha a vezérlő a navigációtól ennél később fut, nincs intro. */
-  maxGateMs: number;
-  /** Abszolút felső korlát a lejátszásra. */
   playLimitMs: number;
-  css: { pending: string; playing: string };
+  hardLimitMs: number;
+  /** Intro nélküli érkezés: ennyi ideig rejtjük a PNG-t, amíg a 3D készül. */
+  pngHoldMs: number;
+  /** A nyitóháttér áttűnése, ha a 3D nélkül adja át a helyét. */
+  leaveMs: number;
+  allowReplay: boolean;
+  css: { cover: string; flight: string; leave: string; hold: string };
 };
 
 export const introConfig: IntroConfig = {
-  storageKey: "jg-hero-intro-v1",
+  storageKey: "jg-hero-intro-v2",
   modelUrl: "/models/jg-core-animated.glb",
-  readyBudgetMs: 1600,
-  maxGateMs: 600,
-  playLimitMs: 4000,
+  readyBudgetMs: 3500,
+  playLimitMs: 4600,
+  hardLimitMs: 9000,
+  pngHoldMs: 1600,
+  leaveMs: 320,
+  allowReplay: false,
   css: {
-    // a statikus PNG-tartalék és a mozgáskapcsoló rejtve, amíg a 3D készül
-    pending: "[data-emblem-fallback]{opacity:0}.hero-emblem-toggle{visibility:hidden}",
-    // lejátszás alatt a kihagyó gomb is látszik; a padlófény a megérkezéskor úszik be
-    playing:
-      "[data-emblem-fallback]{opacity:0}.hero-emblem-toggle{visibility:hidden}" +
-      ".jg-intro-skip{display:inline-flex}.hero-emblem-floor{opacity:0}",
+    // nyitóképernyő: Graphite háttér + Kihagyás; a hero PNG-je és padlófénye rejtve
+    cover:
+      ".jg-intro-overlay{display:block}.jg-intro-skip{display:inline-flex}" +
+      "[data-emblem-fallback]{opacity:0}.hero-emblem-floor{opacity:0}",
+    // helyére érkezés: a nyitóháttér feloldódik (átlátszóságát a 3D-loop
+    // képkockánként írja, az objektum pályájához igazítva); kattintás átmegy
+    flight:
+      ".jg-intro-overlay{display:block;pointer-events:none}" +
+      "[data-emblem-fallback]{opacity:0}.hero-emblem-floor{opacity:0}",
+    // 3D nélküli átadás (határidő, hiba): rövid áttűnés
+    leave: ".jg-intro-overlay{display:block;opacity:0;pointer-events:none;transition:opacity 320ms ease}",
+    // intro nélküli érkezés a lap tetejére: a PNG ne villanjon fel a 3D előtt
+    hold: "[data-emblem-fallback]{opacity:0}",
   },
 };
 
@@ -56,8 +94,9 @@ function heroIntro(cfg: IntroConfig) {
   const w = window as any;
   const d = document;
   const h = d.documentElement;
+  const t0 = performance.now();
 
-  // --- 3D-előtöltés: csak ha a 3D egyáltalán szóba jöhet ---------------------
+  // --- Jöhet-e egyáltalán 3D? -------------------------------------------------
   let canGo3d = false;
   try {
     const conn = (navigator as any).connection;
@@ -80,67 +119,138 @@ function heroIntro(cfg: IntroConfig) {
     canGo3d = false;
   }
 
-  // A 3D előkészülhet-e úgy, hogy a PNG-tartalék addig ne is látszódjon?
-  // (Csak a lap tetejére, nem lassú hálózaton érkezve — különben a PNG marad.)
+  // Csak a lap tetejére, normál navigációval, festés előtt érkezve.
+  let painted = false;
   try {
     if (!canGo3d || location.hash) return;
-    if (performance.now() > cfg.maxGateMs) return;
     if ((w.scrollY || h.scrollTop || 0) > 0) return;
     const navs = performance.getEntriesByType ? performance.getEntriesByType("navigation") : [];
     const navType = navs.length ? (navs[0] as any).type : "navigate";
     if (navType === "back_forward" || navType === "prerender") return;
+    painted = performance.getEntriesByType ? performance.getEntriesByType("paint").length > 0 : false;
   } catch {
     return;
   }
 
-  // Intro csak munkamenetenként egyszer; tiltott/hibás storage: nincs intro.
-  let intro = false;
+  // Munkamenetenként egyszer; tiltott/hibás storage: nincs nyitás.
+  const replay = cfg.allowReplay && /(?:^|&)intro=replay(?:&|$)/.test(location.search.slice(1));
+  let seen = true;
   try {
-    const ss = w.sessionStorage;
-    if (!ss.getItem(cfg.storageKey)) {
-      ss.setItem(cfg.storageKey, "1");
-      intro = ss.getItem(cfg.storageKey) === "1";
-    }
+    seen = !!w.sessionStorage.getItem(cfg.storageKey);
+    // a jelző később írható-e (különben minden betöltéskor újra jönne)
+    w.sessionStorage.setItem(cfg.storageKey + ":probe", "1");
+    w.sessionStorage.removeItem(cfg.storageKey + ":probe");
   } catch {
-    intro = false;
+    seen = true;
   }
+
+  // Valódi WebGL-kontextus (tiltólistás GPU-n a konstruktor létezik, a context nem).
+  function webglOk(): boolean {
+    try {
+      const c = d.createElement("canvas");
+      const gl = (c.getContext("webgl2") || c.getContext("webgl")) as any;
+      if (!gl) return false;
+      const ext = gl.getExtension("WEBGL_lose_context");
+      if (ext) ext.loseContext();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Háttérfülben betöltve nincs nyitás (ott nem futna a jelenet).
+  const intro = !painted && d.visibilityState !== "hidden" && (replay || !seen) && webglOk();
+  if (painted && !intro) return; // festés után a PNG-t sem rejtjük el utólag
 
   const style = d.createElement("style");
   style.id = "jg-hero-intro";
   const subs: ((result: string) => void)[] = [];
   const timers: number[] = [];
-  const api: any = { state: "pending", intro: intro, result: null };
+  let locked: Element[] = [];
+  const api: any = { state: "pending", intro: intro, replay: replay, result: null, t0: t0 };
   w.jgHeroIntro = api;
 
   function setCss(t: string) {
     style.textContent = t;
     if (!style.parentNode) d.head.appendChild(style);
   }
-
-  function onSkipEl(): boolean {
-    const a = d.activeElement as any;
-    return !!(a && a.closest && a.closest("[data-intro-skip]"));
+  function dropCss() {
+    if (style.parentNode) style.parentNode.removeChild(style);
   }
 
-  function finish(result: string, moveFocus?: boolean) {
+  /** A takart oldal inert (a nyitóháttér, a gomb és a 3D-canvas kivételével). */
+  api.lock = function () {
+    if (!intro || locked.length || (api.state !== "pending" && api.state !== "playing")) return;
+    const kids = d.body ? d.body.children : ([] as any);
+    for (let i = 0; i < kids.length; i++) {
+      const el = kids[i];
+      const tag = el.tagName;
+      if (tag === "SCRIPT" || tag === "STYLE" || tag === "LINK" || tag === "TEMPLATE") continue;
+      if (el.hasAttribute("data-jg-intro") || el.hasAttribute("inert")) continue;
+      el.setAttribute("inert", "");
+      locked.push(el);
+    }
+  };
+  function unlock() {
+    for (let i = 0; i < locked.length; i++) locked[i].removeAttribute("inert");
+    locked = [];
+  }
+
+  function inIntroUi(t: any): boolean {
+    return !!(t && t.closest && t.closest("[data-jg-intro]"));
+  }
+
+  /** A „Kihagyás" gomb eltűnik: ha nála volt a fókusz, a hero-címre kerül. */
+  function rescueFocus() {
+    const a = d.activeElement as any;
+    if (!a || !a.closest || !a.closest("[data-intro-skip]")) return;
+    const hd = d.getElementById("hero-cim");
+    if (!hd) return;
+    if (!hd.hasAttribute("tabindex")) hd.setAttribute("tabindex", "-1");
+    try {
+      hd.focus({ preventScroll: true });
+    } catch {
+      hd.focus();
+    }
+  }
+
+  // Tudatos befejezés / kihagyás: ekkor íródik a „megtekintve" jelző.
+  const deliberate: Record<string, 1> = {
+    complete: 1,
+    skip: 1,
+    escape: 1,
+    key: 1,
+    pointer: 1,
+    wheel: 1,
+    scroll: 1,
+    focus: 1,
+  };
+  // 3D nélküli átadás: a nyitóháttér rövid áttűnéssel megy el.
+  const fades: Record<string, 1> = { "slow-3d": 1, "3d-error": 1, "no-webgl": 1, timeout: 1, "context-lost": 1, unmount: 1 };
+
+  function finish(result: string) {
     if (api.state === "done") return;
+    const covering = intro && (api.state === "pending" || api.state === "playing");
     api.state = "done";
     api.result = result;
     for (let i = 0; i < timers.length; i++) clearTimeout(timers[i]);
-    if (style.parentNode) style.parentNode.removeChild(style);
     off();
-    if (moveFocus) {
-      // A kihagyó gomb eltűnik; a fókusz a hero-címre kerül, nem a body-ra.
-      const hd = d.getElementById("hero-cim");
-      if (hd) {
-        if (!hd.hasAttribute("tabindex")) hd.setAttribute("tabindex", "-1");
-        try {
-          hd.focus({ preventScroll: true });
-        } catch {
-          hd.focus();
-        }
-      }
+    unlock();
+    // a repülés alatt képkockánként írt átlátszóság ne maradjon a nyitóháttéren
+    const ov = d.querySelector(".jg-intro-overlay") as any;
+    if (ov && ov.style) ov.style.opacity = "";
+    if (intro && deliberate[result]) {
+      try {
+        w.sessionStorage.setItem(cfg.storageKey, "1");
+      } catch {}
     }
+    if (covering && fades[result]) {
+      setCss(cfg.css.leave);
+      setTimeout(dropCss, cfg.leaveMs + 40);
+    } else {
+      dropCss();
+    }
+    rescueFocus();
     for (let i = 0; i < subs.length; i++) {
       try {
         subs[i](result);
@@ -148,26 +258,31 @@ function heroIntro(cfg: IntroConfig) {
     }
   }
 
-  /** A 3D-komponens hívja, amikor az első képkocka kész: pending → playing. */
-  const t0 = performance.now();
+  /** A 3D kész (első kép kirajzolva): pending → playing. */
   api.play = function (): boolean {
-    if (api.state !== "pending" || !api.intro) return false;
-    // Ha egy főszál-blokkolás miatt a határidő-időzítő még nem futott le, a
-    // határidőt itt is betartatjuk: késői előkészítés után nincs intro.
+    if (api.state !== "pending" || !intro) return false;
+    // főszál-blokkolás esetén a határidő-időzítő késhet: itt is betartatjuk
     if (performance.now() - t0 > cfg.readyBudgetMs) {
       finish("slow-3d");
       return false;
     }
     api.state = "playing";
-    setCss(cfg.css.playing);
     timers.push(setTimeout(() => finish("timeout"), cfg.playLimitMs) as any);
     return true;
+  };
+  /** A helyére érkezés kezdete: a nyitóháttér feloldódik, az oldal kezelhető. */
+  api.flight = function () {
+    if (api.state !== "playing") return;
+    api.state = "flight";
+    setCss(cfg.css.flight);
+    unlock();
+    rescueFocus();
   };
   api.complete = function () {
     finish("complete");
   };
-  /** Intro nélküli érkezés: a 3D élő, a vezérlő visszavonul. */
-  api.reveal = function () {
+  /** Intro nélküli érkezés: a 3D élő, a PNG-t rejtő stílus visszavonul. */
+  api.release = function () {
     finish("no-intro");
   };
   api.fail = function (reason: string) {
@@ -181,40 +296,38 @@ function heroIntro(cfg: IntroConfig) {
     };
   };
 
-  // --- Megszakítás: billentyű, érdemi interakció, környezetváltozás ----------
+  // --- Megszakítás: Kihagyás, Escape, érdemi interakció, környezetváltozás ---
   function onKey(e: KeyboardEvent) {
-    if (e.key === "Escape") return finish("escape", onSkipEl());
-    if (e.key === "Tab") {
-      // Lejátszás alatt az első Tab a kihagyó gombra visz; onnan tovább lépve
-      // (vagy Shift+Tabbal) kész állapot, és a böngésző természetesen folytatja.
-      if (onSkipEl() || e.shiftKey) finish("tab");
-      return;
-    }
-    if (e.key === "Shift" || e.key === "Control" || e.key === "Alt" || e.key === "Meta") return;
-    if ((e.key === "Enter" || e.key === " ") && onSkipEl()) return;
+    if (e.key === "Escape") return finish("escape");
+    // Tab: az oldal inert, a fókusz a gombon / a böngészőn marad.
+    if (e.key === "Tab" || e.key === "Shift" || e.key === "Control" || e.key === "Alt" || e.key === "Meta") return;
+    if ((e.key === "Enter" || e.key === " ") && inIntroUi(d.activeElement)) return;
     finish("key");
   }
+  function onSkip(t: any): boolean {
+    return !!(t && t.closest && t.closest("[data-intro-skip]"));
+  }
   function onPointer(e: Event) {
-    const t = e.target as any;
-    if (t && t.closest && t.closest("[data-intro-skip]")) return;
+    if (onSkip(e.target)) return;
     finish("pointer");
   }
   function onClick(e: Event) {
-    const t = e.target as any;
-    if (t && t.closest && t.closest("[data-intro-skip]")) {
+    if (onSkip(e.target)) {
       e.preventDefault();
-      finish("skip", true);
+      finish("skip");
     }
   }
   function onFocus(e: FocusEvent) {
-    const t = e.target as any;
-    if (t && t.closest && !t.closest("[data-intro-skip]")) finish("focus");
+    if (!inIntroUi(e.target)) finish("focus");
   }
   function onScroll() {
     if ((w.scrollY || h.scrollTop || 0) > 0) finish("scroll");
   }
+  const w0 = w.innerWidth;
+  const h0 = w.innerHeight;
   function onResize() {
-    finish("resize");
+    // mobil böngészősáv-mozgás (csak kis magasságváltozás) nem szakít meg
+    if (w.innerWidth !== w0 || Math.abs(w.innerHeight - h0) > 140) finish("resize");
   }
   function onHidden() {
     if (d.visibilityState === "hidden") finish("hidden");
@@ -254,14 +367,23 @@ function heroIntro(cfg: IntroConfig) {
     w.removeEventListener("pagehide", onPageHide, true);
   }
 
-  setCss(cfg.css.pending);
-  if (intro) on();
-  // Ha a 3D nem áll készen időben: nincs intro, a PNG azonnal látszik.
-  timers.push(
-    setTimeout(() => {
-      if (api.state === "pending") finish("slow-3d");
-    }, cfg.readyBudgetMs) as any,
-  );
+  if (intro) {
+    setCss(cfg.css.cover);
+    on();
+    timers.push(
+      setTimeout(() => {
+        if (api.state === "pending") finish("slow-3d");
+      }, cfg.readyBudgetMs) as any,
+    );
+    timers.push(setTimeout(() => finish("timeout"), cfg.hardLimitMs) as any);
+  } else {
+    setCss(cfg.css.hold);
+    timers.push(
+      setTimeout(() => {
+        if (api.state === "pending") finish("slow-3d");
+      }, cfg.pngHoldMs) as any,
+    );
+  }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 

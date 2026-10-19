@@ -3,7 +3,7 @@ import { hero, statusNotice } from "@/content/homepage";
 
 /**
  * Hero — v1.6 PREVIEW: tipográfia-vezérelt copy + különálló, térbeli
- * JG-embléma hero-illusztráció. v0.3: valódi, böngészőben renderelt 3D-jelenet
+ * JG-embléma hero-illusztráció. v0.3–v0.4: valódi, böngészőben renderelt 3D-jelenet
  * (Three.js, jg-core-animated.glb); a renderelt PNG-rétegek csak statikus
  * tartalékként maradtak.
  *
@@ -22,10 +22,12 @@ import { hero, statusNotice } from "@/content/homepage";
  *     az embléma, legalul a státuszközlés.
  * Az embléma helye és képaránya előre le van foglalva (ld. HeroEmblem).
  *
- * 3D-nyitás (ld. hero-intro/introScript.ts és hero-3d): kizárólag az embléma
- * saját területén zajlik. A szöveg, a CTA és a fejléc az első festéstől
- * olvasható — sosem rejtjük el őket, és az embléma pályája nem halad át
- * rajtuk. JS nélkül a hero statikusan, a PNG-tartalékkal látszik.
+ * Nyitójelenet (ld. hero-intro/introScript.ts és hero-3d): első, a lap
+ * tetejére érkező látogatáskor külön Graphite nyitóképernyő takarja az
+ * oldalt; középen összeáll a 3D-embléma, majd nagyobb lesz és ebbe a hero-
+ * slotba érkezik, miközben feltárul a fejléc, a szöveg és a CTA. Kihagyható
+ * (gomb, Escape), véges határidőkkel. JS nélkül, reduced-motionnél és
+ * hibánál közvetlenül a kész hero látszik, a PNG-tartalékkal.
  *
  * Rétegek alulról: Deep alapfelület → hero-vignette → hero-veil
  * (kontrasztvédő) → copy, CTA és embléma. A háttérrétegek dekoratívak:

@@ -662,8 +662,8 @@ body {
 /* ==========================================================================
    HERO v1.6 PREVIEW — ELRENDEZÉS + TÉRBELI EMBLÉMA + NYITÓANIMÁCIÓ
    --------------------------------------------------------------------------
-   A copy és az embléma elrendezése, a rétegek egymásra helyezése, a
-   nyugalmi mozgás és a nyitás állapotai. A mozgás kizárólag transform és
+   A copy és az embléma elrendezése, a rétegek egymásra helyezése és a
+   nyitójelenet állapotai. A mozgás kizárólag transform és
    opacity; a slot helyét és képarányát az elrendezés előre lefoglalja.
    ========================================================================== */
 
@@ -756,34 +756,31 @@ body {
 }
 
 /*
-  A 3D-canvas — egyetlen WebGL-felület az introhoz és a kész heróhoz. A
-  slotnál nagyobb (a kis elfordulásoknak és az intro rövid pályájának kell
-  hely), a mérete az intro alatt nem változik. Átlátszó, pointer-events
-  nélkül; első kirajzolt képkocka előtt láthatatlan (nincs fekete villanás).
-  Replaced elem: a szélesség/magasság explicit.
+  A 3D-canvas — egyetlen WebGL-felület a nyitáshoz és a kész heróhoz. NEM a
+  hero része: portálon át közvetlenül a <body> alatt, abszolút pozícióval,
+  dokumentum-koordinátákban áll (helyét és méretét a motor írja inline), így
+  a hero overflow-hidden szekciója nem vágja le. Rétegek: a nyitás alatt a
+  Graphite nyitóháttér (60) fölött, utána a sticky fejléc (50) alatt.
+  Átlátszó, pointer-events nélkül; az első kirajzolt kép előtt láthatatlan.
 */
-.hero-emblem-canvas {
+.jg-emblem-canvas {
   position: absolute;
+  left: 0;
+  top: 0;
   display: block;
-  left: -18%;
-  top: -10%;
-  width: 136%;
-  height: 120%;
+  width: 0;
+  height: 0;
+  z-index: 40;
   pointer-events: none;
   opacity: 0;
   transition: opacity 280ms ease;
 }
 
-@media (min-width: 1024px) {
-  .hero-emblem-canvas {
-    left: -34%;
-    top: -14%;
-    width: 144%;
-    height: 128%;
-  }
+.jg-emblem-canvas[data-phase="intro"] {
+  z-index: 61;
 }
 
-.hero-emblem-canvas[data-shown] {
+.jg-emblem-canvas[data-shown] {
   opacity: 1;
 }
 
@@ -812,62 +809,25 @@ body {
   pointer-events: none;
 }
 
-/* A 3D-mozgás megállítása — 44×44 px, visszafogott, az embléma üres jobb
-   felső sarkában. Csak élő 3D-jelenet mellett jelenik meg. */
-.hero-emblem-toggle {
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: inline-flex;
-  width: 2.75rem;
-  height: 2.75rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  border: 1px solid rgb(190 193 199 / 28%);
-  background-color: rgb(21 17 22 / 55%);
-  color: var(--color-cool-silver);
-  transition:
-    border-color 200ms ease,
-    color 200ms ease;
+/* ---- Nyitójelenet (ld. hero-intro/introScript.ts) ----------------------------
+   Alapból (és JS nélkül) rejtett; csak a vezérlő <style id="jg-hero-intro">
+   eleme kapcsolja be. A Graphite nyitóháttér a fejléc (50) fölött takarja a
+   teljes oldalt; a 3D-canvas (61) és a Kihagyás gomb (62) fölötte áll. */
+.jg-intro-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background-color: var(--color-surface-deep);
+  background-image:
+    radial-gradient(ellipse 52% 44% at 50% 50%, rgb(73 52 71 / 30%) 0%, transparent 72%),
+    linear-gradient(to bottom, var(--color-surface-raise) 0%, var(--color-surface-deep) 50%, var(--color-surface-sink) 100%);
 }
 
-@media (max-width: 1023px) {
-  .hero-emblem-toggle {
-    right: -0.75rem;
-    top: -0.75rem;
-  }
-}
-
-.hero-emblem-toggle:hover {
-  border-color: rgb(190 193 199 / 60%);
-  color: var(--color-porcelain);
-}
-
-.hero-emblem-toggle-pause,
-.hero-emblem-toggle-play {
-  display: block;
-  width: 10px;
-  height: 12px;
-}
-
-.hero-emblem-toggle-pause {
-  border-left: 3px solid currentColor;
-  border-right: 3px solid currentColor;
-}
-
-.hero-emblem-toggle-play {
-  background-color: currentColor;
-  clip-path: polygon(10% 0, 100% 50%, 10% 100%);
-}
-
-/* ---- 3D-nyitás (ld. hero-intro/introScript.ts) -----------------------------
-   Takaró képernyő nincs. Alapból (és JS nélkül) a kihagyó gomb NEM látszik;
-   futó intró alatt a vezérlő <style id="jg-hero-intro"> eleme kapcsolja be. */
 .jg-intro-skip {
   display: none;
   position: fixed;
-  z-index: 70;
+  z-index: 62;
   right: calc(1.25rem + env(safe-area-inset-right));
   bottom: calc(1.25rem + env(safe-area-inset-bottom));
   min-height: 2.75rem;
@@ -895,9 +855,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* reduced-motion: a 3D el sem indul (ld. EmblemCanvas), csak a statikus PNG. */
-  .hero-emblem-toggle {
-    display: none;
+  /* reduced-motion: nincs nyitás és nincs 3D (ld. EmblemCanvas), csak a statikus PNG. */
+  .jg-intro-overlay,
+  .jg-intro-skip {
+    display: none !important;
   }
 }
 
