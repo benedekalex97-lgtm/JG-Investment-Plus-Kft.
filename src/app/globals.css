@@ -671,7 +671,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 3rem;
+  padding-top: 2.5rem;
   padding-bottom: 2.75rem;
 }
 
@@ -709,8 +709,8 @@ body {
 /* Mobilon/tableten az embléma a CTA ALATT, külön méretezve. */
 .hero-emblem-wrap {
   position: relative;
-  width: min(62vw, 300px);
-  margin-top: 2.25rem;
+  width: min(56vw, 280px);
+  margin-top: 1.75rem;
 }
 
 @media (min-width: 640px) {
@@ -750,17 +750,15 @@ body {
 }
 
 /*
-  Lágy, szél nélküli háttérfény az embléma mögött — a renderelt vászon nem
-  jelenik meg téglalapként: csak radiális, a peremen teljesen átlátszó
-  gradiensek. Az emblémával együtt mozog (a root része).
+  Padlófény — a render background.png-jéből: a build-script levonja a render
+  közel fekete alapszínét, és csak a fényt tartja meg lágy, radiális
+  peremmel. Nincs téglalap-él; a hero saját felületén ül.
 */
-.hero-emblem-root::before {
-  content: "";
+.hero-emblem-floor {
   position: absolute;
-  inset: -18% -22%;
-  background-image:
-    radial-gradient(ellipse 46% 40% at 50% 46%, rgb(117 93 112 / 22%) 0%, rgb(73 52 71 / 10%) 46%, transparent 72%),
-    radial-gradient(ellipse 30% 6% at 50% 86%, rgb(0 0 0 / 38%) 0%, transparent 100%);
+  max-width: none;
+  user-select: none;
+  -webkit-user-select: none;
   pointer-events: none;
 }
 
@@ -820,32 +818,32 @@ body {
   }
 }
 
-html:not([data-jg-intro]) .hero-emblem-slot[data-idle] .hero-emblem-tilt {
+.hero-emblem-slot[data-idle] .hero-emblem-tilt {
   animation: jg-emblem-tilt 16s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
-html:not([data-jg-intro]) .hero-emblem-slot[data-idle] [data-idle-role="cap"] {
+.hero-emblem-slot[data-idle] [data-idle-role="cap"] {
   animation: jg-emblem-float-cap 8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
-html:not([data-jg-intro]) .hero-emblem-slot[data-idle] [data-idle-role="left"] {
+.hero-emblem-slot[data-idle] [data-idle-role="left"] {
   animation: jg-emblem-float-left 8s cubic-bezier(0.45, 0, 0.55, 1) -0.6s infinite;
 }
 
-html:not([data-jg-intro]) .hero-emblem-slot[data-idle] [data-idle-role="right"] {
+.hero-emblem-slot[data-idle] [data-idle-role="right"] {
   animation: jg-emblem-float-right 8s cubic-bezier(0.45, 0, 0.55, 1) -1.2s infinite;
 }
 
 /* Megállítva / képernyőn kívül / háttérfülön: a mozgás ott áll meg, ahol tart. */
-html:not([data-jg-intro]) .hero-emblem-slot[data-idle="paused"] :is(.hero-emblem-tilt, .hero-emblem-layer) {
+.hero-emblem-slot[data-idle="paused"] :is(.hero-emblem-tilt, .hero-emblem-layer) {
   animation-play-state: paused;
 }
 
-/* A mozgás megállítása — 44×44 px, visszafogott, az embléma alatt jobbra. */
+/* A mozgás megállítása — 44×44 px, visszafogott, az embléma üres jobb felső sarkában. */
 .hero-emblem-toggle {
   position: absolute;
-  right: -0.25rem;
-  bottom: -0.25rem;
+  right: 0;
+  top: 0;
   display: inline-flex;
   width: 2.75rem;
   height: 2.75rem;
@@ -858,6 +856,13 @@ html:not([data-jg-intro]) .hero-emblem-slot[data-idle="paused"] :is(.hero-emblem
   transition:
     border-color 200ms ease,
     color 200ms ease;
+}
+
+@media (max-width: 1023px) {
+  .hero-emblem-toggle {
+    right: -0.75rem;
+    top: -0.75rem;
+  }
 }
 
 .hero-emblem-toggle:hover {
@@ -882,16 +887,12 @@ html:not([data-jg-intro]) .hero-emblem-slot[data-idle="paused"] :is(.hero-emblem
   clip-path: polygon(10% 0, 100% 50%, 10% 100%);
 }
 
-/* ---- Nyitóanimáció állapotai (ld. hero-intro/introScript.ts) ------------- */
-
-/* Alapból (és JS nélkül) a takarás és a kihagyó gomb nem létezik. */
-.jg-intro-cover,
-.jg-intro-skip {
+/* ---- Nyitóanimáció (ld. hero-intro/introScript.ts) ------------------------
+   Alapból (és JS nélkül) a takarás és a kihagyó gomb NEM látszik. Futó
+   intró alatt a vezérlő egy <style id="jg-hero-intro"> elemmel kapcsolja be
+   őket és rejti a fejlécet/copyt — itt csak a megjelenésük él. */
+.jg-intro-cover {
   display: none;
-}
-
-html[data-jg-intro] .jg-intro-cover {
-  display: block;
   position: fixed;
   inset: 0;
   z-index: 40;
@@ -902,8 +903,8 @@ html[data-jg-intro] .jg-intro-cover {
     linear-gradient(to bottom, var(--color-surface-raise) 0%, var(--color-surface-deep) 50%, var(--color-surface-sink) 100%);
 }
 
-html[data-jg-intro] .jg-intro-skip {
-  display: inline-flex;
+.jg-intro-skip {
+  display: none;
   position: fixed;
   z-index: 70;
   right: calc(1.25rem + env(safe-area-inset-right));
@@ -920,40 +921,16 @@ html[data-jg-intro] .jg-intro-skip {
   letter-spacing: 0.02em;
 }
 
-html[data-jg-intro] .jg-intro-skip:hover {
+.jg-intro-skip:hover {
   border-color: rgb(190 193 199 / 75%);
 }
 
 @media (max-width: 639px) {
-  html[data-jg-intro] .jg-intro-skip {
+  .jg-intro-skip {
     right: auto;
     left: 50%;
     transform: translateX(-50%);
   }
-}
-
-/* Az embléma a takarás FÖLÖTT mozog; a copy addig rejtett. */
-html[data-jg-intro] .hero-content {
-  z-index: 45;
-}
-
-/*
-  Intro közben rejtett (és így fókuszt sem kaphat): fejléc, skip-link,
-  hero-copy, CTA, státuszközlés, a mozgás-kapcsoló. A „reveal" fázisban a
-  fejléc és a copy már látható — az átlátszatlanságukat ekkor a WAAPI viszi.
-*/
-html[data-jg-intro] :is([data-intro-hidden], a[href="#fotartalom"]),
-html[data-jg-intro]:not([data-jg-intro="reveal"]) :is(.jg-header, [data-intro-reveal]) {
-  visibility: hidden;
-}
-
-html[data-jg-intro="wait"] .hero-emblem-root {
-  opacity: 0;
-}
-
-html[data-jg-intro] .hero-emblem-root,
-html[data-jg-intro] .hero-emblem-img {
-  will-change: transform, opacity;
 }
 
 @media (prefers-reduced-motion: reduce) {

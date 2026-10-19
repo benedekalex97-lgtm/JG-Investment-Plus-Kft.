@@ -155,6 +155,32 @@ fallback stackkel (`src/app/globals.css` `--font-serif-display` /
 `--font-sans`) — ha a betűtöltés a build-környezetben elérhetetlen lenne, a
 megjelenés akkor is stabil marad.
 
+## Hero v1.6 PREVIEW — összeálló embléma → hero átvezetés
+
+Branch: `feat/jg-assembly-hero-preview-v1` (preview, nem éles). A hero
+vizuális eleme a JG_hero_3D_alap_v01 csomag három renderelt rétege (felső
+aubergine elem, ezüst bal panel, carbon jobb panel); a fejléc lapos logója
+változatlan. A korábbi gyertyakorridor-kép már nem töltődik be.
+
+- **Nyitás (~2,2 s, munkamenetenként egyszer):** a három elem a képernyő
+  közepén összeáll, majd ugyanaz a rétegrendszer a végleges hero-helyére
+  mozdul (FLIP, Web Animations API), közben feltárul a fejléc és a copy.
+  Vezérlő: `src/components/hero-intro/introScript.ts` (szinkron, inline,
+  React-független; az első festés előtt dönt).
+- **Kimarad:** JS nélkül, reduced-motionnél, mélyhivatkozásnál
+  (`/#kapcsolat`), visszalépésnél, ismételt betöltésnél, tiltott
+  sessionStorage-nál, lassú kapcsolaton (ha a HTML+CSS 600 ms-nál lassabb),
+  és ha a rétegek 0,8 s-on belül nem állnak készen.
+- **Lezárás:** „Animáció kihagyása" gomb, Escape, Tab, kattintás, görgetés,
+  átméretezés, háttérfül; abszolút felső korlát 4,2 s. Nincs scroll-lock.
+- **Nyugalmi mozgás:** ~8 s-os, visszafogott lebegés és dőlés; gombbal
+  megállítható, képernyőn kívül és háttérfülön szünetel.
+- **Assetek:** `node scripts/build-hero-emblem.mjs <layers-könyvtár>` —
+  közös téglalappal vágott (regisztráció megőrizve), alfa-csatornás WebP-k a
+  `public/hero-emblem/` alá; a `background.png`-ből csak a padlófény kerül
+  át, lágy peremmel. A forráscsomag (ZIP, .blend, GLB, videó,
+  referencia-HTML) nem része a repónak.
+
 ## Hero — japángyertya-animáció + preview-copy (v1.1)
 
 A Hero középre rendezett, tipográfia-vezérelt kompozíció (eyebrow → főcím →

@@ -11,7 +11,9 @@ import { emblemAssets } from "./emblemAssets";
  * nincs képcsere, nincs második objektum. A helyet és a képarányt a slot
  * előre lefoglalja (aspect-ratio), a mozgás kizárólag transform/opacity.
  *
- * Rétegek: [data-emblem-root] (intro: pálya + méret) → [data-emblem-tilt]
+ * Rétegek: [data-emblem-root] (intro: pálya + méret) → padlófény (a render
+ * background.png-jéből kinyert, csak fényt hordozó, lágy peremű kép) és
+ * [data-emblem-tilt]
  * (nyugalmi dőlés) → .hero-emblem-layer (nyugalmi lebegés) → img[data-layer]
  * (intro: összeállás). Így egyik animáció sem írja felül a másikat.
  *
@@ -55,7 +57,15 @@ export default function HeroEmblem() {
   }, [motionAllowed]);
 
   const idle = !motionAllowed ? undefined : paused || !inView || !pageVisible ? "paused" : "run";
-  const { widths, sizes, layers, width, height } = emblemAssets;
+  const { widths, sizes, layers, width, height, canvas, floorLight, floorRect } = emblemAssets;
+  // A padlófény a render-vászon koordinátáiban áll: a vágott slothoz képest
+  // ugyanott, ahol a renderben — így a regisztráció pontos.
+  const floorStyle = {
+    left: `${((floorRect.left - canvas.left) / width) * 100}%`,
+    top: `${((floorRect.top - canvas.top) / height) * 100}%`,
+    width: `${(floorRect.width / width) * 100}%`,
+    height: `${(floorRect.height / height) * 100}%`,
+  };
 
   return (
     <div className="hero-emblem-wrap">
@@ -68,6 +78,17 @@ export default function HeroEmblem() {
         aria-hidden="true"
       >
         <div data-emblem-root="" className="hero-emblem-root">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            data-emblem-floor=""
+            src={floorLight}
+            alt=""
+            decoding="async"
+            loading="lazy"
+            draggable={false}
+            className="hero-emblem-floor"
+            style={floorStyle}
+          />
           <div data-emblem-tilt="" className="hero-emblem-tilt">
             {layers.map((layer) => (
               <div key={layer.role} className="hero-emblem-layer" data-idle-role={layer.role}>
@@ -83,7 +104,6 @@ export default function HeroEmblem() {
                   height={height}
                   alt=""
                   decoding="async"
-                  fetchPriority="high"
                   draggable={false}
                   className="hero-emblem-img"
                 />

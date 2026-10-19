@@ -11,12 +11,17 @@
  * Kliensoldali (React) navigációnál a React ezt a scriptet nem futtatja le,
  * így oldalon belüli navigáció soha nem indít intrót.
  *
- * Állapotok a <html data-jg-intro> attribútumon (ld. globals.css):
+ * Állapotok — egy saját, a <head>-be tett <style id="jg-hero-intro">
+ * elem tartalmaként (a szabályok: `introCss`):
  *   wait   — takarás látszik, az assetekre várunk (korlátos ideig);
  *   play   — az embléma összeáll és a hero-helyére mozdul;
  *   reveal — a header és a hero-szöveg előtűnik;
- *   (nincs attribútum) — kész, statikus oldal.
- * A végeredményt a data-jg-intro-result jelzi (diagnosztika és tesztek).
+ *   (nincs <style>) — kész, statikus oldal.
+ * Szándékosan NEM a <html> attribútuma: azt a React hidratálja, és egy
+ * hidratálás előtti attribútum valódi eltérésként jelenne meg — elnémítani
+ * (suppressHydrationWarning) pedig a jövőbeli valódi hibákat is elfedné.
+ * A React 19 a <head>-be külső script által tett elemeket kihagyja.
+ * Diagnosztika és tesztek: window.jgHeroIntro = { state, result }.
  *
  * A mozgás kizárólag Web Animations API: nem ír style-attribútumot a
  * React által kezelt elemekre, és a cancel() után az elemek pontosan a
@@ -25,8 +30,15 @@
 
 export type IntroConfig = {
   storageKey: string;
+  css: { active: string; hidden: string; wait: string };
   /** Ennyi ideig várunk a rétegekre és a fontokra; utána intró nélkül megy tovább. */
   assetWaitMs: number;
+  /**
+   * Ha a vezérlő a navigáció kezdetétől ennél később fut (a HTML és a CSS
+   * maga is lassan érkezett), a hálózat túl lassú a nyitáshoz: azonnal
+   * kimarad, takarás nélkül — így lassú kapcsolaton nincs várakozás.
+   */
+  maxGateMs: number;
   /** Abszolút felső korlát: ekkor mindenképp kész állapot. */
   hardLimitMs: number;
   assembleMs: number;
@@ -44,14 +56,39 @@ export type IntroConfig = {
   layers: Record<string, { from: string; delay: number }>;
 };
 
+/**
+ * A futó intró CSS-e. A vizuális stílusok (takarás, kihagyó gomb) a
+ * globals.css-ben vannak, alapból display: none; ezek csak bekapcsolják őket.
+ */
+const introCss = {
+  // minden fázisban: takarás + kihagyó gomb látszik, az embléma a takarás
+  // fölött mozog, a nyugalmi mozgás áll, a takart vezérlők nem fókuszálhatók
+  active:
+    ".jg-intro-cover{display:block}.jg-intro-skip{display:inline-flex}" +
+    // a fejléc mögött a body látszik át áttűnés közben: ne világos legyen
+    "body{background-color:var(--color-surface-deep)}" +
+    ".hero-content{z-index:45}" +
+    "[data-intro-hidden],a[href='#fotartalom']{visibility:hidden}" +
+    ".hero-emblem-slot *{animation:none!important}" +
+    ".hero-emblem-root,.hero-emblem-img,.hero-emblem-floor{will-change:transform,opacity}",
+  // wait + play: a fejléc és a hero-copy még rejtett
+  hidden: ".jg-header,[data-intro-reveal]{visibility:hidden}",
+  // wait: az embléma még nem látszik
+  wait: ".hero-emblem-root{opacity:0}",
+};
+
 export const introConfig: IntroConfig = {
   storageKey: "jg-hero-intro-v1",
-  assetWaitMs: 900,
+  css: introCss,
+  assetWaitMs: 800,
+  maxGateMs: 600,
   hardLimitMs: 4200,
   assembleMs: 700,
   settleMs: 200,
   flightMs: 900,
-  revealDelayMs: 1000,
+  // a copy akkor tűnik elő, amikor az embléma már jórészt elhagyta a szöveg-
+  // oszlopot (desktopon a középről jobbra tartó pálya ne fussa át a címet)
+  revealDelayMs: 1250,
   revealMs: 650,
   revealStaggerMs: 70,
   maxStartScale: 0.72,
@@ -75,6 +112,7 @@ function heroIntro(cfg: IntroConfig) {
   // --- 1. Jogosultság: csak friss, főoldali, tetejére érkezés -------------
   try {
     if (location.pathname !== "/" || location.hash) return;
+    if (performance.now() > cfg.maxGateMs) return;
     if (!w.matchMedia || w.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (typeof (Element.prototype as any).animate !== "function") return;
     if ((w.scrollY || h.scrollTop || 0) > 0) return;
@@ -97,8 +135,15 @@ function heroIntro(cfg: IntroConfig) {
   let timers: number[] = [];
   const t0 = performance.now();
 
+  const style = d.createElement("style");
+  style.id = "jg-hero-intro";
+  w.jgHeroIntro = { state: "idle", result: null };
+
   function set(state: string) {
-    h.setAttribute("data-jg-intro", state);
+    style.textContent =
+      cfg.css.active + (state === "reveal" ? "" : cfg.css.hidden) + (state === "wait" ? cfg.css.wait : "");
+    if (!style.parentNode) d.head.appendChild(style);
+    w.jgHeroIntro.state = state;
   }
 
   function heading(): HTMLElement | null {
@@ -119,8 +164,8 @@ function heroIntro(cfg: IntroConfig) {
       } catch {}
     }
     for (let j = 0; j < timers.length; j++) clearTimeout(timers[j]);
-    h.removeAttribute("data-jg-intro");
-    h.setAttribute("data-jg-intro-result", result);
+    if (style.parentNode) style.parentNode.removeChild(style);
+    w.jgHeroIntro = { state: "done", result: result };
     off();
     if (moveFocus) {
       // A kihagyó gomb eltűnik; a fókusz a frissen feltárt hero-címre kerül
@@ -312,6 +357,20 @@ function heroIntro(cfg: IntroConfig) {
               fill: fill,
             } as any,
           ),
+        );
+      }
+
+      // A padlófény a megérkezéssel együtt jelenik meg: az összeállás alatt
+      // az embléma még a takarás „semleges" terében lebeg.
+      const floor = root.querySelector("[data-emblem-floor]") as HTMLElement | null;
+      if (floor) {
+        anims.push(
+          floor.animate([{ opacity: 0 }, { opacity: 1 }], {
+            delay: cfg.assembleMs,
+            duration: cfg.settleMs + cfg.flightMs,
+            easing: "ease-in-out",
+            fill: fill,
+          } as any),
         );
       }
 
