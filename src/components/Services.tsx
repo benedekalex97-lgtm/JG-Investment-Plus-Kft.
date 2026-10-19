@@ -34,18 +34,22 @@ import { services } from "@/content/homepage";
  * grafikai elem a sorszám és a vonal.
  *
  * A közös jogi közlés visszafogott alsó sáv, nem ötödik kártya.
+ *
+ * v1.6 — SÖTÉT SZAKASZ (deep) a főoldali színritmusban. A nyitott, vonalakkal
+ * tagolt rács változatlan; csak a színpárok igazodnak a sötét felülethez:
+ * cím Porcelain, leírás és közlés Cool Silver, dekoratív vonalak és sorszám
+ * kontrollált fehér áttetszőséggel, hover/kiemelés Signal Berry Light.
  */
 export default function Services() {
   return (
     <Section
-      transitionFrom="canvas"
       id="szolgaltatasok"
       number={services.sectionNumber}
       label={services.sectionLabel}
       heading={services.heading}
       headingId="szolgaltatasok-cim"
       lead={services.lead}
-      tone="surface"
+      tone="deep"
     >
       <ul className="grid gap-x-16 gap-y-14 sm:grid-cols-2">
         {services.items.map((item, index) => (
@@ -57,25 +61,25 @@ export default function Services() {
           >
             <span
               aria-hidden="true"
-              className="block h-px w-full bg-border transition-colors duration-300 group-hover:bg-signal-berry"
+              className="block h-px w-full bg-white/14 transition-colors duration-300 group-hover:bg-signal-berry-light"
             />
             <div className="flex items-baseline gap-4">
               <span
                 aria-hidden="true"
-                className="font-display mt-5 block text-[1.875rem] leading-none tabular-nums text-border-strong transition-colors duration-300 group-hover:text-signal-berry"
+                className="font-display mt-5 block text-[1.875rem] leading-none tabular-nums text-cool-silver/55 transition-colors duration-300 group-hover:text-signal-berry-light"
               >
                 {String(index + 1).padStart(2, "0")}
               </span>
               {/* A sorszám mellől induló, hoverre Berryre váltó rövid sín. */}
               <span
                 aria-hidden="true"
-                className="mt-5 block h-px w-5 shrink-0 bg-border transition-all duration-300 group-hover:w-9 group-hover:bg-signal-berry"
+                className="mt-5 block h-px w-5 shrink-0 bg-white/20 transition-all duration-300 group-hover:w-9 group-hover:bg-signal-berry-light"
               />
             </div>
-            <h3 className="font-display mt-5 max-w-[22ch] text-[1.4375rem] leading-[1.22] tracking-[-0.008em] text-text-primary sm:text-[1.5625rem]">
+            <h3 className="font-display mt-5 max-w-[22ch] text-[1.4375rem] leading-[1.22] tracking-[-0.008em] text-porcelain sm:text-[1.5625rem]">
               {item.title}
             </h3>
-            <p className="mt-4 max-w-[46ch] text-base leading-[1.72] text-text-secondary">
+            <p className="mt-4 max-w-[46ch] text-base leading-[1.72] text-cool-silver">
               {item.body}
             </p>
           </Reveal>
@@ -83,25 +87,21 @@ export default function Services() {
       </ul>
 
       {/* EGYETLEN közös közlés — visszafogott alsó sáv, nem ötödik kártya. */}
-      <Reveal delay={120} className="mt-16 border-t border-border pt-7 sm:mt-20">
-        <p className="max-w-[80ch] border-l-2 border-l-accent pl-5 text-[0.9375rem] leading-relaxed text-text-secondary sm:text-base">
+      <Reveal delay={120} className="mt-16 border-t border-white/12 pt-7 sm:mt-20">
+        <p className="max-w-[80ch] border-l-2 border-l-signal-berry-light/70 pl-5 text-[0.9375rem] leading-relaxed text-cool-silver sm:text-base">
           {services.roleNote.body}
         </p>
       </Reveal>
 
       {/*
-        v1.1 — POST-LAUNCH UI POLISH v1.1: kontextuális CTA a szakasz végén.
-        Meglévő tokenek: Aubergine háttér + Porcelain felirat (a design
-        rendszer saját, eddig csak háttér/keret/fókusz szerepben használt
-        accent/accent-hover párja) — világos (surface) szakaszon ez ad
-        kellő, de nem harsány súlyt, új szín vagy gradiens nélkül. Ugyanaz a
-        forma (rounded-md, min-h-14, hover:-translate-y-px), mint a Hero és
-        a Header CTA-ján, csak a világos háttérhez illő színpárral.
+        Kontextuális CTA a szakasz végén. v1.6: sötét (deep) felületen a Hero
+        CTA-jával AZONOS `hero-cta-primary` osztály és színpár (Porcelain
+        háttér, Ink felirat), új szín vagy stílus nélkül.
       */}
       <Reveal delay={160} className="mt-10 sm:mt-12">
         <a
           href={services.cta.href}
-          className="inline-flex min-h-14 items-center justify-center rounded-md bg-accent px-10 text-center text-sm font-semibold tracking-[0.1em] text-porcelain transition duration-200 hover:-translate-y-px hover:bg-accent-hover sm:text-[0.9375rem]"
+          className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-porcelain px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
         >
           {services.cta.label}
         </a>

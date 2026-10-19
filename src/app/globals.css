@@ -1041,6 +1041,13 @@ body {
 /* ==========================================================================
    v1.5.3 — SZAKASZÁTMENET-RENDSZER (egységes, dekoratív, nulla layout-hatás)
    --------------------------------------------------------------------------
+   v1.6 MEGJEGYZÉS: a FŐOLDAL szakaszai már NEM használják ezt a sávot — ott
+   szabályos sötét–világos ritmus van, éles, gradiens nélküli határokkal (a
+   20/44 px-es sáv a világos–sötét határokon ködös csíkként látszott). A
+   rendszer kizárólag a Footer tetején él tovább a jogi aloldalakon
+   (Footer `transitionFrom="deep"` alapérték), ott változatlan. Az alábbi
+   mérési táblázat a v1.5.3-as főoldali állapotot rögzíti, történeti adat.
+
    MÉRT KIINDULÁS (1280 px, renderelt pixelek a bal oldali margóoszlopban,
    a határ ±1 px-es sora):
 

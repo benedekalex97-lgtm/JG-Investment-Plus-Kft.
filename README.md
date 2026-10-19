@@ -181,6 +181,17 @@ változatlan. A korábbi gyertyakorridor-kép már nem töltődik be.
   át, lágy peremmel. A forráscsomag (ZIP, .blend, GLB, videó,
   referencia-HTML) nem része a repónak.
 
+### Főoldali színritmus (preview v0.2)
+
+Header + Hero **sötét** → 01 Rólunk **világos** → 02 Szolgáltatások **sötét**
+→ 03 Miért minket? **világos** → 04 Dokumentumok **sötét** → 05 Kapcsolat
+**világos** → Footer **sötét** (surface-sink). Világos főszakasz: Porcelain
+(`canvas`) háttér, Ink / Muted Plum / Aubergine; sötét főszakasz:
+`surface-deep`, Porcelain / Cool Silver / Signal Berry Light. A szakaszok
+éles, átmeneti sáv nélküli határral találkoznak; a SectionTransition sáv
+csak a jogi aloldalak footerének tetején maradt (változatlanul). A Rólunk
+sötét adatpanelje helyi, funkcionális kiemelés.
+
 ## Hero — japángyertya-animáció + preview-copy (v1.1)
 
 A Hero középre rendezett, tipográfia-vezérelt kompozíció (eyebrow → főcím →

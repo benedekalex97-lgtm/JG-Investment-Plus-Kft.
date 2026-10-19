@@ -74,7 +74,8 @@ export default function Home() {
         <Contact />
       </main>
 
-      <Footer />
+      {/* A világos Kapcsolat után éles, átmeneti sáv nélküli lezárás. */}
+      <Footer transitionFrom={null} />
     </>
   );
 }
