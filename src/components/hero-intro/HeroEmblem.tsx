@@ -1,62 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import EmblemCanvas from "@/components/hero-3d/EmblemCanvas";
 import { emblemAssets } from "./emblemAssets";
 
 /**
- * HeroEmblem — a térbeli JG-embléma a hero saját kompozíciójában.
+ * HeroEmblem — a JG-embléma a hero saját kompozíciójában (v0.3).
  *
- * Ez az EGYETLEN megjelenítés: a nyitóanimáció (introScript.ts) ugyanezt a
- * rétegrendszert mozgatja a végleges helyéről indított transzformmal, tehát
- * nincs képcsere, nincs második objektum. A helyet és a képarányt a slot
- * előre lefoglalja (aspect-ratio), a mozgás kizárólag transform/opacity.
+ * Fő látvány: valódi, böngészőben renderelt 3D-jelenet (ld. hero-3d). Egyetlen
+ * WebGL-canvas adja az összeállási introt és az élő herót.
  *
- * Rétegek: [data-emblem-root] (intro: pálya + méret) → padlófény (a render
- * background.png-jéből kinyert, csak fényt hordozó, lágy peremű kép) és
- * [data-emblem-tilt]
- * (nyugalmi dőlés) → .hero-emblem-layer (nyugalmi lebegés) → img[data-layer]
- * (intro: összeállás). Így egyik animáció sem írja felül a másikat.
+ * Statikus tartalék: a JG_hero_3D_alap_v01 csomag renderelt PNG-rétegei
+ * egymásra helyezve (az emblémát mutató [data-emblem-fallback]) és a render
+ * padlófénye. NEM animál: JS nélkül, reduced-motionnél, WebGL- vagy
+ * modellhibánál, context lossnál és amíg a 3D nem kész, ez látszik. Amikor a
+ * 3D élő, a PNG-rétegek elrejtve maradnak (nincs két párhuzamos megjelenítés).
  *
- * Nyugalmi mozgás (CSS, ~8 s): csak JavaScripttel, csak reduced-motion
- * nélkül, és csak akkor fut, ha az embléma látszik és a fül aktív. A
- * „Mozgás megállítása" gombbal megállítható. Dekoratív: aria-hidden.
+ * A slot helyét és képarányát az elrendezés előre lefoglalja. Dekoratív:
+ * aria-hidden. A folyamatos 3D-mozgás a gombbal megállítható; képernyőn kívül
+ * és háttérfülön a renderloop szünetel.
  */
 export default function HeroEmblem() {
-  const slotRef = useRef<HTMLDivElement>(null);
-  const [motionAllowed, setMotionAllowed] = useState(false);
+  const [live, setLive] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [inView, setInView] = useState(true);
-  const [pageVisible, setPageVisible] = useState(true);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setMotionAllowed(!mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  useEffect(() => {
-    if (!motionAllowed) return;
-    const slot = slotRef.current;
-    const onVisibility = () => setPageVisible(document.visibilityState === "visible");
-    onVisibility();
-    document.addEventListener("visibilitychange", onVisibility);
-
-    let io: IntersectionObserver | null = null;
-    if (slot && "IntersectionObserver" in window) {
-      io = new IntersectionObserver((entries) => {
-        for (const entry of entries) setInView(entry.isIntersecting);
-      });
-      io.observe(slot);
-    }
-    return () => {
-      document.removeEventListener("visibilitychange", onVisibility);
-      io?.disconnect();
-    };
-  }, [motionAllowed]);
-
-  const idle = !motionAllowed ? undefined : paused || !inView || !pageVisible ? "paused" : "run";
   const { widths, sizes, layers, width, height, canvas, floorLight, floorRect } = emblemAssets;
   // A padlófény a render-vászon koordinátáiban áll: a vágott slothoz képest
   // ugyanott, ahol a renderben — így a regisztráció pontos.
@@ -68,55 +35,49 @@ export default function HeroEmblem() {
   };
 
   return (
-    <div className="hero-emblem-wrap">
+    <div className="hero-emblem-wrap" data-live={live ? "true" : undefined}>
       <div
-        ref={slotRef}
         data-hero-emblem=""
-        data-idle={idle}
         className="hero-emblem-slot"
         style={{ aspectRatio: `${width} / ${height}` }}
         aria-hidden="true"
       >
-        <div data-emblem-root="" className="hero-emblem-root">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            data-emblem-floor=""
-            src={floorLight}
-            alt=""
-            decoding="async"
-            loading="lazy"
-            draggable={false}
-            className="hero-emblem-floor"
-            style={floorStyle}
-          />
-          <div data-emblem-tilt="" className="hero-emblem-tilt">
-            {layers.map((layer) => (
-              <div key={layer.role} className="hero-emblem-layer" data-idle-role={layer.role}>
-                {/* Előre méretezett, alfa-csatornás WebP-k; a regisztráció
-                    miatt mindhárom réteg azonos dobozt és srcsetet kap. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  data-layer={layer.role}
-                  src={`${layer.base}-${widths[widths.length - 1]}.webp`}
-                  srcSet={widths.map((w) => `${layer.base}-${w}.webp ${w}w`).join(", ")}
-                  sizes={sizes}
-                  width={width}
-                  height={height}
-                  alt=""
-                  decoding="async"
-                  draggable={false}
-                  className="hero-emblem-img"
-                />
-              </div>
-            ))}
-          </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={floorLight}
+          alt=""
+          decoding="async"
+          loading="lazy"
+          draggable={false}
+          className="hero-emblem-floor"
+          style={floorStyle}
+        />
+        <div data-emblem-fallback="" className="hero-emblem-fallback">
+          {layers.map((layer) => (
+            // Előre méretezett, alfa-csatornás WebP-k; a regisztráció miatt
+            // mindhárom réteg azonos dobozt és srcsetet kap.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={layer.role}
+              src={`${layer.base}-${widths[widths.length - 1]}.webp`}
+              srcSet={widths.map((w) => `${layer.base}-${w}.webp ${w}w`).join(", ")}
+              sizes={sizes}
+              width={width}
+              height={height}
+              alt=""
+              decoding="async"
+              draggable={false}
+              className="hero-emblem-img"
+            />
+          ))}
         </div>
       </div>
 
-      {motionAllowed ? (
+      <EmblemCanvas onLiveChange={setLive} paused={paused} />
+
+      {live ? (
         <button
           type="button"
-          data-intro-hidden=""
           className="hero-emblem-toggle"
           aria-pressed={paused}
           onClick={() => setPaused((p) => !p)}

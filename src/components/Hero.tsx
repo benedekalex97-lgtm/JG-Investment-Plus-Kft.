@@ -3,7 +3,9 @@ import { hero, statusNotice } from "@/content/homepage";
 
 /**
  * Hero — v1.6 PREVIEW: tipográfia-vezérelt copy + különálló, térbeli
- * JG-embléma hero-illusztráció (JG_hero_3D_alap_v01 rétegképek).
+ * JG-embléma hero-illusztráció. v0.3: valódi, böngészőben renderelt 3D-jelenet
+ * (Three.js, jg-core-animated.glb); a renderelt PNG-rétegek csak statikus
+ * tartalékként maradtak.
  *
  * Előzmények: v0.6–v1.5 között itt absztrakt japángyertya-háttér élt (előbb
  * Canvas-animáció, v1.5.2-től statikus gyertyakorridor-kép). A v1.6 ezt a
@@ -20,10 +22,10 @@ import { hero, statusNotice } from "@/content/homepage";
  *     az embléma, legalul a státuszközlés.
  * Az embléma helye és képaránya előre le van foglalva (ld. HeroEmblem).
  *
- * Nyitóanimáció (ld. hero-intro/introScript.ts): a [data-intro-reveal]
- * elemek a nyitás végén tűnnek elő. JS nélkül, reduced-motionnél, mély-
- * hivatkozásnál és ismételt látogatásnál a hero azonnal, statikusan látszik —
- * a szöveg és a CTA soha nem függ a scripttől.
+ * 3D-nyitás (ld. hero-intro/introScript.ts és hero-3d): kizárólag az embléma
+ * saját területén zajlik. A szöveg, a CTA és a fejléc az első festéstől
+ * olvasható — sosem rejtjük el őket, és az embléma pályája nem halad át
+ * rajtuk. JS nélkül a hero statikusan, a PNG-tartalékkal látszik.
  *
  * Rétegek alulról: Deep alapfelület → hero-vignette → hero-veil
  * (kontrasztvédő) → copy, CTA és embléma. A háttérrétegek dekoratívak:
@@ -85,7 +87,6 @@ export default function Hero() {
             {/* Az eyebrow pontosan két, tudatos sor (v1.5.3). */}
             <p
               data-hero-ink=""
-              data-intro-reveal=""
               className="flex flex-col items-center gap-2 text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:items-start lg:text-[0.8125rem]"
             >
               <span className="flex items-center gap-3 whitespace-nowrap">
@@ -104,7 +105,6 @@ export default function Hero() {
             <h1
               id="hero-cim"
               data-hero-ink=""
-              data-intro-reveal=""
               className="font-display mx-auto mt-7 max-w-[15ch] text-[clamp(2.75rem,12vw,3.5rem)] leading-[1.03] font-medium tracking-[-0.018em] [overflow-wrap:normal] hyphens-none text-balance text-porcelain outline-none sm:mt-8 sm:max-w-[16ch] md:text-[clamp(3.75rem,7vw,5rem)] lg:mx-0 lg:max-w-[14ch] lg:text-[clamp(3.75rem,5.2vw,5rem)]"
             >
               <HeadlineLine line={firstLine} />
@@ -113,7 +113,6 @@ export default function Hero() {
 
             <p
               data-hero-ink=""
-              data-intro-reveal=""
               className="mx-auto mt-7 max-w-[34ch] text-base leading-[1.72] text-cool-silver text-pretty sm:mt-8 sm:max-w-[58ch] sm:text-lg lg:mx-0 lg:max-w-[34rem] lg:text-xl"
             >
               {hero.intro}
@@ -121,7 +120,6 @@ export default function Hero() {
 
             {/* Egyetlen hero-CTA — semleges Porcelain felület, Ink felirat (13,56:1, AAA). */}
             <div
-              data-intro-reveal=""
               className="mt-9 flex w-full max-w-sm flex-col items-stretch sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center lg:justify-start"
             >
               <a
@@ -138,7 +136,7 @@ export default function Hero() {
         </div>
 
         {/* Státuszközlés — mindig látható, 15/16 px, Cool Silver Deep-en (AAA). */}
-        <div data-intro-reveal="" className="border-t border-white/12 pb-12 pt-7 sm:pb-14 lg:pb-16">
+        <div className="border-t border-white/12 pb-12 pt-7 sm:pb-14 lg:pb-16">
           <p className="max-w-4xl text-[0.9375rem] leading-relaxed text-cool-silver sm:text-base">
             {statusNotice.body}
           </p>

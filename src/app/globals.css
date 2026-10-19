@@ -741,12 +741,50 @@ body {
   width: 100%;
 }
 
-.hero-emblem-root,
-.hero-emblem-tilt,
-.hero-emblem-layer {
+/*
+  Statikus PNG-tartalék (JS nélkül, reduced-motion, WebGL-/modellhiba). Nem
+  animál. Amikor a 3D-jelenet élő, AZONNAL elrejtődik (áttűnés nélkül, hogy
+  a PNG és a 3D soha ne látszódjon egyszerre); csak a canvas úszik be.
+*/
+.hero-emblem-fallback {
   position: absolute;
   inset: 0;
-  transform-origin: 50% 55%;
+}
+
+.hero-emblem-wrap[data-live] .hero-emblem-fallback {
+  opacity: 0;
+}
+
+/*
+  A 3D-canvas — egyetlen WebGL-felület az introhoz és a kész heróhoz. A
+  slotnál nagyobb (a kis elfordulásoknak és az intro rövid pályájának kell
+  hely), a mérete az intro alatt nem változik. Átlátszó, pointer-events
+  nélkül; első kirajzolt képkocka előtt láthatatlan (nincs fekete villanás).
+  Replaced elem: a szélesség/magasság explicit.
+*/
+.hero-emblem-canvas {
+  position: absolute;
+  display: block;
+  left: -18%;
+  top: -10%;
+  width: 136%;
+  height: 120%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+@media (min-width: 1024px) {
+  .hero-emblem-canvas {
+    left: -34%;
+    top: -14%;
+    width: 144%;
+    height: 128%;
+  }
+}
+
+.hero-emblem-canvas[data-shown] {
+  opacity: 1;
 }
 
 /*
@@ -757,6 +795,7 @@ body {
 .hero-emblem-floor {
   position: absolute;
   max-width: none;
+  transition: opacity 600ms ease;
   user-select: none;
   -webkit-user-select: none;
   pointer-events: none;
@@ -773,73 +812,8 @@ body {
   pointer-events: none;
 }
 
-/* ---- Nyugalmi mozgás (~8 s) — csak JS-sel, reduced-motion nélkül ---------- */
-@keyframes jg-emblem-float-cap {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(0, -1.3%, 0);
-  }
-}
-
-@keyframes jg-emblem-float-left {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(-0.3%, -0.45%, 0);
-  }
-}
-
-@keyframes jg-emblem-float-right {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(0.3%, -0.45%, 0);
-  }
-}
-
-@keyframes jg-emblem-tilt {
-  0%,
-  50%,
-  100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(0.45deg);
-  }
-  75% {
-    transform: rotate(-0.45deg);
-  }
-}
-
-.hero-emblem-slot[data-idle] .hero-emblem-tilt {
-  animation: jg-emblem-tilt 16s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-}
-
-.hero-emblem-slot[data-idle] [data-idle-role="cap"] {
-  animation: jg-emblem-float-cap 8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-}
-
-.hero-emblem-slot[data-idle] [data-idle-role="left"] {
-  animation: jg-emblem-float-left 8s cubic-bezier(0.45, 0, 0.55, 1) -0.6s infinite;
-}
-
-.hero-emblem-slot[data-idle] [data-idle-role="right"] {
-  animation: jg-emblem-float-right 8s cubic-bezier(0.45, 0, 0.55, 1) -1.2s infinite;
-}
-
-/* Megállítva / képernyőn kívül / háttérfülön: a mozgás ott áll meg, ahol tart. */
-.hero-emblem-slot[data-idle="paused"] :is(.hero-emblem-tilt, .hero-emblem-layer) {
-  animation-play-state: paused;
-}
-
-/* A mozgás megállítása — 44×44 px, visszafogott, az embléma üres jobb felső sarkában. */
+/* A 3D-mozgás megállítása — 44×44 px, visszafogott, az embléma üres jobb
+   felső sarkában. Csak élő 3D-jelenet mellett jelenik meg. */
 .hero-emblem-toggle {
   position: absolute;
   right: 0;
@@ -887,22 +861,9 @@ body {
   clip-path: polygon(10% 0, 100% 50%, 10% 100%);
 }
 
-/* ---- Nyitóanimáció (ld. hero-intro/introScript.ts) ------------------------
-   Alapból (és JS nélkül) a takarás és a kihagyó gomb NEM látszik. Futó
-   intró alatt a vezérlő egy <style id="jg-hero-intro"> elemmel kapcsolja be
-   őket és rejti a fejlécet/copyt — itt csak a megjelenésük él. */
-.jg-intro-cover {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  background-color: var(--color-surface-deep);
-  background-image:
-    radial-gradient(ellipse 52% 44% at 50% 50%, rgb(73 52 71 / 30%) 0%, transparent 72%),
-    linear-gradient(to bottom, var(--color-surface-raise) 0%, var(--color-surface-deep) 50%, var(--color-surface-sink) 100%);
-}
-
+/* ---- 3D-nyitás (ld. hero-intro/introScript.ts) -----------------------------
+   Takaró képernyő nincs. Alapból (és JS nélkül) a kihagyó gomb NEM látszik;
+   futó intró alatt a vezérlő <style id="jg-hero-intro"> eleme kapcsolja be. */
 .jg-intro-skip {
   display: none;
   position: fixed;
@@ -934,11 +895,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-emblem-slot *,
-  .hero-emblem-slot *::before {
-    animation: none !important;
-  }
-
+  /* reduced-motion: a 3D el sem indul (ld. EmblemCanvas), csak a statikus PNG. */
   .hero-emblem-toggle {
     display: none;
   }

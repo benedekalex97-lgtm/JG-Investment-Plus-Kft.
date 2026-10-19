@@ -181,6 +181,26 @@ változatlan. A korábbi gyertyakorridor-kép már nem töltődik be.
   át, lágy peremmel. A forráscsomag (ZIP, .blend, GLB, videó,
   referencia-HTML) nem része a repónak.
 
+### Valódi 3D embléma (preview v0.3)
+
+A hero fő látványa a `public/models/jg-core-animated.glb` modell (három külön
+mesh, három 8 s-os idle klip), **Three.js + GLTFLoader**-rel, böngészőben
+renderelve. A three.js csak a főoldalon, dinamikus importtal töltődik
+(`src/components/hero-3d/engine.ts`), SSR alatt nem fut.
+
+- **Egy canvas, egy renderer** adja az összeállási introt és az élő herót.
+  Hierarchia: `stage` (intro-pálya) → `tilt` (pointer + finom himbálózás) →
+  `recenter` → elemenkénti pivot (összeállás) → GLB-node (idle klip).
+- **Fény:** procedurális `RoomEnvironment` (PMREM, 128 px) + három fény, HDR-fájl nincs.
+  Az üveg valódi transzmisszió helyett lakkozott, enyhén áttetsző anyag (mért
+  költségdöntés, ld. a kódkommentet).
+- **Intro:** csak friss, főoldali érkezéskor, és csak ha a jelenet 1,6 s-on belül
+  ténylegesen kirajzolódott; a szöveg és a CTA közben végig olvasható.
+- **Tartalék:** a renderelt PNG-rétegek statikus kompozíciója (JS nélkül,
+  reduced-motion, WebGL-/modellhiba, context loss) — nem animál.
+- **Élő hero:** egérre adott kis térbeli elfordulás; megállítható; képernyőn
+  kívül és háttérfülön a renderloop is áll. Mobilon DPR ≤ 1,5, ≤ 0,9 MP.
+
 ### Főoldali színritmus (preview v0.2)
 
 Header + Hero **sötét** → 01 Rólunk **világos** → 02 Szolgáltatások **sötét**
