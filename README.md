@@ -155,6 +155,93 @@ fallback stackkel (`src/app/globals.css` `--font-serif-display` /
 `--font-sans`) — ha a betűtöltés a build-környezetben elérhetetlen lenne, a
 megjelenés akkor is stabil marad.
 
+## Hero v1.6 PREVIEW — összeálló embléma → hero átvezetés
+
+Branch: `feat/jg-assembly-hero-preview-v1` (preview, nem éles). A hero
+vizuális eleme a JG_hero_3D_alap_v01 csomag három renderelt rétege (felső
+aubergine elem, ezüst bal panel, carbon jobb panel); a fejléc lapos logója
+változatlan. A korábbi gyertyakorridor-kép már nem töltődik be.
+
+- **Nyitás (~2,2 s, munkamenetenként egyszer):** a három elem a képernyő
+  közepén összeáll, majd ugyanaz a rétegrendszer a végleges hero-helyére
+  mozdul (FLIP, Web Animations API), közben feltárul a fejléc és a copy.
+  Vezérlő: `src/components/hero-intro/introScript.ts` (szinkron, inline,
+  React-független; az első festés előtt dönt).
+- **Kimarad:** JS nélkül, reduced-motionnél, mélyhivatkozásnál
+  (`/#kapcsolat`), visszalépésnél, ismételt betöltésnél, tiltott
+  sessionStorage-nál, lassú kapcsolaton (ha a HTML+CSS 600 ms-nál lassabb),
+  és ha a rétegek 0,8 s-on belül nem állnak készen.
+- **Lezárás:** „Animáció kihagyása" gomb, Escape, Tab, kattintás, görgetés,
+  átméretezés, háttérfül; abszolút felső korlát 4,2 s. Nincs scroll-lock.
+- **Nyugalmi mozgás:** ~8 s-os, visszafogott lebegés és dőlés; gombbal
+  megállítható, képernyőn kívül és háttérfülön szünetel.
+- **Assetek:** `node scripts/build-hero-emblem.mjs <layers-könyvtár>` —
+  közös téglalappal vágott (regisztráció megőrizve), alfa-csatornás WebP-k a
+  `public/hero-emblem/` alá; a `background.png`-ből csak a padlófény kerül
+  át, lágy peremmel. A forráscsomag (ZIP, .blend, GLB, videó,
+  referencia-HTML) nem része a repónak.
+
+### Nyitójelenet és valódi 3D embléma (preview v0.4)
+
+A hero fő látványa a `public/models/jg-core-animated.glb` modell (három külön
+mesh), **Three.js + GLTFLoader**-rel, böngészőben renderelve. A three.js csak
+a főoldalon, dinamikus importtal töltődik (`src/components/hero-3d/engine.ts`),
+SSR alatt nem fut.
+
+**Nyitás (első, a lap tetejére érkező látogatás):**
+
+1. külön **Graphite nyitóképernyő** takarja a teljes oldalt (a fejlécet is);
+   a 3D itt töltődik, a „Kihagyás" gomb látszik;
+2. a három elem a **képernyő közepén** térben összeáll;
+3. rövid megállás: a felismerhető, összeállt embléma lassan fordul;
+4. az embléma **nagyobb lesz és a hero helyére érkezik**, közben a
+   nyitóháttér feloldódik, feltárul a fejléc, a szöveg és a CTA (a feloldódás
+   csak akkor indul, amikor az objektum már nem takarná a szöveget);
+5. nyugalomban **az embléma áll**: nincs idle mozgás, nincs szünet-gomb,
+   nincs futó renderloop; egérre finoman elfordul, majd megáll.
+
+**Technika:** egy canvas, egy renderer, egy modell. A canvas portálon át a
+`<body>` alatt, dokumentum-koordinátákban áll (a hero `overflow-hidden`
+szekciója nem vágja le); nyitás alatt a nyitóháttér fölött (z 61), utána a
+sticky fejléc alatt (z 40). A képernyő közepe és a végső hely a tényleges
+viewport-/DOM-méretekből jön; az objektum mindig a kamera tengelyén van, helyét
+a principális pont (lens shift), méretét a kamera távolsága adja, px-ben
+rögzített fókusztávolsággal — a canvas áthelyezése nem okoz ugrást.
+
+**Határidők** (`introScript.ts`, mind az inline scriptben, JS-csomag nélkül is):
+3D-re várás a nyitóképernyőn legfeljebb **3,5 s**, utána rövid áttűnéssel a kész
+oldal; lejátszás legfeljebb 4,6 s; abszolút felső korlát **9 s**.
+
+**Nincs nyitás** (közvetlenül a kész oldal): mélyhivatkozás, görgetett helyzet,
+vissza/előre, már megtörtént festés, háttérfül, reduced-motion, adatkímélő/2G–3G,
+WebGL hiánya, tiltott storage, a munkamenetben már megtekintve. JS nélkül a
+nyitóháttér rejtett. Hiba (modell, renderer, context loss) esetén a statikus
+PNG-tartalék látszik.
+
+**Munkamenet:** `sessionStorage["jg-hero-intro-v2"]`; csak sikeres befejezés
+vagy tudatos kihagyás (gomb, Escape, billentyű, kattintás, görgetés, Tab) után
+íródik be. A nyitás alatt a takart oldal `inert`.
+
+**Újrajátszás (csak preview / helyi build):** `/?intro=replay`. Production
+buildben (`VERCEL_ENV=production`) ki van kapcsolva. Alternatíva: új böngészőfül
+vagy a `jg-hero-intro-v2` sessionStorage-kulcs törlése.
+
+- **Fény:** procedurális `RoomEnvironment` (PMREM, 128 px) + négy fény, HDR-fájl
+  nincs. Az üveg valódi transzmisszió helyett lakkozott, enyhén áttetsző anyag
+  (mért költségdöntés, ld. a kódkommentet).
+- **Mobil:** DPR ≤ 1,5, ≤ 1,3 MP rajzpuffer; desktop DPR ≤ 1,75, ≤ 2,6 MP.
+
+### Főoldali színritmus (preview v0.2)
+
+Header + Hero **sötét** → 01 Rólunk **világos** → 02 Szolgáltatások **sötét**
+→ 03 Miért minket? **világos** → 04 Dokumentumok **sötét** → 05 Kapcsolat
+**világos** → Footer **sötét** (surface-sink). Világos főszakasz: Porcelain
+(`canvas`) háttér, Ink / Muted Plum / Aubergine; sötét főszakasz:
+`surface-deep`, Porcelain / Cool Silver / Signal Berry Light. A szakaszok
+éles, átmeneti sáv nélküli határral találkoznak; a SectionTransition sáv
+csak a jogi aloldalak footerének tetején maradt (változatlanul). A Rólunk
+sötét adatpanelje helyi, funkcionális kiemelés.
+
 ## Hero — japángyertya-animáció + preview-copy (v1.1)
 
 A Hero középre rendezett, tipográfia-vezérelt kompozíció (eyebrow → főcím →

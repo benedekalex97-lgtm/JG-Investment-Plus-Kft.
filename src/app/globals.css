@@ -660,6 +660,209 @@ body {
 }
 
 /* ==========================================================================
+   HERO v1.6 PREVIEW — ELRENDEZÉS + TÉRBELI EMBLÉMA + NYITÓANIMÁCIÓ
+   --------------------------------------------------------------------------
+   A copy és az embléma elrendezése, a rétegek egymásra helyezése és a
+   nyitójelenet állapotai. A mozgás kizárólag transform és
+   opacity; a slot helyét és képarányát az elrendezés előre lefoglalja.
+   ========================================================================== */
+
+.hero-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 2.5rem;
+  padding-bottom: 2.75rem;
+}
+
+@media (min-width: 640px) {
+  .hero-layout {
+    padding-top: 4rem;
+    padding-bottom: 3.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    align-items: center;
+    column-gap: 3rem;
+    min-height: 620px;
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  /* A kontrasztfátyol desktopon a balra rendezett copy mögé kerül. */
+  .hero-veil {
+    background-image: radial-gradient(
+      ellipse 58% 70% at 28% 46%,
+      rgb(27 22 28 / var(--veil-core)) 0%,
+      rgb(27 22 28 / calc(var(--veil-core) - 10%)) 30%,
+      rgb(27 22 28 / var(--veil-mid)) 52%,
+      rgb(27 22 28 / calc(var(--veil-mid) * 0.4)) 72%,
+      rgb(27 22 28 / 0%) 100%
+    );
+  }
+}
+
+/* Mobilon/tableten az embléma a CTA ALATT, külön méretezve. */
+.hero-emblem-wrap {
+  position: relative;
+  width: min(56vw, 280px);
+  margin-top: 1.75rem;
+}
+
+@media (min-width: 640px) {
+  .hero-emblem-wrap {
+    width: 340px;
+    margin-top: 2.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-emblem-wrap {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 0;
+    justify-self: end;
+  }
+}
+
+/* Alacsony, fekvő viewport: az embléma ne nyomja le aránytalanul az oldalt. */
+@media (max-height: 520px) and (orientation: landscape) and (max-width: 1023px) {
+  .hero-emblem-wrap {
+    width: min(34vw, 240px);
+  }
+}
+
+.hero-emblem-slot {
+  position: relative;
+  width: 100%;
+}
+
+/*
+  Statikus PNG-tartalék (JS nélkül, reduced-motion, WebGL-/modellhiba). Nem
+  animál. Amikor a 3D-jelenet élő, AZONNAL elrejtődik (áttűnés nélkül, hogy
+  a PNG és a 3D soha ne látszódjon egyszerre); csak a canvas úszik be.
+*/
+.hero-emblem-fallback {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-emblem-wrap[data-live] .hero-emblem-fallback {
+  opacity: 0;
+}
+
+/*
+  A 3D-canvas — egyetlen WebGL-felület a nyitáshoz és a kész heróhoz. NEM a
+  hero része: portálon át közvetlenül a <body> alatt, abszolút pozícióval,
+  dokumentum-koordinátákban áll (helyét és méretét a motor írja inline), így
+  a hero overflow-hidden szekciója nem vágja le. Rétegek: a nyitás alatt a
+  Graphite nyitóháttér (60) fölött, utána a sticky fejléc (50) alatt.
+  Átlátszó, pointer-events nélkül; az első kirajzolt kép előtt láthatatlan.
+*/
+.jg-emblem-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 0;
+  height: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+.jg-emblem-canvas[data-phase="intro"] {
+  z-index: 61;
+}
+
+.jg-emblem-canvas[data-shown] {
+  opacity: 1;
+}
+
+/*
+  Padlófény — a render background.png-jéből: a build-script levonja a render
+  közel fekete alapszínét, és csak a fényt tartja meg lágy, radiális
+  peremmel. Nincs téglalap-él; a hero saját felületén ül.
+*/
+.hero-emblem-floor {
+  position: absolute;
+  max-width: none;
+  transition: opacity 600ms ease;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+.hero-emblem-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+/* ---- Nyitójelenet (ld. hero-intro/introScript.ts) ----------------------------
+   Alapból (és JS nélkül) rejtett; csak a vezérlő <style id="jg-hero-intro">
+   eleme kapcsolja be. A Graphite nyitóháttér a fejléc (50) fölött takarja a
+   teljes oldalt; a 3D-canvas (61) és a Kihagyás gomb (62) fölötte áll. */
+.jg-intro-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background-color: var(--color-surface-deep);
+  background-image:
+    radial-gradient(ellipse 52% 44% at 50% 50%, rgb(73 52 71 / 30%) 0%, transparent 72%),
+    linear-gradient(to bottom, var(--color-surface-raise) 0%, var(--color-surface-deep) 50%, var(--color-surface-sink) 100%);
+}
+
+.jg-intro-skip {
+  display: none;
+  position: fixed;
+  z-index: 62;
+  right: calc(1.25rem + env(safe-area-inset-right));
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  min-height: 2.75rem;
+  align-items: center;
+  padding: 0 1.125rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgb(190 193 199 / 42%);
+  background-color: rgb(21 17 22 / 62%);
+  color: var(--color-porcelain);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.jg-intro-skip:hover {
+  border-color: rgb(190 193 199 / 75%);
+}
+
+@media (max-width: 639px) {
+  .jg-intro-skip {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* reduced-motion: nincs nyitás és nincs 3D (ld. EmblemCanvas), csak a statikus PNG. */
+  .jg-intro-overlay,
+  .jg-intro-skip {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
    SÖTÉT SZAKASZOK MÉLYSÉGE — v1.4
    A „Miért minket?" és a Kapcsolat szakasz eddig egyetlen lapos Deep
    felületen állt. Ez a két segédosztály adja meg nekik ugyanazt a nyomdai
@@ -756,6 +959,13 @@ body {
 /* ==========================================================================
    v1.5.3 — SZAKASZÁTMENET-RENDSZER (egységes, dekoratív, nulla layout-hatás)
    --------------------------------------------------------------------------
+   v1.6 MEGJEGYZÉS: a FŐOLDAL szakaszai már NEM használják ezt a sávot — ott
+   szabályos sötét–világos ritmus van, éles, gradiens nélküli határokkal (a
+   20/44 px-es sáv a világos–sötét határokon ködös csíkként látszott). A
+   rendszer kizárólag a Footer tetején él tovább a jogi aloldalakon
+   (Footer `transitionFrom="deep"` alapérték), ott változatlan. Az alábbi
+   mérési táblázat a v1.5.3-as főoldali állapotot rögzíti, történeti adat.
+
    MÉRT KIINDULÁS (1280 px, renderelt pixelek a bal oldali margóoszlopban,
    a határ ±1 px-es sora):
 

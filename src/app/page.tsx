@@ -4,6 +4,7 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import HeroIntroLayer from "@/components/hero-intro/HeroIntroLayer";
 import OfficialDocuments from "@/components/OfficialDocuments";
 import Services from "@/components/Services";
 import WhyJG from "@/components/WhyJG";
@@ -48,6 +49,12 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
+      {/*
+        Nyitóanimáció (preview): kihagyó gomb, takaró háttér és a szinkron
+        vezérlőscript. Az első festés előtt dönt; JS nélkül nincs hatása.
+      */}
+      <HeroIntroLayer />
+
       {/* Skip link: az első fókuszálható elem, csak fókuszban látható. */}
       <a
         href="#fotartalom"
@@ -67,7 +74,8 @@ export default function Home() {
         <Contact />
       </main>
 
-      <Footer />
+      {/* A világos Kapcsolat után éles, átmeneti sáv nélküli lezárás. */}
+      <Footer transitionFrom={null} />
     </>
   );
 }
