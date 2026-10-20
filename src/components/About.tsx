@@ -1,5 +1,6 @@
 import Reveal from "./Reveal";
 import Section from "./Section";
+import type { TransitionFrom } from "./SectionTransition";
 import { about } from "@/content/homepage";
 
 /**
@@ -21,11 +22,17 @@ import { about } from "@/content/homepage";
  * befektetővédelmi tétel kikerült), ezért a rács 2×2-ről három egyenlő
  * oszlopra vált, a keretlogika pedig indexalapúra. Új adat nem került a
  * helyére.
+ *
+ * `transitionFrom`: az ELŐZŐ szakasz felülete (ld. SectionTransition). A
+ * homepage-en a sötét Hero után "deep" — ez az alapérték, tehát ott semmi
+ * nem változik. A /preview/hero-motion oldalon a Porcelain HeroAssembly
+ * után "canvas" kerül ide, különben a szakasz tetején egy sötét sáv jelenne
+ * meg a világos hero alatt.
  */
-export default function About() {
+export default function About({ transitionFrom = "deep" }: { transitionFrom?: TransitionFrom }) {
   return (
     <Section
-      transitionFrom="deep"
+      transitionFrom={transitionFrom}
       id="rolunk"
       number={about.sectionNumber}
       label={about.sectionLabel}
