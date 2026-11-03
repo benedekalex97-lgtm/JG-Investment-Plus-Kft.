@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -205,10 +204,17 @@ type CtaProps = {
   onMotion: (el: HTMLElement, on: boolean) => void;
 };
 
-/** „Kapcsolatfelvétel" — Aubergine lemez, levágott sarok, nyíl (ld. .jg-cta). */
+/**
+ * „Kapcsolatfelvétel" — Aubergine lemez, levágott sarok, nyíl (ld. .jg-cta).
+ *
+ * Szándékosan sima <a>, NEM next/link (a nav itemekhez hasonlóan): a Next
+ * routere ugyanarra a hash-re (már #kapcsolat az URL) másodszor nem görget,
+ * így a gomb az első kattintás után „halottnak" tűnt. A natív horgonylink
+ * minden kattintásra görget, és a scroll-padding-top-ot is tiszteli.
+ */
 function ContactCta({ className = "", onActivate, onMotion }: CtaProps) {
   return (
-    <Link
+    <a
       href={CTA_HREF}
       onClick={onActivate}
       onPointerEnter={(e) => onMotion(e.currentTarget, true)}
@@ -226,7 +232,7 @@ function ContactCta({ className = "", onActivate, onMotion }: CtaProps) {
       <span aria-hidden="true" className="jg-cta-tint" />
       <span>{CTA_LABEL}</span>
       <Arrow />
-    </Link>
+    </a>
   );
 }
 
@@ -483,7 +489,12 @@ export default function Header() {
             375 px alatt csak a jel látszik (a wordmark sr-only marad, így a
             link neve változatlanul „JG Investment Plus").
           */}
-          <Link
+          {/*
+            Sima <a> (nem next/link): ismételt kattintásra is a lap tetejére
+            görget — a Next routere ugyanarra a hash-re másodszor nem görget.
+          */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- szándékos horgonylink, ld. fent */}
+          <a
             href="/#top"
             className="group flex min-h-11 shrink-0 items-center self-center rounded"
           >
@@ -493,7 +504,7 @@ export default function Header() {
               className="text-[0.75rem] transition-colors duration-200 group-hover:text-white sm:text-[0.8125rem] xl:text-[1rem]"
               wordmarkClassName="max-[374px]:sr-only"
             />
-          </Link>
+          </a>
 
           {/* Masthead-tagolás: teljes magasságú függőleges hajszálvonal. */}
           <span
