@@ -63,7 +63,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "JG Investment Plus Kft. · A K&H Értékpapír függő ügynöke",
   description:
-    "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a JG Investment Plus Kft. nem nyújt befektetési tanácsadást.",
+    "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a pontos szolgáltatási kört a K&H Értékpapír honlapján közzétett hatályos hirdetmény tartalmazza.",
   robots: isProductionEnvironment
     ? { index: true, follow: true }
     : { index: false, follow: false },
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "JG Investment Plus Kft. · A K&H Értékpapír függő ügynöke",
     description:
-      "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a JG Investment Plus Kft. nem nyújt befektetési tanácsadást.",
+      "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a pontos szolgáltatási kört a K&H Értékpapír honlapján közzétett hatályos hirdetmény tartalmazza.",
     type: "website",
     locale: "hu_HU",
   },
