@@ -313,74 +313,139 @@ body {
 }
 
 /* ==========================================================================
-   HEADER — v1.4: „az oldal első prémium részlete"
+   HEADER — v2.0 „JG EDITORIAL SIGNATURE"
    --------------------------------------------------------------------------
-   A v1.3-ban a header egyetlen lapos, egyszínű sötét sáv volt (bg + 1 px
-   határvonal). Vizuálisan ez gyakorlatilag megkülönböztethetetlen volt egy
-   alap Tailwind navigation bartól, és nem készítette elő a Hero világát.
+   Architectural precision × editorial financial identity × quiet motion.
 
-   A v1.4 NEM glassmorphismot és nem fényes SaaS-navbart ad hozzá, hanem
-   NYOMDAI MÉLYSÉGET, négy nagyon visszafogott rétegben:
-     1) függőleges tonális gradiens (raise → deep → sink): a sáv teteje egy
-        hajszállal világosabb, az alja sötétebb — ettől a felület nem lapos;
-     2) 1 px-es belső felső fény (a sáv felső éle „megcsillan");
-     3) 1 px-es belső alsó határvonal — box-shadow, NEM border, ezért NEM ad
-        hozzá magasságot: a header külső magassága pontosan 72 / 80 px
-        marad, és az anchor-eltolás ±0 px-re illeszthető;
-     4) nagyon halvány, széles vetett árnyék, hogy a sáv a tartalom FÖLÖTT
-        legyen, ne beleolvadva.
+   A header karakterét a kompozíció és a tipográfia adja, nem effekt:
+     1) nyugodt, egyszínű Deep felület + egyetlen alsó hajszálvonal
+        (box-shadow, NEM border → a külső magasság PONTOSAN 72 / 80 px marad,
+        amire a html { scroll-padding-top } épül);
+     2) a márkablokkot egy teljes magasságú függőleges hajszálvonal zárja le
+        — „masthead" tagolás a márka és a tartalomjegyzék között;
+     3) a navigáció TARTALOMJEGYZÉK: a sorszámok (01–04) pontosan a szakaszok
+        saját sorszámai (ld. Section.tsx eyebrow), a CTA célja a 05;
+     4) az egyetlen átló a rendszerben a logó 1 : 2 lejtése (26,565°): ebből
+        készül a CTA levágott sarka, a nyíl hegye, az aktív jelölő 2 : 1
+        rombusza és a mobilmenü-ikon X-állása. Ez NEM logóelem, hanem a
+        logó geometriájának szabálya, következetesen alkalmazva.
+
+   Nincs glassmorphism, blur, glow, gradiens-animáció és dekoratív fény.
    ========================================================================== */
 .jg-header {
-  background-image: linear-gradient(
-    to bottom,
-    var(--color-surface-raise) 0%,
-    var(--color-surface-deep) 58%,
-    var(--color-surface-sink) 100%
+  background-color: var(--color-surface-deep);
+  box-shadow: inset 0 -1px 0 0 rgb(244 243 241 / 10%);
+}
+
+/*
+  SCROLL-STATE — diszkrét, egyetlen állapotváltás.
+  A Hero fölött (oldal teteje) a header árnyék nélkül, a Heróval egy
+  felületként olvasódik: a hajszálvonal a „masthead" alsó vonala. Görgetés
+  után egy szűk vetett árnyék választja el a tartalomtól. Az árnyék külön
+  rétegen él, és CSAK az opacity-je változik: nincs layout, nincs repaint a
+  sávon. Az állapotot egyetlen IntersectionObserver adja (nincs scroll-
+  figyelő), z-index: -1, így a headeren belüli elemek fölé nem fest.
+*/
+.jg-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  box-shadow: 0 14px 28px -20px rgb(0 0 0 / 80%);
+  opacity: 0;
+  transition: opacity 320ms ease;
+}
+
+.jg-header[data-scrolled="true"]::after {
+  opacity: 1;
+}
+
+/*
+  Aktív szakasz-jelölő — 10 × 5 px-es, 2 : 1 arányú rombusz a header alsó
+  hajszálvonalán, az aktív (vagy éppen hoverelt / fókuszált) menüpont
+  felirata alatt. A pozíciót és a láthatóságot a GSAP kezeli (transform +
+  opacity); JS nélkül egyszerűen nem látszik. Signal Berry Light: nem
+  szöveg, a nem-szöveges kontrasztkövetelmény (3:1) Deep-en 5.82:1.
+*/
+.jg-nav-marker {
+  width: 10px;
+  height: 5px;
+  bottom: -2px;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background-color: var(--color-signal-berry-light);
+  opacity: 0;
+  visibility: hidden;
+}
+
+/*
+  CTA — „Kapcsolatfelvétel": szögletes Aubergine lemez 1 : 2 lejtésű levágott
+  jobb felső sarokkal, hajszálvékony Porcelain éllel és tipográfiai nyíllal.
+  Nem kapszula, nem fehér gomb.
+
+  Három réteg (mind aria-hidden, a link alatt, z-index: -1):
+    edge  — a teljes alak Porcelain 22% színnel; ebből csak 1 px él látszik;
+    plate — 1 px-szel beljebb az Aubergine lemez (párhuzamos levágással:
+            1 px merőleges eltolás az 1 : 2 vonalon = 0,76 px-szel kisebb
+            vágás);
+    tint  — a lemez Muted Plum változata, alapból opacity 0; hoverre/fókuszra
+            a GSAP 55%-ra emeli (teljes erővel fakónak hatott). Porcelain a
+            lemezen 10.15:1, a teljes tinten 5.33:1 — bármely keverés a kettő
+            között van.
+  A clip-path a rétegeken van, NEM a linken: így a fókuszgyűrű nem vágódik le.
+*/
+.jg-cta {
+  --cut: 12px;
+}
+
+.jg-cta-edge,
+.jg-cta-plate,
+.jg-cta-tint {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.jg-cta-edge {
+  inset: 0;
+  background-color: rgb(244 243 241 / 22%);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut)) 0,
+    100% calc(var(--cut) / 2),
+    100% 100%,
+    0 100%
   );
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 7%),
-    inset 0 -1px 0 0 rgb(255 255 255 / 10%),
-    0 12px 28px -18px rgb(0 0 0 / 85%);
 }
 
-/*
-  Nav-hover: a felirat alatt középről kifutó, hajszálvékony Berry sín.
-  Kizárólag transform (scaleX), ezért nincs reflow és nincs layout shift.
-  A :focus-visible ugyanezt a visszajelzést kapja, nem csak az egér.
-*/
-.jg-nav-rail {
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+.jg-cta-plate,
+.jg-cta-tint {
+  --cut-inner: calc(var(--cut) - 0.76px);
+  inset: 1px;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut-inner)) 0,
+    100% calc(var(--cut-inner) / 2),
+    100% 100%,
+    0 100%
+  );
 }
 
-.jg-nav-item:hover .jg-nav-rail,
-.jg-nav-item:focus-visible .jg-nav-rail {
-  transform: scaleX(1);
+.jg-cta-plate {
+  background-color: var(--color-aubergine);
 }
 
-/*
-  Header-CTA — világos Porcelain felület Ink felirattal (13.56:1, AAA).
-  A „prémium él" három nagyon finom eszközből áll: felső belső fény, alsó
-  belső Berry jelzővonal és egy szűk vetett árnyék. Hoverkor 1 px-t
-  emelkedik. Nincs gradient-animáció, nincs glow, nincs shine sweep.
-*/
-.jg-header-cta {
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 85%),
-    inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-berry) 40%, transparent),
-    0 6px 16px -10px rgb(0 0 0 / 80%);
-  transition:
-    background-color 200ms ease,
-    box-shadow 200ms ease,
-    transform 200ms ease;
+.jg-cta-tint {
+  background-color: var(--color-muted-plum);
+  opacity: 0;
 }
 
-.jg-header-cta:hover {
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 90%),
-    inset 0 -2px 0 0 var(--color-signal-berry),
-    0 10px 22px -12px rgb(0 0 0 / 85%);
+/* A nyíl vonalai: 1,25 px, a hegy két szára 1 : 2 lejtésű. */
+.jg-arrow {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: square;
 }
 
 /* ==========================================================================
