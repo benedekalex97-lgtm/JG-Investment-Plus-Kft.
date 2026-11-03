@@ -3,7 +3,7 @@ import Link from "next/link";
 import { footer } from "@/content/homepage";
 import khLogo from "../../public/brand/kh-logo-dark.png";
 import Logo from "./Logo";
-import SectionTransition from "./SectionTransition";
+import SectionTransition, { type TransitionFrom } from "./SectionTransition";
 
 /**
  * Footer — a SOT 10. szakaszának kötelező rövid változata, teljes szöveggel.
@@ -23,7 +23,17 @@ import SectionTransition from "./SectionTransition";
  * váltja (ld. globals.css), mert az Aubergine kontrasztja Carbonon 1.57:1,
  * ami sötét alapon nem elég szöveghez/fókuszhoz.
  */
-export default function Footer() {
+export default function Footer({
+  transitionFrom = "deep",
+}: {
+  /**
+   * A footer tetején futó lágy átmeneti sáv forrásfelülete. A jogi aloldalak
+   * a meglévő („deep") sávot kapják változatlanul; a főoldal `null`-t ad át,
+   * mert ott a világos Kapcsolat szakasz után a sötét footer éles, sáv
+   * nélküli határral kezdődik (v1.6 színritmus).
+   */
+  transitionFrom?: TransitionFrom | null;
+} = {}) {
   return (
     <footer className="on-dark relative bg-surface-sink">
       {/*
@@ -37,15 +47,11 @@ export default function Footer() {
       />
 
       {/*
-        v1.1 — LEGAL CONSOLIDATION: a Panaszkezelés/Impresszum blokk
-        (korábban LegalRiskBlock) átköltözött a /jogi-tajekoztato oldalra és
-        a komponens törölve — a Footer közvetlen előde ismét a Kapcsolat
-        szakasz (Section tone="deep"). A sáv ezért továbbra is `deep`-ről
-        indul, csak most eggyel közvetlenebbül: Kapcsolat → Footer egyetlen,
-        folytonos sötét záró-zónaként olvasódik, érzékelhető váltás nélkül
-        (mindkét oldal azonos tónuscsaládba tartozik).
+        v1.6 — a főoldalon a Footer előde a VILÁGOS Kapcsolat szakasz: ott a
+        footer átmeneti sáv nélkül, éles határral indul (transitionFrom={null}).
+        A jogi aloldalakon a korábbi, `deep`-ről induló sáv változatlan.
       */}
-      <SectionTransition from="deep" toDark />
+      {transitionFrom ? <SectionTransition from={transitionFrom} toDark /> : null}
 
       <div className="jg-safe-x jg-safe-b relative mx-auto w-full max-w-[1280px] py-16 lg:py-24 [--jg-safe-b-base:4rem] lg:[--jg-safe-b-base:6rem]">
         {/*
