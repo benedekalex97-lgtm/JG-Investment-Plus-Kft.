@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 
-import SectionTransition, { type TransitionFrom } from "./SectionTransition";
-
 type SectionProps = {
   id: string;
   /** Kétjegyű szakaszszám (01–05) — vizuális ritmus, nem tartalom. */
@@ -23,14 +21,6 @@ type SectionProps = {
    * kell lenniük, de nem versenyezhetnek az értékajánlattal.
    */
   size?: "default" | "compact";
-  /**
-   * v1.5.3 — az ELŐZŐ szakasz felülete. Ha meg van adva, a szakasz teteje
-   * lágy átmenetet kap arról a felületről (ld. SectionTransition). Tisztán
-   * dekoratív és abszolút pozicionált: nem ad hozzá magasságot, és nem
-   * mozdítja el a horgonyt. Az oldal határláncát a page.tsx sorrendje adja,
-   * ezért az értéket ott, a szakasz hívásánál kell helyesen megadni.
-   */
-  transitionFrom?: TransitionFrom;
   children: ReactNode;
 };
 
@@ -52,8 +42,13 @@ const TONE_CLASS = {
  *
  * v1.1: a szakaszok 01–05 sorszámot kapnak, a desktop elrendezés pedig
  * aszimmetrikussá vált (4/8 oszlopos rács a korábbi, minden szakaszon azonos
- * „cím fölül, kártyák alul" séma helyett). A háromféle tónus (canvas /
- * surface / tint) adja a szakaszváltás vizuális ritmusát.
+ * „cím fölül, kártyák alul" séma helyett).
+ *
+ * v1.6: a főoldal ritmusát két tónus adja — `canvas` (Porcelain, világos) és
+ * `deep` (sötét). A fejléc (címke, sorszám, h2, lead) színeit a tónus
+ * állítja; a szakaszok BELSŐ tartalmának színei a saját komponensükben, a
+ * tónushoz igazítva élnek. A `surface` és `tint` tónus a főoldalon jelenleg
+ * nincs használatban.
  */
 export default function Section({
   id,
@@ -65,7 +60,6 @@ export default function Section({
   tone = "canvas",
   layout = "aside",
   size = "default",
-  transitionFrom,
   children,
 }: SectionProps) {
   const compact = size === "compact";
@@ -135,18 +129,14 @@ export default function Section({
       ) : null}
 
       {/*
-        v1.5.3 — SZAKASZÁTMENET.
-
-        A korábbi két `.jg-seam` (a sötét szakaszok felső és alsó éle) innen
-        eltűnt, hogy egy határhoz pontosan egy elválasztó tartozzon. A vonal a
-        SectionTransition legfelső sorába költözött — de csak ott, ahol SÖTÉT
-        felületről érkezünk, mert világos alapon ugyanez a vonal rózsaszín
-        hajszálvonalként olvasna. Mért indoklás: a SectionTransition fejléce.
+        v1.6 — SZAKASZHATÁR: nincs átmeneti sáv. A főoldal szakaszai
+        szabályos sötét–világos ritmusban váltakoznak (Hero sötét → Rólunk
+        világos → Szolgáltatások sötét → Miért minket? világos → Dokumentumok
+        sötét → Kapcsolat világos → Footer sötét), a hátterek teljes
+        szélességben, hézag és gradiens nélkül találkoznak. A korábbi
+        20/44 px-es SectionTransition sávok a világos–sötét határokon ködös
+        csíkként látszottak, ezért a főoldalról kikerültek.
       */}
-      {transitionFrom ? (
-        <SectionTransition from={transitionFrom} toDark={dark} />
-      ) : null}
-
       <div
         className={`jg-safe-x relative mx-auto w-full max-w-[1280px] ${
           compact ? "py-16 sm:py-20 lg:py-24" : "py-[72px] sm:py-22 lg:py-[136px]"
