@@ -587,7 +587,9 @@ export default function Header() {
         {/*
           Mobilpanel — csak nyitva (és a záróanimáció végéig) van a DOM-ban. A
           header alatt lebeg (absolute, top-full), nem tolja el a tartalmat. A
-          háttér külön rétegen fut ki (scaleY), a görgethető tartalom fölötte;
+          háttér külön rétegen fut ki (scaleY), a görgethető tartalom fölötte.
+          A háttér a Sink tónus (a Deep-nél sötétebb): így a sötét szakaszok
+          fölött is elválik az oldaltól (Porcelain rajta 16.85:1, AAA);
           a magasság a header alatti képernyőhelyre korlátozott, alacsony
           viewporton / nagy szövegnagyításnál belül görgethető.
         */}
@@ -600,7 +602,7 @@ export default function Header() {
           >
             <div
               aria-hidden="true"
-              className="jg-menu-bg absolute inset-0 bg-surface-deep shadow-[0_28px_48px_-30px_rgb(0_0_0/90%),inset_0_-1px_0_0_rgb(244_243_241/10%)]"
+              className="jg-menu-bg absolute inset-0 bg-surface-sink shadow-[0_28px_48px_-30px_rgb(0_0_0/90%),inset_0_-1px_0_0_rgb(244_243_241/10%)]"
             />
             <div className="relative max-h-[calc(100svh-72px)] scroll-py-2 overflow-y-auto overscroll-contain">
               <nav aria-label={nav.menuLabel}>
