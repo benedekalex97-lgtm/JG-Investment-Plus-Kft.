@@ -1,11 +1,21 @@
-import Image from "next/image";
-
-import heroBackdrop from "@/assets/hero-market-corridor.webp";
 import { hero, statusNotice } from "@/content/homepage";
+import HeroArchitecturalFlow from "./HeroArchitecturalFlow";
 
 /**
- * Hero — v1.3: MÉLY, SÖTÉT felületen álló, tipográfia-vezérelt copy absztrakt
- * japángyertya-háttéranimációval. Az oldal legerősebb vizuális eleme.
+ * Hero — v2.0 „ARCHITECTURAL FLOW": MÉLY, SÖTÉT felületen álló,
+ * tipográfia-vezérelt copy, mögötte folyamatosan mozgó, absztrakt építészeti
+ * kompozícióval (HeroArchitecturalFlow — GSAP). Az oldal legerősebb vizuális
+ * eleme.
+ *
+ * v2.0: a v1.5.2 statikus gyertyakorridor-képét (hero-market-corridor.webp)
+ * egy önálló, nagy léptékű motion kompozíció váltja: két szárny, pontosan
+ * szerkesztett síkok legyezőjével, valódi perspektívában, 24 s-os, zárt
+ * loopban. A korábbi gyertyakorridor-animáció (HeroMarketMotion) NEM
+ * kapcsolódik vissza. A szövegek, a CTA és a státuszközlés változatlanok;
+ * a copy egyszeri, CSS-alapú belépőt kap (.hero-enter, ld. globals.css).
+ *
+ * A lenti v1.x előzmény-jegyzet történeti; az aktuális rétegrend a
+ * komponens markupja fölött áll.
  *
  * Előzmények: v0.1–v0.3-ban itt egy jobb oldali vizuális elem élt (előbb mozgó,
  * majd statikus figura + japángyertya-kompozíció), v0.4-ben egy balra igazított
@@ -80,15 +90,15 @@ export default function Hero() {
       vált, ld. globals.css). Rétegek alulról:
         1) Deep alapfelület
         2) hero-vignette — lágy Aubergine mélység és peremsötétítés
-        3) hero-media — a jóváhagyott, statikus gyertyakorridor-kép
+        3) ARCHITECTURAL FLOW — mozgó építészeti kompozíció (GSAP)
         4) hero-veil — SÖTÉT kontrasztvédő overlay a copy mögött
         4b) hero-scrim — alsó kontrasztvédő sáv a státuszközlés mögött
         5) a copy és a CTA
       Az 1–4b. réteg mind dekoratív: aria-hidden és pointer-events: none.
 
-      v1.5.2: a 3. réteg a Canvas-animáció helyett egy STATIKUS, jóváhagyott
-      kép. A HeroMarketMotion komponens megmarad a repositoryban, de a Hero
-      nem rendereli — így bármikor visszakapcsolható.
+      v2.0: a 3. réteg a statikus kép helyett az ARCHITECTURAL FLOW motion
+      kompozíció (HeroArchitecturalFlow). A régi kép és a HeroMarketMotion
+      nem renderelődik.
     */
     <section
       id="top"
@@ -100,35 +110,14 @@ export default function Hero() {
       <div aria-hidden="true" className="hero-vignette pointer-events-none absolute inset-0" />
 
       {/*
-        Réteg 3: HERO MÉDIA — a jóváhagyott, statikus filmszerű gyertyakorridor.
-
-        v1.5.2: a Canvas-alapú HeroMarketMotion NEM renderelődik többé itt
-        (a komponens megmarad a repositoryban, ld. a fájl tetején lévő
-        jegyzetet). Ez tudatos köztes lépés: előbb a statikus vizuális irány
-        kerül jóváhagyásra, és csak utána döntünk a mozgásról.
-
-        Tisztán dekoratív: alt="" + aria-hidden, tehát képernyőolvasó nem
-        olvassa fel; pointer-events: none, tehát a CTA fölé sosem kerülhet.
-        A kép abszolút pozicionált, kifolyik a normál elrendezésből, ezért
-        elvileg sem okozhat layout shiftet. A `priority` above-the-fold
-        előtöltést kér; a statikus import miatt a méretek build-időben
-        ismertek.
-
-        A kompozíciót a `.hero-media` osztály állítja be (ld. globals.css):
-        desktopon `cover`, mobilon a kép TELJES szélessége látszik egy alsó
-        sávban — mert egy 390 px-es, álló viewporton a középre vágott
-        `cover` pontosan a folyosó ÜRES közepét mutatná, gyertyák nélkül.
+        Réteg 3: ARCHITECTURAL FLOW — két szárny, síkok legyezője valódi
+        perspektívában, egyetlen 24 s-os, zárt GSAP-koreográfiával. Tisztán
+        dekoratív (aria-hidden, pointer-events: none, a copy alatt): a CTA
+        fölé sosem kerülhet. Abszolút pozicionált, nem okoz layout shiftet;
+        a t = 0 póz már a szerveroldali HTML-ben megvan, így az első
+        képkocka teljes. Részletek: HeroArchitecturalFlow.tsx.
       */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <Image
-          src={heroBackdrop}
-          alt=""
-          priority
-          fetchPriority="high"
-          sizes="(max-width: 479px) 205vw, (max-width: 639px) 170vw, (max-width: 767px) 132vw, 100vw"
-          className="hero-media select-none"
-        />
-      </div>
+      <HeroArchitecturalFlow />
 
       {/* Réteg 4: sötét kontrasztvédő overlay — ld. .hero-veil a globals.css-ben. */}
       <div aria-hidden="true" className="hero-veil pointer-events-none absolute inset-0" />
@@ -194,9 +183,14 @@ export default function Hero() {
             EGY sorban, flex-testvérként ülnek, tehát nem válnak külön sorrá:
             a cégnevet keretezik, ahogy eddig a teljes feliratot.
           */}
+          {/*
+            v2.0 BELÉPŐ: eyebrow → H1 → bevezető → CTA (.hero-enter, CSS,
+            ~0,86 s). JS nélkül és reduced motion esetén nincs animáció, a
+            szöveg azonnal látszik (ld. globals.css).
+          */}
           <p
             data-hero-ink=""
-            className="flex flex-col items-center gap-2 text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:text-[0.8125rem]"
+            className="hero-enter flex flex-col items-center gap-2 text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:text-[0.8125rem]"
           >
             <span className="flex items-center gap-3 whitespace-nowrap">
               {/* Geometriai jelölés, nem szöveg: a cégnév kap egy vizuális
@@ -218,7 +212,7 @@ export default function Hero() {
           <h1
             id="hero-cim"
             data-hero-ink=""
-            className="font-display mx-auto mt-7 max-w-[15ch] text-[clamp(2.75rem,12vw,3.5rem)] leading-[1.03] font-medium tracking-[-0.018em] [overflow-wrap:normal] hyphens-none text-balance text-porcelain sm:mt-8 sm:max-w-[16ch] md:text-[clamp(3.75rem,7vw,5rem)] lg:max-w-[19ch] lg:text-[clamp(4.5rem,6vw,5.75rem)]"
+            className="hero-enter [--hero-enter-delay:80ms] font-display mx-auto mt-7 max-w-[15ch] text-[clamp(2.75rem,12vw,3.5rem)] leading-[1.03] font-medium tracking-[-0.018em] [overflow-wrap:normal] hyphens-none text-balance text-porcelain sm:mt-8 sm:max-w-[16ch] md:text-[clamp(3.75rem,7vw,5rem)] lg:max-w-[19ch] lg:text-[clamp(4.5rem,6vw,5.75rem)]"
           >
             <HeadlineLine line={firstLine} />
             <HeadlineLine line={secondLine} />
@@ -226,7 +220,7 @@ export default function Hero() {
 
           <p
             data-hero-ink=""
-            className="mx-auto mt-7 max-w-[34ch] text-base leading-[1.72] text-cool-silver text-pretty sm:mt-8 sm:max-w-[58ch] sm:text-lg lg:max-w-[680px] lg:text-xl"
+            className="hero-enter [--hero-enter-delay:200ms] mx-auto mt-7 max-w-[34ch] text-base leading-[1.72] text-cool-silver text-pretty sm:mt-8 sm:max-w-[58ch] sm:text-lg lg:max-w-[680px] lg:text-xl"
           >
             {hero.intro}
           </p>
@@ -238,7 +232,7 @@ export default function Hero() {
             az alsó Berry jelzővonal, a Berry kontúr és a Berry fókuszgyűrű
             MIND eltávolítva. Hoverre 1 px-t emelkedik; nincs pulzálás.
           */}
-          <div className="mt-9 flex w-full max-w-sm flex-col items-stretch sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center">
+          <div className="hero-enter [--hero-enter-delay:300ms] mt-9 flex w-full max-w-sm flex-col items-stretch sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center">
             {/*
               A gomb SEMMILYEN dekoratív karaktert (pl. nyilat) nem tartalmaz:
               a renderelt szövegnek karakterre a content-modell feliratával kell
