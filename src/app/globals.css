@@ -769,29 +769,514 @@ body {
 }
 
 /*
-  SZÖVEGES BELÉPŐ — egyszeri, visszafogott: eyebrow → H1 → bevezető → CTA,
-  10 px emelkedés + áttűnés, a teljes koreográfia ~0,86 s.
+  ==========================================================================
+  HERO — VILÁGPIACI PANORÁMA (World Market Panorama v1.0)
+  ==========================================================================
 
-  Szándékosan CSS, nem JS: a kiinduló (rejtett) állapotot csak CSS tudja az
-  ELSŐ festés előtt alkalmazni. Egy JS-belépőhöz a szöveget a hidratálásig
-  rejteni kellene (FOUC / villanás / hidratálási eltérés kockázata). A
-  `scripting: enabled` feltétel miatt JavaScript NÉLKÜL nincs animáció — a
-  szöveg azonnal látszik —, reduced motion esetén szintén. A `backwards`
-  kitöltés csak a késleltetés alatt tartja a kiinduló állapotot; az
-  animáció végén semmilyen stílus nem marad a szövegen, a CTA hover-
-  transformja érintetlen. A belépő nem függ a JS-bundle betöltésétől.
+  Rétegek (WorldPanorama.tsx):
+    .wp-stage     3D színpad: statikus poszter (a jelenetből exportálva) +
+                  canvas. Mobilon (< 1024 px) CSAK a térképsáv, desktopon a
+                  teljes Hero-törzs (a térkép a szöveg alsó része mögé is
+                  befut, de a felső zónát a .wp-scrim nyugodtan tartja).
+    .wp-scrim     olvashatósági fátyol a szöveg mögött (desktop).
+    .wp-hotspots  a színpaddal azonos doboz; csak a 44 × 44 px-es gombok
+                  kattinthatók, a többi felület átengedi a görgetést/kattintást.
+    .wp-slot      előre lefoglalt térképsáv: panel, vezérlő, feliratok.
+                  pointer-events: none — csak az interaktív gyerekek kapják
+                  meg az eseményeket, a hotspotok így alatta is elérhetők.
+  Minden szín a meglévő tokenekből; nincs neon, glow, glassmorphism.
 */
-@keyframes hero-enter {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 10px, 0);
+.wp-root {
+  --wp-slot-h: 452px;
+  --wp-edge: max(var(--jg-gutter), calc((100% - 1280px) / 2 + var(--jg-gutter)));
+}
+
+@media (min-width: 375px) {
+  .wp-root {
+    --wp-slot-h: 432px;
   }
 }
 
-@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
-  .hero-enter {
-    animation: hero-enter 560ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
-    animation-delay: var(--hero-enter-delay, 0ms);
+@media (min-width: 640px) {
+  .wp-root {
+    --wp-slot-h: 470px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-root {
+    /* A leghosszabb (ázsiai) lista panelje is elfér: ~410 px + margó. */
+    --wp-slot-h: 440px;
+  }
+}
+
+.wp-stage,
+.wp-hotspots {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--wp-slot-h);
+}
+
+@media (min-width: 1024px) {
+  .wp-stage,
+  .wp-hotspots {
+    top: 0;
+    height: auto;
+  }
+}
+
+.wp-stage {
+  z-index: 0;
+  overflow: hidden;
+  background-color: #17131a;
+}
+
+/* Mobil: a térképsáv felső és alsó éle lágyan olvad a Hero felületébe. */
+.wp-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-surface-deep) 0%,
+    rgb(27 22 28 / 0%) 16%,
+    rgb(27 22 28 / 0%) 88%,
+    rgb(24 24 27 / 55%) 100%
+  );
+}
+
+@media (min-width: 1024px) {
+  .wp-stage::after {
+    background-image: linear-gradient(
+      to bottom,
+      rgb(24 24 27 / 0%) 86%,
+      rgb(24 24 27 / 60%) 100%
+    );
+  }
+}
+
+.wp-poster,
+.wp-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.wp-poster {
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+.wp-canvas {
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.wp-canvas[data-visible="on"] {
+  opacity: 1;
+}
+
+/* Desktop olvashatósági fátyol: a felső (szöveg-) zóna nyugodt és sötét,
+   a térképsáv felé teljesen feloldódik. Nem a teljes jelenetet sötétíti. */
+.wp-scrim {
+  z-index: 1;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .wp-scrim {
+    display: block;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(23 19 26 / 94%) 0%,
+      rgb(23 19 26 / 86%) 30%,
+      rgb(23 19 26 / 52%) 46%,
+      rgb(23 19 26 / 0%) 60%
+    );
+  }
+}
+
+.wp-hotspots {
+  z-index: 25;
+}
+
+.wp-slot {
+  height: var(--wp-slot-h);
+  pointer-events: none;
+}
+
+.wp-slot :where(.wp-panel, .wp-motion-toggle, .wp-fallback-regions, .wp-noscript) {
+  pointer-events: auto;
+}
+
+/* ---- Hotspot ------------------------------------------------------------ */
+.wp-hotspot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  pointer-events: auto;
+  will-change: transform;
+  cursor: pointer;
+}
+
+.wp-hotspot[data-visible="off"] {
+  visibility: hidden;
+}
+
+.wp-hotspot-ring {
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  box-shadow:
+    inset 0 0 0 1.5px rgb(194 127 163 / 80%),
+    0 0 0 6px rgb(194 127 163 / 0%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.wp-hotspot:hover .wp-hotspot-ring,
+.wp-hotspot:focus-visible .wp-hotspot-ring,
+.wp-hotspot[data-active="true"] .wp-hotspot-ring {
+  transform: scale(1.12);
+  box-shadow:
+    inset 0 0 0 2px rgb(194 127 163 / 100%),
+    0 0 0 6px rgb(194 127 163 / 16%);
+}
+
+.wp-hotspot-label {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 6px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-porcelain);
+  padding: 2px 4px 2px 6px;
+}
+
+/* ---- Regionális panel ---------------------------------------------------- */
+.wp-panel {
+  position: absolute;
+  z-index: 2;
+  left: 12px;
+  right: 12px;
+  top: 12px;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 18px 14px;
+  border-radius: 12px;
+  border: 1px solid rgb(194 127 163 / 42%);
+  background-color: var(--color-surface-deep);
+  box-shadow: 0 28px 56px -28px rgb(0 0 0 / 85%);
+  color: var(--color-porcelain);
+  animation: wp-panel-in 190ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (min-width: 640px) {
+  .wp-panel {
+    left: auto;
+    width: min(440px, calc(100% - 24px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-panel {
+    top: auto;
+    left: auto;
+    right: var(--wp-edge);
+    bottom: 20px;
+    width: 440px;
+    max-height: none;
+    overflow: visible;
+    padding: 20px 22px 16px;
+  }
+
+  .wp-panel[data-placed="anchored"] {
+    right: auto;
+    bottom: auto;
+  }
+}
+
+.wp-panel[hidden] {
+  display: none;
+}
+
+@keyframes wp-panel-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+}
+
+.wp-panel-head {
+  position: relative;
+  padding-right: 44px;
+}
+
+.wp-panel-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-cool-silver);
+}
+
+.wp-panel-title {
+  margin-top: 4px;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--color-porcelain);
+}
+
+@media (min-width: 1024px) {
+  .wp-panel-title {
+    font-size: 1.5rem;
+  }
+}
+
+.wp-panel-subtitle {
+  margin-top: 2px;
+  font-size: 0.9375rem;
+  color: var(--color-cool-silver);
+}
+
+.wp-panel-close {
+  position: absolute;
+  top: -10px;
+  right: -12px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--color-porcelain);
+}
+
+.wp-panel-close svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.wp-panel-close:hover {
+  background-color: rgb(244 243 241 / 8%);
+}
+
+/* Pontosan két oszlop: rugalmas névoszlop + tartalomhoz méretezett ticker. */
+.wp-list {
+  margin-top: 14px;
+  border-top: 1px solid rgb(244 243 241 / 14%);
+}
+
+.wp-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  column-gap: 20px;
+  align-items: center;
+  padding: 8px 2px;
+  border-bottom: 1px solid rgb(244 243 241 / 10%);
+}
+
+.wp-name {
+  min-width: 0;
+  font-size: 0.9375rem;
+  line-height: 1.32;
+  font-weight: 600;
+  color: var(--color-porcelain);
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 1024px) {
+  .wp-name {
+    font-size: 1rem;
+  }
+}
+
+.wp-ticker {
+  justify-self: end;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-cool-silver);
+}
+
+.wp-panel-note {
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--color-cool-silver);
+}
+
+/* Összekötő hajszálvonal a hotspot és a panel között (desktop). */
+.wp-connector {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.wp-connector line {
+  stroke: rgb(194 127 163 / 60%);
+  stroke-width: 1;
+}
+
+/* ---- Mozgásvezérlő (szöveges, nem lebegő videós ikon) -------------------- */
+.wp-motion-toggle {
+  position: absolute;
+  z-index: 1;
+  left: var(--wp-edge);
+  bottom: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  /* Saját sötét alap: a mozgó térkép fölött is állandó a kontraszt. */
+  background-color: rgb(24 24 27 / 78%);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-cool-silver);
+  text-decoration: underline;
+  text-decoration-color: rgb(190 193 199 / 40%);
+  text-underline-offset: 4px;
+}
+
+.wp-motion-toggle:hover {
+  color: var(--color-porcelain);
+}
+
+/* ---- Dekoratív feliratok (csak széles desktop) ---------------------------- */
+.wp-deco {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .wp-deco {
+    display: block;
+  }
+}
+
+.wp-deco-item {
+  position: absolute;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgb(190 193 199 / 82%);
+}
+
+.wp-deco-item::after {
+  content: "";
+  display: block;
+  width: 36px;
+  height: 1px;
+  margin: 12px auto 0;
+  background-color: rgb(194 127 163 / 60%);
+}
+
+.wp-deco--left {
+  left: var(--wp-edge);
+  top: -96px;
+}
+
+.wp-deco--right {
+  right: var(--wp-edge);
+  top: -96px;
+}
+
+.wp-deco--low {
+  left: var(--wp-edge);
+  top: 58%;
+}
+
+/* ---- Fallback: régiógombok (WebGL2 nélkül / hiba esetén) ------------------ */
+.wp-fallback-regions {
+  position: absolute;
+  left: 50%;
+  bottom: 64px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: min(100% - 24px, 640px);
+}
+
+.wp-fallback-button {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid rgb(244 243 241 / 26%);
+  background-color: rgb(27 22 28 / 82%);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-porcelain);
+}
+
+.wp-fallback-button[aria-expanded="true"] {
+  border-color: rgb(194 127 163 / 70%);
+}
+
+/* ---- JavaScript nélkül: natív <details> listák --------------------------- */
+.wp-noscript {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+@media (min-width: 1024px) {
+  .wp-noscript {
+    left: auto;
+    right: var(--wp-edge);
+    width: 440px;
+  }
+}
+
+.wp-noscript-item {
+  border-radius: 10px;
+  border: 1px solid rgb(244 243 241 / 18%);
+  background-color: rgb(27 22 28 / 94%);
+  padding: 4px 14px;
+  color: var(--color-porcelain);
+}
+
+.wp-noscript-item summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wp-panel {
+    animation: none;
+  }
+
+  .wp-canvas {
+    transition: none;
   }
 }
 
@@ -1110,8 +1595,9 @@ body {
    accordion/menüátmenetek). A Hero háttérmozgása (Architectural Flow) NEM
    CSS-alapú: a HeroArchitecturalFlow komponens gsap.matchMedia-val figyeli a
    prefers-reduced-motion feltételt, és reduce esetén el sem indítja a
-   timeline-t — a szerveroldali t = 0 póz marad, komponált állóképként. A
-   Hero szöveges belépője (.hero-enter) reduce esetén szintén nem fut.
+   timeline-t (ez a v2.0 komponens jelenleg nincs használatban). A Hero
+   Világpiaci panorámája (WorldPanorama) reduce esetén statikus térképet
+   mutat, automatikus kameraút nélkül; a régióválasztás működik.
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html {

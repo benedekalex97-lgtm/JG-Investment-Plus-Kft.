@@ -1,18 +1,27 @@
 import { hero, statusNotice } from "@/content/homepage";
-import HeroArchitecturalFlow from "./HeroArchitecturalFlow";
+import WorldPanorama from "./world-panorama/WorldPanorama";
 
 /**
- * Hero — v2.0 „ARCHITECTURAL FLOW": MÉLY, SÖTÉT felületen álló,
- * tipográfia-vezérelt copy, mögötte folyamatosan mozgó, absztrakt építészeti
- * kompozícióval (HeroArchitecturalFlow — GSAP). Az oldal legerősebb vizuális
- * eleme.
+ * Hero — „VILÁGPIACI PANORÁMA" (World Market Panorama v1.0).
  *
- * v2.0: a v1.5.2 statikus gyertyakorridor-képét (hero-market-corridor.webp)
- * egy önálló, nagy léptékű motion kompozíció váltja: két szárny, pontosan
- * szerkesztett síkok legyezőjével, valódi perspektívában, 24 s-os, zárt
- * loopban. A korábbi gyertyakorridor-animáció (HeroMarketMotion) NEM
- * kapcsolódik vissza. A szövegek, a CTA és a státuszközlés változatlanok;
- * a copy egyszeri, CSS-alapú belépőt kap (.hero-enter, ld. globals.css).
+ * A Hero szövege (eyebrow, H1, bevezető, CTA) VÁLTOZATLAN, szerveroldali
+ * HTML, a tartalmi modellből. Mögötte valódi 3D világtérkép (Three.js,
+ * Natural Earth földrajzi adatból extrudált kontinensek) 24 s-os, zárt
+ * kameraúttal; a térképsávban három interaktív régió (New York, London,
+ * Tokió) regionális bemutató részvénylistával. Részletek:
+ * src/components/world-panorama/ és docs/world-panorama.md.
+ *
+ * A 3D modul kliensoldali, dinamikusan betöltött egység: a H1 és a CTA nem
+ * függ a betöltésétől; addig (és WebGL2 nélkül / hiba esetén) a jelenetből
+ * exportált statikus kép látszik. JS nélkül a régiólisták natív
+ * <details> elemekben érhetők el.
+ *
+ * A kötelező státuszközlés KÜLÖN, átlátszatlan sötét sávban áll, mögötte
+ * nem mozog térképrészlet.
+ *
+ * Korábbi változatok: a v2.0 „Architectural Flow" (HeroArchitecturalFlow) és
+ * a v1.x gyertyakorridor (hero-market-corridor.webp, HeroMarketMotion) a
+ * repositoryban maradt, de a Hero NEM rendereli őket.
  *
  * A lenti v1.x előzmény-jegyzet történeti; az aktuális rétegrend a
  * komponens markupja fölött áll.
@@ -87,198 +96,94 @@ export default function Hero() {
   return (
     /*
       A Hero mély, sötét felületen áll (.on-dark → a fókuszgyűrű Porcelainre
-      vált, ld. globals.css). Rétegek alulról:
-        1) Deep alapfelület
-        2) hero-vignette — lágy Aubergine mélység és peremsötétítés
-        3) ARCHITECTURAL FLOW — mozgó építészeti kompozíció (GSAP)
-        4) hero-veil — SÖTÉT kontrasztvédő overlay a copy mögött
-        4b) hero-scrim — alsó kontrasztvédő sáv a státuszközlés mögött
-        5) a copy és a CTA
-      Az 1–4b. réteg mind dekoratív: aria-hidden és pointer-events: none.
-
-      v2.0: a 3. réteg a statikus kép helyett az ARCHITECTURAL FLOW motion
-      kompozíció (HeroArchitecturalFlow). A régi kép és a HeroMarketMotion
-      nem renderelődik.
+      vált). Felépítés: WorldPanorama (3D színpad + szöveg + térképsáv), alatta
+      a státuszközlés saját sötét sávja. Minden dekoratív réteg aria-hidden és
+      pointer-events: none.
     */
     <section
       id="top"
       aria-labelledby="hero-cim"
       className="on-dark relative overflow-hidden bg-surface-deep"
     >
-      {/* Réteg 1–2: statikus mélység és peremsötétítés. */}
-      <div aria-hidden="true" className="absolute inset-0 bg-surface-deep" />
-      <div aria-hidden="true" className="hero-vignette pointer-events-none absolute inset-0" />
-
-      {/*
-        Réteg 3: ARCHITECTURAL FLOW — két szárny, síkok legyezője valódi
-        perspektívában, egyetlen 24 s-os, zárt GSAP-koreográfiával. Tisztán
-        dekoratív (aria-hidden, pointer-events: none, a copy alatt): a CTA
-        fölé sosem kerülhet. Abszolút pozicionált, nem okoz layout shiftet;
-        a t = 0 póz már a szerveroldali HTML-ben megvan, így az első
-        képkocka teljes. Részletek: HeroArchitecturalFlow.tsx.
-      */}
-      <HeroArchitecturalFlow />
-
-      {/* Réteg 4: sötét kontrasztvédő overlay — ld. .hero-veil a globals.css-ben. */}
-      <div aria-hidden="true" className="hero-veil pointer-events-none absolute inset-0" />
-
-      {/*
-        Réteg 4b: alsó kontrasztvédő sáv. A kép alsó harmada fényes,
-        tükröződő padló, és a kötelező státuszközlés éppen azon ül — mérve
-        3,06:1 kontrasztra esett vissza. Ez a réteg csak a Hero alját
-        sötétíti, a padló a copy alatt látható marad.
-      */}
-      <div aria-hidden="true" className="hero-scrim pointer-events-none absolute inset-0" />
-
-      {/* Réteg 5: valódi HTML copy és CTA. */}
-      <div className="jg-safe-x relative z-10 mx-auto flex w-full max-w-[1280px] flex-col">
-        {/*
-          data-hero-copy: ez a doboz jelöli ki a Hero olvasási zónáját.
-
-          v1.4: a HeroMarketMotion már NEM ennek a paddinggel és
-          min-height-tal felfújt doboznak a geometriáját méri, hanem a
-          benne lévő, [data-hero-ink] attribútummal megjelölt, ténylegesen
-          SZÖVEGET HORDOZÓ elemek (eyebrow, H1, bevezető, CTA) egyesített
-          befoglaló dobozát. Ez azért lényeges, mert
-            – a konténer paddingje miatt a zóna függőlegesen jóval nagyobb
-              volt a szövegnél (mobilon 600 px a ~440 px helyett), ezért a
-              gyertyák a Hero nagy részén feleslegesen le voltak halkítva;
-            – a CTA-t körbevevő flex-doboz teljes konténerszélességű, tehát
-              a zóna szélessége sem a szöveget követte.
-          A megjelölt elemek mérésével a csillapítás pontosan ott van, ahol
-          szöveg van — és sehol máshol.
-        */}
-        {/*
-          v1.4 WHITESPACE-KORREKCIÓ — mérés alapján, nem becslésből.
-
-          A v1.3-ban a header alja és az eyebrow között 154 px (1440) és
-          164 px (1280) volt a távolság, a Hero teljes magassága pedig 905 px.
-          A copy így a viewport közepe ALÁ csúszott, fölötte pedig egy üres
-          „várakozási zóna" maradt. A min-height és a felső/alsó padding
-          együttes szűkítésével a mért érték 95–140 px közé kerül, a Hero
-          pedig kb. 100 px-szel kompaktabb lesz — a nagy, prémium arányok
-          megtartása mellett.
-
-          A ritmus továbbra sem transform/translate: rövid viewportokon így
-          legfeljebb kevesebb üres tér marad, tartalom sosem vágódik le.
-        */}
-        <div
-          data-hero-copy=""
-          className="flex min-h-[600px] flex-col items-center justify-center pt-16 pb-14 text-center sm:min-h-[624px] sm:pt-[68px] sm:pb-[60px] lg:min-h-[660px] lg:pt-[76px] lg:pb-16"
-        >
+      <WorldPanorama>
+        <div className="jg-safe-x mx-auto flex w-full max-w-[1280px] flex-col">
           {/*
-            v1.5.3 — AZ EYEBROW PONTOSAN KÉT, TUDATOS SOR.
-
-            Korábban egyetlen szövegcsomó volt (cégnév · ügynöki státusz), és
-            a törés helyét a böngésző választotta meg — szűk viewporton a
-            középpont-elválasztó hol az egyik, hol a másik sor végére került.
-
-            Most a két sor KÜLÖN markup-blokk, tehát a törés nem a szélesség
-            függvénye: a böngészőnek nincs mit eldöntenie. A két sort egy
-            oszlop tartja össze; a `whitespace-nowrap` garantálja, hogy egyik
-            sor se essen tovább kettőnél — mérve 320 px-es viewporton is elfér
-            (ld. a v1.5.3 riportot).
-
-            A dekoratív vonalak megmaradnak és aria-hidden-ek. Az ELSŐ sorral
-            EGY sorban, flex-testvérként ülnek, tehát nem válnak külön sorrá:
-            a cégnevet keretezik, ahogy eddig a teljes feliratot.
+            data-hero-copy: a Hero olvasási zónája. A függőleges ritmus
+            padding, nem transform; a térkép saját, előre lefoglalt sávja
+            (WorldPanorama .wp-slot) ezután következik, így a panel és a
+            hotspotok sosem kerülnek a szöveg fölé.
           */}
-          {/*
-            v2.0 BELÉPŐ: eyebrow → H1 → bevezető → CTA (.hero-enter, CSS,
-            ~0,86 s). JS nélkül és reduced motion esetén nincs animáció, a
-            szöveg azonnal látszik (ld. globals.css).
-          */}
-          <p
-            data-hero-ink=""
-            className="hero-enter flex flex-col items-center gap-2 text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:text-[0.8125rem]"
+          <div
+            data-hero-copy=""
+            className="flex flex-col items-center pt-12 pb-8 text-center sm:pt-14 lg:pt-12 lg:pb-6"
           >
-            <span className="flex items-center gap-3 whitespace-nowrap">
-              {/* Geometriai jelölés, nem szöveg: a cégnév kap egy vizuális
-                  horgonyt mindkét oldalról, a copy pedig optikailag középre áll. */}
-              <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
-              {eyebrowPrimary}
-              <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
-            </span>
-            <span className="block whitespace-nowrap">{eyebrowSecondary}</span>
-          </p>
-
-          {/*
-            Főcím — a két sor együtt: „Biztonság. Átláthatóság. Szakmai háttér."
-            Porcelain alapszín; EGYETLEN szó, a hero.headlineHighlight
-            („Átláthatóság.") kap Signal Berry kiemelést, sötét alapon a
-            -light változattal (5.82:1, AA). Nincs gradient, glow vagy
-            text-shadow.
-          */}
-          <h1
-            id="hero-cim"
-            data-hero-ink=""
-            className="hero-enter [--hero-enter-delay:80ms] font-display mx-auto mt-7 max-w-[15ch] text-[clamp(2.75rem,12vw,3.5rem)] leading-[1.03] font-medium tracking-[-0.018em] [overflow-wrap:normal] hyphens-none text-balance text-porcelain sm:mt-8 sm:max-w-[16ch] md:text-[clamp(3.75rem,7vw,5rem)] lg:max-w-[19ch] lg:text-[clamp(4.5rem,6vw,5.75rem)]"
-          >
-            <HeadlineLine line={firstLine} />
-            <HeadlineLine line={secondLine} />
-          </h1>
-
-          <p
-            data-hero-ink=""
-            className="hero-enter [--hero-enter-delay:200ms] mx-auto mt-7 max-w-[34ch] text-base leading-[1.72] text-cool-silver text-pretty sm:mt-8 sm:max-w-[58ch] sm:text-lg lg:max-w-[680px] lg:text-xl"
-          >
-            {hero.intro}
-          </p>
-
-          {/*
-            EGYETLEN hero-CTA — az oldal legerősebb konverziós pontja.
-            v1.5.2: Porcelain felület, Ink felirat (13,56:1, AAA), teljesen
-            SEMLEGES élkezeléssel. A korábbi Berry Soft (rózsaszín) háttér,
-            az alsó Berry jelzővonal, a Berry kontúr és a Berry fókuszgyűrű
-            MIND eltávolítva. Hoverre 1 px-t emelkedik; nincs pulzálás.
-          */}
-          <div className="hero-enter [--hero-enter-delay:300ms] mt-9 flex w-full max-w-sm flex-col items-stretch sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center">
             {/*
-              A gomb SEMMILYEN dekoratív karaktert (pl. nyilat) nem tartalmaz:
-              a renderelt szövegnek karakterre a content-modell feliratával kell
-              egyeznie. A hover-visszajelzést a finom emelkedés és a semleges
-              élkezelés erősödése adja — Berry/rózsaszín elem nincs rajta.
+              Az eyebrow PONTOSAN két, tudatos sor (v1.5.3): a két sor külön
+              markup-blokk, a `whitespace-nowrap` miatt egyik sem törik tovább.
+              A dekoratív vonalak aria-hidden-ek.
             */}
-            <a
-              href={hero.primaryCta.href}
+            <p
               data-hero-ink=""
-              className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-porcelain px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
+              className="flex flex-col items-center gap-2 text-[0.6875rem] font-semibold tracking-[0.22em] text-cool-silver sm:text-xs lg:text-[0.8125rem]"
             >
-              {hero.primaryCta.label}
-            </a>
+              <span className="flex items-center gap-3 whitespace-nowrap">
+                <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
+                {eyebrowPrimary}
+                <span aria-hidden="true" className="block h-px w-6 bg-signal-berry-light/60 sm:w-8" />
+              </span>
+              <span className="block whitespace-nowrap">{eyebrowSecondary}</span>
+            </p>
+
+            {/*
+              Főcím — két sor: „Biztonság. Átláthatóság." / „Szakmai háttér."
+              Kizárólag a hero.headlineHighlight („Átláthatóság.") kap Berry
+              Light kiemelést. Nincs gradient, glow vagy text-shadow.
+            */}
+            <h1
+              id="hero-cim"
+              data-hero-ink=""
+              className="font-display mx-auto mt-7 max-w-[15ch] text-[clamp(2.75rem,12vw,3.5rem)] leading-[1.03] font-medium tracking-[-0.018em] [overflow-wrap:normal] hyphens-none text-balance text-porcelain sm:mt-8 sm:max-w-[16ch] md:text-[clamp(3.75rem,7vw,5rem)] lg:max-w-[19ch] lg:text-[clamp(4.5rem,6vw,5.75rem)]"
+            >
+              <HeadlineLine line={firstLine} />
+              <HeadlineLine line={secondLine} />
+            </h1>
+
+            <p
+              data-hero-ink=""
+              className="mx-auto mt-7 max-w-[34ch] text-base leading-[1.72] text-cool-silver text-pretty sm:mt-8 sm:max-w-[58ch] sm:text-lg lg:mt-6 lg:max-w-[680px] lg:text-xl"
+            >
+              {hero.intro}
+            </p>
+
+            {/*
+              EGYETLEN hero-CTA — Porcelain felület, Ink felirat (13,56:1),
+              dekoratív karakter nélkül; a felirat karakterre a tartalmi modellé.
+            */}
+            <div className="mt-9 flex w-full max-w-sm flex-col items-stretch sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center lg:mt-8">
+              <a
+                href={hero.primaryCta.href}
+                data-hero-ink=""
+                className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-porcelain px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
+              >
+                {hero.primaryCta.label}
+              </a>
+            </div>
           </div>
         </div>
+      </WorldPanorama>
 
-        {/*
-          STÁTUSZKÖZLÉS — a jogi hierarchia ELSŐ, legrövidebb szintje.
-          Vizuálisan MÁSODLAGOS: nincs kártya, nincs domináns keret vagy
-          háttér, nincs all-caps „KÖTELEZŐ STÁTUSZKÖZLÉS" felirat — csak egy
-          hajszálvékony felső osztóvonal. Ugyanakkor mindig látható, mobilon
-          sem rejtett, és a mérete a specifikált minimum FÖLÖTT van:
-          15 px mobilon (0.9375rem), 16 px desktopon. Muted Plum Porcelainen
-          mérve 5.33:1 — WCAG AA teljesül.
-        */}
-        <div className="border-t border-white/12 pb-12 pt-7 sm:pb-14 lg:pb-16">
+      {/*
+        STÁTUSZKÖZLÉS — a jogi hierarchia első szintje, KÜLÖN, átlátszatlan
+        sötét sávban: mögötte nincs térkép, így a kontraszt állandó (Cool
+        Silver a Carbonon 9,82:1). A szöveg karakterre változatlan.
+      */}
+      <div className="wp-legal relative z-10 border-t border-white/10 bg-carbon">
+        <div className="jg-safe-x mx-auto w-full max-w-[1280px] pt-7 pb-12 sm:pb-14 lg:pb-16">
           <p className="max-w-4xl text-[0.9375rem] leading-relaxed text-cool-silver sm:text-base">
             {statusNotice.body}
           </p>
         </div>
       </div>
-
-      {/*
-        SZAKASZHATÁR — v1.5.3.
-
-        Itt korábban egy önálló `.jg-seam` hajszálvonal ült a Hero alsó élén.
-        A vonal nem tűnt el: a Rólunk szakasz tetején lévő SectionTransition
-        legfelső sorába költözött, hogy a Hero -> Rólunk határt egyetlen
-        elválasztó írja le, ne egy vonal és egy lágy sáv egymás mellett.
-        Ugyanaz a vonal, ugyanazon a határon — egy pixellel lejjebb, már a
-        fogadó szakasz első sorában.
-
-        Ez oldja fel a bejelentett „fehér csíkot" is: a probléma nem egy téves
-        elem volt, hanem a mérve 216 fokozatnyi, átmenet nélküli
-        világosságugrás Deep -> Porcelain között.
-      */}
     </section>
   );
 }
