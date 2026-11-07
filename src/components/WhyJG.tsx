@@ -1,3 +1,4 @@
+import ContactCta from "./ContactCta";
 import Reveal from "./Reveal";
 import Section from "./Section";
 import { whyJg } from "@/content/homepage";
@@ -82,18 +83,17 @@ export default function WhyJG() {
       </ul>
 
       {/*
-        Kontextuális CTA a szakasz végén. v1.6: világos (canvas) felületen az
-        Aubergine háttér + Porcelain felirat (accent / accent-hover) — a
-        sötét heróhoz készült `hero-cta-primary` dekoráció nélkül. Ugyanaz a
-        forma (rounded-md, min-h-14, hover:-translate-y-px).
+        Kontextuális CTA a szakasz végén. v2.1: a közös ContactCta megjelenés
+        (a Header kapcsolatfelvételi gombjának formavilága), világos változat.
       */}
       <Reveal delay={whyJg.pillars.length * 100} className="mt-10 sm:mt-12">
-        <a
+        <ContactCta
           href={whyJg.cta.href}
-          className="inline-flex min-h-14 items-center justify-center rounded-md bg-accent px-10 text-center text-sm font-semibold tracking-[0.1em] text-porcelain transition duration-200 hover:-translate-y-px hover:bg-accent-hover sm:text-[0.9375rem]"
-        >
-          {whyJg.cta.label}
-        </a>
+          label={whyJg.cta.label}
+          tone="light"
+          display="inline-flex"
+          className="min-h-14 gap-6 pr-5 pl-6 text-[0.9375rem]"
+        />
       </Reveal>
     </Section>
   );

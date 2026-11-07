@@ -11,6 +11,7 @@ import {
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { nav } from "@/content/homepage";
+import ContactCta, { CtaArrow } from "./ContactCta";
 import Logo from "./Logo";
 
 gsap.registerPlugin(useGSAP);
@@ -19,24 +20,23 @@ gsap.registerPlugin(useGSAP);
  * Header — v2.0 „JG Editorial Signature".
  *
  * KOMPOZÍCIÓ (a teljes vizuális rendszer: globals.css, HEADER — v2.0)
- *   márkablokk | függőleges hajszálvonal | tartalomjegyzék-navigáció … CTA
+ *   márkablokk | függőleges hajszálvonal | navigáció … CTA
  *
  *   - A márka a Logo System v1.0 horizontal lockupja, nagyobb méretben
  *     (desktopon 40 px-es jel). A lockup arányai a Logo komponensből jönnek;
  *     itt csak a betűméret (= a lockup skálája) változik.
- *   - A navigáció tartalomjegyzék: a 01–04 sorszám PONTOSAN a cél szakasz
- *     saját sorszáma (Section eyebrow: 01 Rólunk … 04 Hivatalos
- *     dokumentumok); a CTA célja a 05 Kapcsolat. A sorszám dekoratív
- *     (aria-hidden), a link neve a felirat marad.
+ *   - Navigáció: a négy felirat sorszám nélkül (v2.1: a korábbi 01–04
+ *     sorszámok a desktop és a mobil navigációból is kikerültek).
  *   - Aktív állapot: az éppen olvasott szakasz menüpontja Porcelain
- *     feliratot, Berry sorszámot és aria-current="location"-t kap; alatta a
+ *     feliratot és aria-current="location"-t kap (mobilmenüben Berry
+ *     nyilat); desktopon alatta a
  *     header alsó vonalán egy 2 : 1-es rombusz jelöl. Hoverre / billentyűzetes
  *     fókuszra a jelölő az adott pontra csúszik, elhagyáskor visszatér.
  *
  * MOZGÁS (GSAP, useGSAP + scope, teljes cleanup)
- *   - nav: a jelölő x-pozíciója és a sorszám 2 px-es „összezárása";
- *   - CTA: egyetlen mikrointerakció — a nyíl szára megnyúlik, a hegye 6 px-et
- *     előre lép, a lemez Muted Plum felé tónusosodik;
+ *   - nav: a jelölő x-pozíciója;
+ *   - CTA: a közös ContactCta komponens saját mikrointerakciója (a nyíl
+ *     szára megnyúlik, a hegye előre lép, a lemez tónusosodik);
  *   - mobilmenü: GSAP timeline (háttér kifutása felülről, a sorok rövid
  *     staggerrel, az ikon két vonala 1 : 2 lejtésű X-be fordul). Záráskor a
  *     timeline visszajátszik, a panel csak a végén kerül ki a DOM-ból.
@@ -64,10 +64,8 @@ gsap.registerPlugin(useGSAP);
 const CTA_LABEL = "Kapcsolatfelvétel";
 const CTA_HREF = "/#kapcsolat";
 
-/** A szakaszok sorszáma megegyezik a nav sorrendjével (01–04, ld. fent). */
-const ITEMS = nav.items.map((item, index) => ({
+const ITEMS = nav.items.map((item) => ({
   ...item,
-  index: String(index + 1).padStart(2, "0"),
   id: item.href.split("#")[1] ?? "",
 }));
 const SECTION_IDS: readonly string[] = ITEMS.map((item) => item.id);
@@ -181,61 +179,6 @@ function useScrolled() {
   return { sentinelRef, scrolled };
 }
 
-/** Tipográfiai nyíl: 14 px szár, 1 : 2 lejtésű hegy; a GSAP nyújtja. */
-function Arrow({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      focusable="false"
-      viewBox="0 0 21 10"
-      width="21"
-      height="10"
-      className={`jg-arrow shrink-0 overflow-visible ${className}`}
-    >
-      <line className="jg-arrow-shaft" x1="0.5" y1="5" x2="14" y2="5" />
-      <polyline className="jg-arrow-head" points="9,2.5 14,5 9,7.5" />
-    </svg>
-  );
-}
-
-type CtaProps = {
-  className?: string;
-  onActivate?: () => void;
-  onMotion: (el: HTMLElement, on: boolean) => void;
-};
-
-/**
- * „Kapcsolatfelvétel" — Aubergine lemez, levágott sarok, nyíl (ld. .jg-cta).
- *
- * Szándékosan sima <a>, NEM next/link (a nav itemekhez hasonlóan): a Next
- * routere ugyanarra a hash-re (már #kapcsolat az URL) másodszor nem görget,
- * így a gomb az első kattintás után „halottnak" tűnt. A natív horgonylink
- * minden kattintásra görget, és a scroll-padding-top-ot is tiszteli.
- */
-function ContactCta({ className = "", onActivate, onMotion }: CtaProps) {
-  return (
-    <a
-      href={CTA_HREF}
-      onClick={onActivate}
-      onPointerEnter={(e) => onMotion(e.currentTarget, true)}
-      onPointerLeave={(e) => {
-        if (!e.currentTarget.matches(":focus-visible")) onMotion(e.currentTarget, false);
-      }}
-      onFocus={(e) => {
-        if (e.currentTarget.matches(":focus-visible")) onMotion(e.currentTarget, true);
-      }}
-      onBlur={(e) => onMotion(e.currentTarget, false)}
-      className={`jg-cta relative isolate flex items-center justify-between font-semibold tracking-[0.01em] text-porcelain ${className}`}
-    >
-      <span aria-hidden="true" className="jg-cta-edge" />
-      <span aria-hidden="true" className="jg-cta-plate" />
-      <span aria-hidden="true" className="jg-cta-tint" />
-      <span>{CTA_LABEL}</span>
-      <Arrow />
-    </a>
-  );
-}
-
 export default function Header() {
   // `open` = logikai állapot (aria-expanded); `rendered` = a panel a DOM-ban
   // van-e. Záráskor `open` azonnal false, `rendered` csak az animáció végén.
@@ -327,12 +270,6 @@ export default function Header() {
   const navHover = useCallback(
     (link: HTMLElement, on: boolean) =>
       contextSafe(() => {
-        gsap.to(link.querySelector("[data-nav-num]"), {
-          x: on ? 2 : 0,
-          duration: dur(0.3),
-          ease: "power2.out",
-          overwrite: "auto",
-        });
         if (on) moveMarker(markerRef.current, link);
       })(),
     [contextSafe],
@@ -344,33 +281,6 @@ export default function Header() {
         const current =
           navListRef.current?.querySelector<HTMLElement>("a[aria-current]") ?? null;
         moveMarker(markerRef.current, current);
-      })(),
-    [contextSafe],
-  );
-
-  const ctaMotion = useCallback(
-    (el: HTMLElement, on: boolean) =>
-      contextSafe(() => {
-        const ease = "power3.out";
-        gsap.to(el.querySelector(".jg-arrow-shaft"), {
-          scaleX: on ? 1.43 : 1,
-          transformOrigin: "0% 50%",
-          duration: dur(0.42),
-          ease,
-          overwrite: "auto",
-        });
-        gsap.to(el.querySelector(".jg-arrow-head"), {
-          x: on ? 6 : 0,
-          duration: dur(0.42),
-          ease,
-          overwrite: "auto",
-        });
-        gsap.to(el.querySelector(".jg-cta-tint"), {
-          opacity: on ? 0.55 : 0,
-          duration: dur(0.3),
-          ease: "power1.out",
-          overwrite: "auto",
-        });
       })(),
     [contextSafe],
   );
@@ -516,7 +426,7 @@ export default function Header() {
             <ul
               ref={navListRef}
               onPointerLeave={navRelease}
-              className="-ml-2 flex items-center xl:-ml-3.5"
+              className="-ml-2.5 flex items-center xl:-ml-4"
             >
               {ITEMS.map((item) => (
                 <li key={item.href}>
@@ -531,19 +441,10 @@ export default function Header() {
                     }}
                     onFocus={onNavFocus}
                     onBlur={onNavBlur}
-                    className="group flex min-h-11 items-center rounded px-2 whitespace-nowrap text-cool-silver transition-colors duration-200 hover:text-porcelain focus-visible:text-porcelain aria-[current=location]:text-porcelain xl:px-3.5"
+                    className="group flex min-h-11 items-center rounded px-2.5 whitespace-nowrap text-cool-silver transition-colors duration-200 hover:text-porcelain focus-visible:text-porcelain aria-[current=location]:text-porcelain xl:px-4"
                   >
-                    <span className="flex items-baseline gap-1.5 xl:gap-2">
-                      <span
-                        aria-hidden="true"
-                        data-nav-num=""
-                        className="text-[0.6875rem] font-medium tracking-[0.06em] text-cool-silver/70 tabular-nums transition-colors duration-200 group-hover:text-cool-silver group-aria-[current=location]:text-signal-berry-light"
-                      >
-                        {item.index}
-                      </span>
-                      <span data-nav-label="" className="text-[0.84375rem] tracking-[0.005em] xl:text-[0.9375rem]">
-                        {item.label}
-                      </span>
+                    <span data-nav-label="" className="text-[0.875rem] tracking-[0.005em] xl:text-[0.9375rem]">
+                      {item.label}
                     </span>
                   </a>
                 </li>
@@ -553,7 +454,8 @@ export default function Header() {
 
           <div className="hidden shrink-0 items-center lg:flex">
             <ContactCta
-              onMotion={ctaMotion}
+              href={CTA_HREF}
+              label={CTA_LABEL}
               className="min-h-11 gap-3 pr-3.5 pl-4 text-[0.875rem] xl:gap-5 xl:pr-[1.125rem] xl:pl-5 xl:text-[0.9375rem]"
             />
           </div>
@@ -624,25 +526,20 @@ export default function Header() {
                         href={item.href}
                         onClick={() => closeMenu()}
                         aria-current={active === item.id ? "location" : undefined}
-                        className="group grid min-h-16 grid-cols-[2.75rem_1fr_auto] items-center gap-y-1 py-3 text-porcelain"
+                        className="group grid min-h-16 grid-cols-[1fr_auto] items-center gap-y-1 py-3 text-porcelain"
                       >
-                        <span
-                          aria-hidden="true"
-                          className="text-[0.75rem] font-medium tracking-[0.08em] text-cool-silver/70 tabular-nums group-aria-[current=location]:text-signal-berry-light"
-                        >
-                          {item.index}
-                        </span>
                         <span className="font-display text-[1.5rem] leading-[1.15] tracking-[-0.01em] sm:text-[1.75rem]">
                           {item.label}
                         </span>
-                        <Arrow className="ml-4 text-cool-silver/60 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-porcelain" />
+                        <CtaArrow className="ml-4 text-cool-silver/60 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-porcelain group-aria-[current=location]:text-signal-berry-light" />
                       </a>
                     </li>
                   ))}
                   <li className="jg-menu-item pt-7">
                     <ContactCta
-                      onMotion={ctaMotion}
-                      onActivate={() => closeMenu()}
+                      href={CTA_HREF}
+                      label={CTA_LABEL}
+                      onClick={() => closeMenu()}
                       className="min-h-14 w-full px-5 text-base"
                     />
                   </li>

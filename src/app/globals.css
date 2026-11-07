@@ -396,6 +396,26 @@ body {
 */
 .jg-cta {
   --cut: 12px;
+  /*
+    v2.1 — vezérlőhatár ≥ 3 : 1. A korábbi él (Porcelain 22%, áttetsző) a
+    sötét felületen csak 1,95 : 1 volt; most TÖMÖR, tokenekből kevert szín
+    (Muted Plum 70% + Cool Silver 30% = #8B7B8A): Deep / Carbon / Sink
+    felületen 4,2–4,6 : 1, és a mozgó térkép fölött sem áttetsző.
+  */
+  --cta-edge: #8b7b8a; /* = Muted Plum 70% + Cool Silver 30% (tokenkeverék) */
+  --cta-plate: var(--color-aubergine);
+}
+
+/* Világos (Canvas / Porcelain) felületen: a határt maga az Aubergine lemez
+   adja (10,15 : 1); az él sötétebb Aubergine hajszálvonal. */
+.jg-cta[data-tone="light"] {
+  --cta-edge: var(--color-accent-hover);
+}
+
+/* Aktív (lenyomott) állapot: 1 px-es süllyedés — a felirat kontrasztja
+   változatlan. A teljes látható felület a link maga, kattintható. */
+.jg-cta:active {
+  transform: translateY(1px);
 }
 
 .jg-cta-edge,
@@ -408,7 +428,7 @@ body {
 
 .jg-cta-edge {
   inset: 0;
-  background-color: rgb(244 243 241 / 22%);
+  background-color: var(--cta-edge);
   clip-path: polygon(
     0 0,
     calc(100% - var(--cut)) 0,
@@ -432,7 +452,7 @@ body {
 }
 
 .jg-cta-plate {
-  background-color: var(--color-aubergine);
+  background-color: var(--cta-plate);
 }
 
 .jg-cta-tint {
@@ -786,27 +806,26 @@ body {
                   meg az eseményeket, a hotspotok így alatta is elérhetők.
   Minden szín a meglévő tokenekből; nincs neon, glow, glassmorphism.
 */
+/*
+  ETF-felirat: alul, középen, a jogi sáv fölött (mobilon 28 px, desktopon
+  44 px alsó távolság). --wp-etf-clear = az a sáv alulról, amelyet a felirat
+  (≈ 36 px a vonallal) + 12 px rés elfoglal — a panel és a vezérlők e fölött
+  maradnak. A térképsáv magassága a leghosszabb panelből adódik (mért
+  értékek a régióváltóval: 375 px-től ≤ 409 px, 320 px-en ≤ 449 px — ott a
+  panel belül görget; desktop ≤ 385 px): így a panel nem kerül az ETF vagy
+  a CTA fölé.
+*/
 .wp-root {
-  --wp-slot-h: 452px;
+  --wp-slot-h: 500px;
+  --wp-etf-bottom: 28px;
+  --wp-etf-clear: calc(var(--wp-etf-bottom) + 48px);
   --wp-edge: max(var(--jg-gutter), calc((100% - 1280px) / 2 + var(--jg-gutter)));
-}
-
-@media (min-width: 375px) {
-  .wp-root {
-    --wp-slot-h: 432px;
-  }
-}
-
-@media (min-width: 640px) {
-  .wp-root {
-    --wp-slot-h: 470px;
-  }
 }
 
 @media (min-width: 1024px) {
   .wp-root {
-    /* A leghosszabb (ázsiai) lista panelje is elfér: ~410 px + margó. */
-    --wp-slot-h: 440px;
+    --wp-slot-h: 488px;
+    --wp-etf-bottom: 44px;
   }
 }
 
@@ -832,7 +851,8 @@ body {
   background-color: #17131a;
 }
 
-/* Mobil: a térképsáv felső és alsó éle lágyan olvad a Hero felületébe. */
+/* Mobil: a térképsáv felső és alsó éle lágyan olvad a Hero felületébe; az
+   alsó sáv (ETF-felirat) nyugodtabb, sötétebb alapot kap. */
 .wp-stage::after {
   content: "";
   position: absolute;
@@ -842,8 +862,8 @@ body {
     to bottom,
     var(--color-surface-deep) 0%,
     rgb(27 22 28 / 0%) 16%,
-    rgb(27 22 28 / 0%) 88%,
-    rgb(24 24 27 / 55%) 100%
+    rgb(27 22 28 / 0%) 74%,
+    rgb(24 24 27 / 72%) 100%
   );
 }
 
@@ -975,7 +995,8 @@ body {
   left: 12px;
   right: 12px;
   top: 12px;
-  max-height: calc(100% - 24px);
+  /* Az ETF-sáv fölött ér véget; ha a tartalom hosszabb (320 px), belül görget. */
+  max-height: calc(100% - 12px - var(--wp-etf-clear));
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 18px 18px 14px;
@@ -999,7 +1020,7 @@ body {
     top: auto;
     left: auto;
     right: var(--wp-edge);
-    bottom: 20px;
+    bottom: var(--wp-etf-clear);
     width: 440px;
     max-height: none;
     overflow: visible;
@@ -1026,6 +1047,52 @@ body {
 .wp-panel-head {
   position: relative;
   padding-right: 44px;
+}
+
+/* Régióváltó (csak mobil/tablet, ahol a panel a térképsávot fedi). A
+   kiválasztott régió a gomb állapota (aria-pressed), ezért itt a panel
+   régiófelirata (eyebrow) nem ismétlődik. */
+.wp-panel-regions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.wp-panel-region {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid rgb(244 243 241 / 22%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-cool-silver);
+}
+
+.wp-panel-region:hover {
+  color: var(--color-porcelain);
+}
+
+.wp-panel-region[aria-pressed="true"] {
+  border-color: rgb(194 127 163 / 80%);
+  background-color: rgb(244 243 241 / 8%);
+  color: var(--color-porcelain);
+}
+
+@media (max-width: 1023.98px) {
+  .wp-panel-eyebrow {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-panel-regions {
+    display: none;
+  }
 }
 
 .wp-panel-eyebrow {
@@ -1145,7 +1212,8 @@ body {
   position: absolute;
   z-index: 1;
   left: var(--wp-edge);
-  bottom: 10px;
+  /* Mobilon a térképsáv bal felső sarkában (alul az ETF-felirat ül). */
+  top: 10px;
   min-height: 44px;
   padding: 0 12px;
   border-radius: 8px;
@@ -1164,19 +1232,32 @@ body {
   color: var(--color-porcelain);
 }
 
-/* ---- Dekoratív feliratok (csak széles desktop) ---------------------------- */
-.wp-deco {
+@media (min-width: 1024px) {
+  .wp-motion-toggle {
+    top: auto;
+    bottom: 10px;
+  }
+}
+
+/* ---- Dekoratív feliratok -------------------------------------------------
+   RÉSZVÉNYEK / KÖTVÉNYEK csak széles desktopon; az ETF minden szélességen,
+   alul középen. Mindhárom aria-hidden, nem interaktív. */
+.wp-deco--left,
+.wp-deco--right {
   display: none;
 }
 
 @media (min-width: 1280px) {
-  .wp-deco {
+  .wp-deco--left,
+  .wp-deco--right {
     display: block;
   }
 }
 
 .wp-deco-item {
   position: absolute;
+  pointer-events: none;
+  user-select: none;
   font-size: 0.9375rem;
   font-weight: 500;
   letter-spacing: 0.32em;
@@ -1203,16 +1284,21 @@ body {
   top: -96px;
 }
 
-.wp-deco--low {
-  left: var(--wp-edge);
-  top: 58%;
+.wp-deco--etf {
+  left: 50%;
+  bottom: var(--wp-etf-bottom);
+  transform: translateX(-50%);
+  /* A betűköz a szó végén is megjelenik: a bal oldali párja szimmetrikussá
+     teszi a dobozt, így a felirat és a vonal pontosan középen ül. */
+  padding-left: 0.32em;
+  line-height: 1.5;
 }
 
 /* ---- Fallback: régiógombok (WebGL2 nélkül / hiba esetén) ------------------ */
 .wp-fallback-regions {
   position: absolute;
   left: 50%;
-  bottom: 64px;
+  bottom: calc(var(--wp-etf-clear) + 4px);
   transform: translateX(-50%);
   display: flex;
   flex-wrap: wrap;
@@ -1241,7 +1327,7 @@ body {
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: 12px;
+  bottom: var(--wp-etf-clear);
   display: grid;
   gap: 8px;
 }
@@ -1329,39 +1415,10 @@ body {
 }
 
 /*
-  Elsődleges Hero-CTA — v1.5.2: TELJESEN SEMLEGES.
-
-  A v1.3–v1.5 változat Berry Soft (rózsaszín) felületet, alsó Berry
-  jelzővonalat, Berry kontúrt és Berry fókuszgyűrűt használt. Ez a kör
-  MINDET eltávolítja: a gomb Porcelain felület + Ink felirat, az élkezelés
-  pedig semleges (felső belső fény, hajszálnyi sötét kontúr, szűk vetett
-  árnyék). A Hero CTA-n a Berry/rózsaszín dekorációk száma: 0.
-
-  Mért kontraszt: Ink a Porcelainen 13,56:1 (AAA).
-
-  A fókuszgyűrű a Hero `.on-dark` szabályát kapja (Porcelain gyűrű + Ink
-  kontúr), mert a gomb világos felületen ül sötét szakaszon belül — így
-  mindkét irányban elválik, és nincs rajta rózsaszín.
+  A korábbi .hero-cta-primary (Porcelain, lekerekített) Hero- és
+  Szolgáltatások-CTA stílus v2.1-ben MEGSZŰNT: minden kapcsolatfelvételi CTA a
+  közös ContactCta megjelenést (.jg-cta, ld. a HEADER blokkban) használja.
 */
-.hero-cta-primary {
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 85%),
-    inset 0 -2px 0 0 rgb(39 38 42 / 14%),
-    0 0 0 1px rgb(39 38 42 / 10%),
-    0 14px 30px -16px rgb(0 0 0 / 90%);
-  transition:
-    background-color 220ms ease,
-    box-shadow 220ms ease,
-    transform 220ms ease;
-}
-
-.hero-cta-primary:hover {
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 95%),
-    inset 0 -2px 0 0 rgb(39 38 42 / 22%),
-    0 0 0 1px rgb(39 38 42 / 16%),
-    0 18px 38px -18px rgb(0 0 0 / 95%);
-}
 
 /* ==========================================================================
    SÖTÉT SZAKASZOK MÉLYSÉGE — v1.4

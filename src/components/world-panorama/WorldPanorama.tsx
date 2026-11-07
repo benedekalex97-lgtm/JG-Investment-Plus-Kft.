@@ -40,6 +40,8 @@ import { PANEL_NOTE, PANEL_SUBTITLE, REGIONS, type RegionId } from "./markets";
 type Mode = "loading" | "live" | "fallback";
 type UserChoice = "auto" | "playing" | "paused";
 type PanelPlacement = { left: number; top: number; anchorX: number; anchorY: number; edgeX: number; edgeY: number };
+/** Doboz a színpad koordinátáiban (CSS px). */
+type Box = { left: number; top: number; right: number; bottom: number };
 
 const CLOSE_GRACE_MS = 250;
 
@@ -76,12 +78,23 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const connectorRef = useRef<SVGLineElement>(null);
+  const etfRef = useRef<HTMLSpanElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const hotspotRefs = useRef<Partial<Record<RegionId, HTMLButtonElement | null>>>({});
   const fallbackRefs = useRef<Partial<Record<RegionId, HTMLButtonElement | null>>>({});
 
   const engineRef = useRef<Panorama | null>(null);
   const projectionRef = useRef<Projection | null>(null);
-  const layoutRef = useRef({ width: 0, height: 0, slotTop: 0, slotHeight: 0 });
+  const layoutRef = useRef({
+    width: 0,
+    height: 0,
+    slotTop: 0,
+    slotHeight: 0,
+    /** Az ETF-felirat teteje a térképsávon belül (a panel e fölött marad). */
+    etfTopInSlot: Infinity,
+    /** Felületek, amelyeket a hotspot nem takarhat (ETF-felirat, mozgásvezérlő). */
+    avoid: [] as Box[],
+  });
   const runtimeRef = useRef({ hidden: false, inView: true });
   const closeTimer = useRef<number | null>(null);
   /* Programozott fókusz-visszaadás alatt a fókusz NEM nyit előnézetet. */
@@ -145,39 +158,56 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
     if (!stage || !slot) return;
     const stageBox = stage.getBoundingClientRect();
     const slotBox = slot.getBoundingClientRect();
+    const rel = (el: Element | null): Box | null => {
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return null;
+      return { left: r.left - stageBox.left, top: r.top - stageBox.top, right: r.right - stageBox.left, bottom: r.bottom - stageBox.top };
+    };
+    const etf = rel(etfRef.current);
     layoutRef.current = {
       width: stageBox.width,
       height: stageBox.height,
       slotTop: slotBox.top - stageBox.top,
       slotHeight: slotBox.height,
+      etfTopInSlot: etf ? etf.top - (slotBox.top - stageBox.top) : Infinity,
+      avoid: [etf, rel(toggleRef.current)].filter((b): b is Box => b !== null),
     };
   }, []);
 
   const lensShiftFor = useCallback(() => {
     const { width, height, slotTop, slotHeight } = layoutRef.current;
     if (!height) return 0;
-    // Mobil rig széles sávon (tablet): a kompozíció kissé feljebb ül, hogy a
-    // közelebbi (alsó) pont se fusson ki a sáv aljáról.
-    if (slotTop === 0) return width / height > 1.2 ? -0.16 : 0;
-    // Desktop: a térkép optikai középpontja a térképsáv felső részébe (42%)
-    // essen — a három pont a teljes ciklusban a sávban marad (szimulációval
-    // ellenőrizve), a távoli kontinensek a szöveg alsó része mögé futnak
-    // (ott a .wp-scrim nyugodtan tartja a felületet).
-    const centre = slotTop + slotHeight * 0.42;
+    // Mobil rig: a kompozíció kissé feljebb ül — kitölti a sáv felső részét,
+    // alul (az ETF-felirat körül) nyugodtabb a felület; széles sávon (tablet)
+    // erősebben, hogy a közelebbi (alsó) pont se fusson ki a sáv aljáról.
+    if (slotTop === 0) return width / height > 1.2 ? -0.16 : -0.12;
+    // Desktop: a térkép optikai középpontja a térképsáv felső részébe (36%)
+    // essen — a három pont a teljes ciklusban a sávban marad, az ETF-feliratot
+    // és a vezérlőt nem fedi (szimulációval ellenőrizve); a távoli
+    // kontinensek a szöveg alsó része mögé futnak (ott a .wp-scrim nyugodtan
+    // tartja a felületet), Afrika déli része a sáv aljára kerül.
+    const centre = slotTop + slotHeight * 0.36;
     return Math.max(0, (2 * centre) / height - 1);
   }, []);
 
   /* ---------------- Vetített hotspotok — közvetlen DOM-frissítés ---------------- */
   const onProject = useCallback((projection: Projection) => {
     projectionRef.current = projection;
-    const { width, height, slotTop } = layoutRef.current;
+    const { width, height, slotTop, avoid } = layoutRef.current;
     const minY = slotTop + HOTSPOT_HALF + 4;
+    const pad = HOTSPOT_HALF + 6;
     for (const id of ORDER) {
       const el = hotspotRefs.current[id];
       const p = projection[id];
       if (!el || !p) continue;
+      // Az ETF-feliratot és a mozgásvezérlőt a hotspot nem takarhatja (és fordítva).
+      const blocked = avoid.some(
+        (b) => p.x > b.left - pad && p.x < b.right + pad && p.y > b.top - pad && p.y < b.bottom + pad,
+      );
       const show =
         p.visible &&
+        !blocked &&
         p.y >= minY &&
         p.y <= height - HOTSPOT_HALF - 4 &&
         p.x >= HOTSPOT_HALF &&
@@ -362,7 +392,7 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
     const panel = panelRef.current;
     if (!active || !panel) return;
-    const { width, slotTop, slotHeight } = layoutRef.current;
+    const { width, slotTop, slotHeight, etfTopInSlot } = layoutRef.current;
     const proj = projectionRef.current?.[active];
     if (rig !== "desktop" || mode !== "live" || !proj) {
       setPlacement(null); // CSS-alapú stabil elhelyezés (mobil / fallback)
@@ -377,7 +407,9 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
     let left = ax + gap;
     if (left + pw > width - margin) left = ax - gap - pw;
     left = Math.max(margin, Math.min(left, width - margin - pw));
-    const top = Math.max(8, Math.min(ay - ph * 0.3, slotHeight - ph - 8));
+    // A panel alja az ETF-felirat fölött marad (12 px réssel).
+    const floor = Math.min(slotHeight - 8, etfTopInSlot - 12);
+    const top = Math.max(8, Math.min(ay - ph * 0.3, floor - ph));
     const edgeX = left > ax ? left : left + pw;
     const edgeY = Math.max(top + 28, Math.min(ay, top + ph - 28));
     setPlacement({ left, top, anchorX: ax, anchorY: ay, edgeX, edgeY });
@@ -476,7 +508,10 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
         <div aria-hidden="true" className="wp-deco">
           <span className="wp-deco-item wp-deco--left">Részvények</span>
           <span className="wp-deco-item wp-deco--right">Kötvények</span>
-          <span className="wp-deco-item wp-deco--low">ETF</span>
+          {/* Alul, középen, a jogi sáv fölött — a kamerától független, nem kattintható. */}
+          <span ref={etfRef} className="wp-deco-item wp-deco--etf">
+            ETF
+          </span>
         </div>
 
         {showFallbackButtons ? (
@@ -538,6 +573,24 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
         >
           {region ? (
             <>
+              {/* Mobilon a panel a térképsávot fedi: a régióváltás itt, a panelen belül érhető el. */}
+              <div role="group" aria-label="Régió" className="wp-panel-regions">
+                {ORDER.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className="wp-panel-region"
+                    aria-pressed={active === id}
+                    onClick={() => {
+                      setActive(id);
+                      setPinned(true);
+                      clearCloseTimer();
+                    }}
+                  >
+                    {REGION_BY_ID[id].regionLabel}
+                  </button>
+                ))}
+              </div>
               <div className="wp-panel-head">
                 <p className="wp-panel-eyebrow">{region.regionLabel}</p>
                 <h2 id={titleId} className="wp-panel-title">
@@ -572,6 +625,7 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
 
         {mode !== "fallback" ? (
           <button
+            ref={toggleRef}
             type="button"
             className="wp-motion-toggle"
             onClick={() => setUserChoice(motionAllowed ? "paused" : "playing")}

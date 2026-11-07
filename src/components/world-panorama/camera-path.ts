@@ -30,14 +30,18 @@ type Key = { t: number; pose: Pose };
     7–12 s  nézőpontváltás Ázsia felé (az ívek görbülete jobban látszik)
     12–17 s lassú távolodás, szélesebb összkép
     17–24 s másik, ívelt útszakaszon vissza az induló kompozícióhoz
+  Kompozíció: alacsony (16–23°-os), ferde panorámanézet délnyugat felől —
+  Amerika balra, Európa (London) középen, Ázsia jobbra, a mélységbe futva;
+  a nézési cél az északi szélesség ~35–40°-án, így Afrika nem uralja a
+  képet, déli része a térképsáv aljára esik.
 */
 const DESKTOP: Key[] = [
-  { t: 0, pose: [3.1, -1.9, 8, 26, 20.5, 68.5] },
-  { t: 3, pose: [3.7, -2.1, -1, 27, 20, 68.5] },
-  { t: 7, pose: [2.9, -2.8, -4, 33, 17.8, 66.5] },
-  { t: 12, pose: [4.2, -2.5, -9, 30, 18.8, 68.5] },
-  { t: 17, pose: [3.5, -1.8, -3, 29, 22.5, 70.5] },
-  { t: 21, pose: [2.9, -1.7, 7, 24, 21, 68.5] },
+  { t: 0, pose: [1.2, -4.0, -14, 18, 21, 66] },
+  { t: 3, pose: [1.7, -4.2, -19, 19, 20.4, 66] },
+  { t: 7, pose: [1.8, -4.6, -21, 23, 19, 66] },
+  { t: 12, pose: [2.5, -4.4, -24, 21, 19.6, 67.5] },
+  { t: 17, pose: [1.8, -3.9, -17, 19.5, 22.5, 68] },
+  { t: 21, pose: [0.9, -3.8, -10, 17, 21.5, 66] },
 ];
 
 /*
@@ -46,15 +50,15 @@ const DESKTOP: Key[] = [
   mélységbe fut, így New York közelebb (lent, balra), London középen, Tokió
   távolabb (fent, jobbra) ül, és a kontinensek a szűk, magas sávot is
   kitöltik. Magasabb nézőpont, kisebb kamerautazás, mindhárom pont végig a
-  képen.
+  képen (a feliratukkal együtt), az ETF-felirat és a mozgásvezérlő szabadon.
 */
 const MOBILE: Key[] = [
-  { t: 0, pose: [0.4, -3.4, -44, 32, 18, 70] },
-  { t: 3, pose: [1.3, -3.7, -56, 34, 17.4, 70] },
-  { t: 7, pose: [0.6, -3.9, -54, 37, 16.6, 68] },
-  { t: 12, pose: [1.6, -3.8, -60, 35, 17.2, 70] },
-  { t: 17, pose: [0.8, -3.4, -52, 33, 18.8, 72] },
-  { t: 21, pose: [0.0, -3.2, -42, 30, 18.2, 70] },
+  { t: 0, pose: [-0.3, -3.6, -44, 40, 16, 70] },
+  { t: 3, pose: [0.5, -3.9, -54, 42, 15.5, 70] },
+  { t: 7, pose: [-0.1, -4.1, -52, 45, 14.8, 68] },
+  { t: 12, pose: [0.8, -4.0, -58, 43, 15.3, 70] },
+  { t: 17, pose: [0.1, -3.6, -50, 41, 16.8, 72] },
+  { t: 21, pose: [-0.7, -3.4, -42, 38, 16.2, 70] },
 ];
 
 export type Rig = "desktop" | "mobile";

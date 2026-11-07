@@ -1,3 +1,4 @@
+import ContactCta from "./ContactCta";
 import Reveal from "./Reveal";
 import Section from "./Section";
 import { services } from "@/content/homepage";
@@ -94,17 +95,17 @@ export default function Services() {
       </Reveal>
 
       {/*
-        Kontextuális CTA a szakasz végén. v1.6: sötét (deep) felületen a Hero
-        CTA-jával AZONOS `hero-cta-primary` osztály és színpár (Porcelain
-        háttér, Ink felirat), új szín vagy stílus nélkül.
+        Kontextuális CTA a szakasz végén. v2.1: a közös ContactCta megjelenés
+        (a Header kapcsolatfelvételi gombjának formavilága), sötét változat.
       */}
       <Reveal delay={160} className="mt-10 sm:mt-12">
-        <a
+        <ContactCta
           href={services.cta.href}
-          className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-porcelain px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
-        >
-          {services.cta.label}
-        </a>
+          label={services.cta.label}
+          tone="dark"
+          display="inline-flex"
+          className="min-h-14 gap-6 pr-5 pl-6 text-[0.9375rem]"
+        />
       </Reveal>
     </Section>
   );

@@ -1,4 +1,5 @@
 import { hero, statusNotice } from "@/content/homepage";
+import ContactCta from "./ContactCta";
 import WorldPanorama from "./world-panorama/WorldPanorama";
 
 /**
@@ -156,17 +157,17 @@ export default function Hero() {
             </p>
 
             {/*
-              EGYETLEN hero-CTA — Porcelain felület, Ink felirat (13,56:1),
-              dekoratív karakter nélkül; a felirat karakterre a tartalmi modellé.
+              EGYETLEN hero-CTA — v2.1: a közös ContactCta megjelenés (a Header
+              „Kapcsolatfelvétel" gombjának formavilága, sötét változat). A
+              felirat és a cél karakterre a tartalmi modellé.
             */}
             <div className="mt-9 flex w-full max-w-sm flex-col items-stretch sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center lg:mt-8">
-              <a
+              <ContactCta
                 href={hero.primaryCta.href}
-                data-hero-ink=""
-                className="hero-cta-primary inline-flex min-h-14 items-center justify-center rounded-md bg-porcelain px-10 text-center text-sm font-semibold tracking-[0.1em] text-ink hover:-translate-y-px hover:bg-white sm:text-[0.9375rem]"
-              >
-                {hero.primaryCta.label}
-              </a>
+                label={hero.primaryCta.label}
+                tone="dark"
+                className="min-h-14 gap-6 pr-5 pl-6 text-sm sm:text-[0.9375rem]"
+              />
             </div>
           </div>
         </div>
