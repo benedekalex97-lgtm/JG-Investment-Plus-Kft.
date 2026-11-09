@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import About from "@/components/About";
 import Contact from "@/components/Contact";
+import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -29,7 +30,10 @@ export const metadata: Metadata = {
  * Főoldal — v1.2, a jóváhagyott hero-referencia (Lovable) szerkezete szerint.
  *
  *   Hero  →  01 Rólunk  →  02 Szolgáltatások  →  03 Miért mi?
- *   →  04 Hivatalos dokumentumok  →  05 Kapcsolat
+ *   →  04 Gyakori kérdések  →  05 Hivatalos dokumentumok  →  06 Kapcsolat
+ *
+ * v1.3: a Gyakori kérdések (04) a Miért mi? és a Hivatalos dokumentumok közé
+ * került; a két utóbbi sorszáma 05, illetve 06.
  *
  * A v1.1-ben általunk hozzáadott külön FOLYAMAT szakasz és a konverziós
  * CTA-sáv eltávolítva: egyik sem része a referenciaoldal szövegének. A
@@ -63,6 +67,7 @@ export default function Home() {
         <About />
         <Services />
         <WhyJG />
+        <Faq />
         <OfficialDocuments />
         <Contact />
       </main>

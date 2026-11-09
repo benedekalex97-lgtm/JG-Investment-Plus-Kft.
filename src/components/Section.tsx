@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 type SectionProps = {
   id: string;
-  /** Kétjegyű szakaszszám (01–05) — vizuális ritmus, nem tartalom. */
+  /** Kétjegyű szakaszszám (01–06) — vizuális ritmus, nem tartalom. */
   number?: string;
   label: string;
   heading: string;
@@ -26,7 +26,11 @@ type SectionProps = {
 
 const TONE_CLASS = {
   canvas: "bg-canvas",
-  surface: "bg-surface",
+  /*
+    Fehér felület — a Porcelain (canvas) szomszédjától hajszálvonallal és
+    tónuskülönbséggel válik el. v1.7: a GYIK használja a Miért minket? után.
+  */
+  surface: "bg-surface border-t border-border",
   /** Nagyon halvány Aubergine-tónus — szakaszváltást jelöl, nem színez. */
   tint: "bg-section-tint",
   /** Mély, sötét márkafelület. Az `on-dark` osztály a fókuszgyűrűt is váltja. */
@@ -49,6 +53,8 @@ const TONE_CLASS = {
  * állítja; a szakaszok BELSŐ tartalmának színei a saját komponensükben, a
  * tónushoz igazítva élnek. A `surface` és `tint` tónus a főoldalon jelenleg
  * nincs használatban.
+ *
+ * v1.7: a `surface` tónust a GYIK használja (fehér, felső hajszálvonallal).
  */
 export default function Section({
   id,

@@ -366,7 +366,7 @@ export const officialDocuments: {
   items: readonly { readonly label: string; readonly href: string }[];
   note: string;
 } = {
-  sectionNumber: "04",
+  sectionNumber: "05",
   sectionLabel: "Hivatalos dokumentumok",
   heading: "Hivatalos dokumentumok",
   lead: "A szolgáltatások részletes feltételeit, költségeit, végrehajtási szabályait és kockázatait a K&H Értékpapír mindenkor hatályos dokumentumai tartalmazzák.",
@@ -394,7 +394,7 @@ export const contact: {
   khSupport: { heading: string; items: readonly ContactEntry[] };
   orderNotice: string;
 } = {
-  sectionNumber: "05",
+  sectionNumber: "06",
   sectionLabel: "Kapcsolat",
   heading: "Lépjen kapcsolatba velünk",
   lead: "Ha szeretné megismerni a K&H Értékpapírnál elérhető szolgáltatásokat, vagy meglévő ügyfélként a függő ügynöki tevékenység körébe tartozó ügyben keres minket, vegye fel velünk a kapcsolatot.",
