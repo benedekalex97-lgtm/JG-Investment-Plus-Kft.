@@ -313,74 +313,159 @@ body {
 }
 
 /* ==========================================================================
-   HEADER — v1.4: „az oldal első prémium részlete"
+   HEADER — v2.0 „JG EDITORIAL SIGNATURE"
    --------------------------------------------------------------------------
-   A v1.3-ban a header egyetlen lapos, egyszínű sötét sáv volt (bg + 1 px
-   határvonal). Vizuálisan ez gyakorlatilag megkülönböztethetetlen volt egy
-   alap Tailwind navigation bartól, és nem készítette elő a Hero világát.
+   Architectural precision × editorial financial identity × quiet motion.
 
-   A v1.4 NEM glassmorphismot és nem fényes SaaS-navbart ad hozzá, hanem
-   NYOMDAI MÉLYSÉGET, négy nagyon visszafogott rétegben:
-     1) függőleges tonális gradiens (raise → deep → sink): a sáv teteje egy
-        hajszállal világosabb, az alja sötétebb — ettől a felület nem lapos;
-     2) 1 px-es belső felső fény (a sáv felső éle „megcsillan");
-     3) 1 px-es belső alsó határvonal — box-shadow, NEM border, ezért NEM ad
-        hozzá magasságot: a header külső magassága pontosan 72 / 80 px
-        marad, és az anchor-eltolás ±0 px-re illeszthető;
-     4) nagyon halvány, széles vetett árnyék, hogy a sáv a tartalom FÖLÖTT
-        legyen, ne beleolvadva.
+   A header karakterét a kompozíció és a tipográfia adja, nem effekt:
+     1) nyugodt, egyszínű Deep felület + egyetlen alsó hajszálvonal
+        (box-shadow, NEM border → a külső magasság PONTOSAN 72 / 80 px marad,
+        amire a html { scroll-padding-top } épül);
+     2) a márkablokkot egy teljes magasságú függőleges hajszálvonal zárja le
+        — „masthead" tagolás a márka és a tartalomjegyzék között;
+     3) a navigáció TARTALOMJEGYZÉK: a sorszámok (01–04) pontosan a szakaszok
+        saját sorszámai (ld. Section.tsx eyebrow), a CTA célja a 05;
+     4) az egyetlen átló a rendszerben a logó 1 : 2 lejtése (26,565°): ebből
+        készül a CTA levágott sarka, a nyíl hegye, az aktív jelölő 2 : 1
+        rombusza és a mobilmenü-ikon X-állása. Ez NEM logóelem, hanem a
+        logó geometriájának szabálya, következetesen alkalmazva.
+
+   Nincs glassmorphism, blur, glow, gradiens-animáció és dekoratív fény.
    ========================================================================== */
 .jg-header {
-  background-image: linear-gradient(
-    to bottom,
-    var(--color-surface-raise) 0%,
-    var(--color-surface-deep) 58%,
-    var(--color-surface-sink) 100%
+  background-color: var(--color-surface-deep);
+  box-shadow: inset 0 -1px 0 0 rgb(244 243 241 / 10%);
+}
+
+/*
+  SCROLL-STATE — diszkrét, egyetlen állapotváltás.
+  A Hero fölött (oldal teteje) a header árnyék nélkül, a Heróval egy
+  felületként olvasódik: a hajszálvonal a „masthead" alsó vonala. Görgetés
+  után egy szűk vetett árnyék választja el a tartalomtól. Az árnyék külön
+  rétegen él, és CSAK az opacity-je változik: nincs layout, nincs repaint a
+  sávon. Az állapotot egyetlen IntersectionObserver adja (nincs scroll-
+  figyelő), z-index: -1, így a headeren belüli elemek fölé nem fest.
+*/
+.jg-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  box-shadow: 0 14px 28px -20px rgb(0 0 0 / 80%);
+  opacity: 0;
+  transition: opacity 320ms ease;
+}
+
+.jg-header[data-scrolled="true"]::after {
+  opacity: 1;
+}
+
+/*
+  Aktív szakasz-jelölő — 10 × 5 px-es, 2 : 1 arányú rombusz a header alsó
+  hajszálvonalán, az aktív (vagy éppen hoverelt / fókuszált) menüpont
+  felirata alatt. A pozíciót és a láthatóságot a GSAP kezeli (transform +
+  opacity); JS nélkül egyszerűen nem látszik. Signal Berry Light: nem
+  szöveg, a nem-szöveges kontrasztkövetelmény (3:1) Deep-en 5.82:1.
+*/
+.jg-nav-marker {
+  width: 10px;
+  height: 5px;
+  bottom: -2px;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background-color: var(--color-signal-berry-light);
+  opacity: 0;
+  visibility: hidden;
+}
+
+/*
+  CTA — „Kapcsolatfelvétel": szögletes Aubergine lemez 1 : 2 lejtésű levágott
+  jobb felső sarokkal, hajszálvékony Porcelain éllel és tipográfiai nyíllal.
+  Nem kapszula, nem fehér gomb.
+
+  Három réteg (mind aria-hidden, a link alatt, z-index: -1):
+    edge  — a teljes alak Porcelain 22% színnel; ebből csak 1 px él látszik;
+    plate — 1 px-szel beljebb az Aubergine lemez (párhuzamos levágással:
+            1 px merőleges eltolás az 1 : 2 vonalon = 0,76 px-szel kisebb
+            vágás);
+    tint  — a lemez Muted Plum változata, alapból opacity 0; hoverre/fókuszra
+            a GSAP 55%-ra emeli (teljes erővel fakónak hatott). Porcelain a
+            lemezen 10.15:1, a teljes tinten 5.33:1 — bármely keverés a kettő
+            között van.
+  A clip-path a rétegeken van, NEM a linken: így a fókuszgyűrű nem vágódik le.
+*/
+.jg-cta {
+  --cut: 12px;
+  /*
+    v2.1 — vezérlőhatár ≥ 3 : 1. A korábbi él (Porcelain 22%, áttetsző) a
+    sötét felületen csak 1,95 : 1 volt; most TÖMÖR, tokenekből kevert szín
+    (Muted Plum 70% + Cool Silver 30% = #8B7B8A): Deep / Carbon / Sink
+    felületen 4,2–4,6 : 1, és a mozgó térkép fölött sem áttetsző.
+  */
+  --cta-edge: #8b7b8a; /* = Muted Plum 70% + Cool Silver 30% (tokenkeverék) */
+  --cta-plate: var(--color-aubergine);
+}
+
+/* Világos (Canvas / Porcelain) felületen: a határt maga az Aubergine lemez
+   adja (10,15 : 1); az él sötétebb Aubergine hajszálvonal. */
+.jg-cta[data-tone="light"] {
+  --cta-edge: var(--color-accent-hover);
+}
+
+/* Aktív (lenyomott) állapot: 1 px-es süllyedés — a felirat kontrasztja
+   változatlan. A teljes látható felület a link maga, kattintható. */
+.jg-cta:active {
+  transform: translateY(1px);
+}
+
+.jg-cta-edge,
+.jg-cta-plate,
+.jg-cta-tint {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.jg-cta-edge {
+  inset: 0;
+  background-color: var(--cta-edge);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut)) 0,
+    100% calc(var(--cut) / 2),
+    100% 100%,
+    0 100%
   );
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 7%),
-    inset 0 -1px 0 0 rgb(255 255 255 / 10%),
-    0 12px 28px -18px rgb(0 0 0 / 85%);
 }
 
-/*
-  Nav-hover: a felirat alatt középről kifutó, hajszálvékony Berry sín.
-  Kizárólag transform (scaleX), ezért nincs reflow és nincs layout shift.
-  A :focus-visible ugyanezt a visszajelzést kapja, nem csak az egér.
-*/
-.jg-nav-rail {
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+.jg-cta-plate,
+.jg-cta-tint {
+  --cut-inner: calc(var(--cut) - 0.76px);
+  inset: 1px;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut-inner)) 0,
+    100% calc(var(--cut-inner) / 2),
+    100% 100%,
+    0 100%
+  );
 }
 
-.jg-nav-item:hover .jg-nav-rail,
-.jg-nav-item:focus-visible .jg-nav-rail {
-  transform: scaleX(1);
+.jg-cta-plate {
+  background-color: var(--cta-plate);
 }
 
-/*
-  Header-CTA — világos Porcelain felület Ink felirattal (13.56:1, AAA).
-  A „prémium él" három nagyon finom eszközből áll: felső belső fény, alsó
-  belső Berry jelzővonal és egy szűk vetett árnyék. Hoverkor 1 px-t
-  emelkedik. Nincs gradient-animáció, nincs glow, nincs shine sweep.
-*/
-.jg-header-cta {
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 85%),
-    inset 0 -2px 0 0 color-mix(in srgb, var(--color-signal-berry) 40%, transparent),
-    0 6px 16px -10px rgb(0 0 0 / 80%);
-  transition:
-    background-color 200ms ease,
-    box-shadow 200ms ease,
-    transform 200ms ease;
+.jg-cta-tint {
+  background-color: var(--color-muted-plum);
+  opacity: 0;
 }
 
-.jg-header-cta:hover {
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 90%),
-    inset 0 -2px 0 0 var(--color-signal-berry),
-    0 10px 22px -12px rgb(0 0 0 / 85%);
+/* A nyíl vonalai: 1,25 px, a hegy két szára 1 : 2 lejtésű. */
+.jg-arrow {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: square;
 }
 
 /* ==========================================================================
@@ -434,8 +519,8 @@ body {
       fátyol itt szükségszerűen erősebb marad, mint desktopon — de a v1.3-as
       90/70%-hoz képest így is jelentősen visszavettünk.
     */
-    --veil-core: 62%;
-    --veil-mid: 26%;
+    --veil-core: 50%;
+    --veil-mid: 20%;
 
     background-image: radial-gradient(
       ellipse 92% 56% at 50% 38%,
@@ -503,80 +588,781 @@ body {
 
 /*
   ==========================================================================
-  HERO MÉDIA — a statikus gyertyakorridor-kép elhelyezése (v1.5.2)
+  HERO — ARCHITECTURAL FLOW v2.0 („structure in motion")
   ==========================================================================
 
-  A kép 1672×941 (oldalarány 1,777). A Hero desktopon 1440×805 (1,789),
-  tehát a két arány gyakorlatilag azonos: `cover` mellett elhanyagolható a
-  levágás, és a referencia kompozíciója — bal gyertyacsoport, üres közép,
-  jobb gyertyacsoport, padló — teljes egészében megmarad.
+  A v1.5.2 statikus gyertyakorridor-képét egy önálló, GSAP-pel mozgatott
+  építészeti kompozíció váltja (HeroArchitecturalFlow.tsx). Itt csak a
+  geometria és a felületek élnek; a mozgás kizárólag transform.
 
-  MOBILON EZ NEM MŰKÖDIK, és ezt mérés igazolja: egy 390×799-es álló
-  viewporton a `cover` a képet 0,849-es szorzóval nagyítja (1419×799), és
-  ebből mindössze 390 px széles sáv látszik — a forráskép vízszintes
-  27,5%-a, középre igazítva. Az pedig PONTOSAN a folyosó ÜRES közepe:
-  egyetlen gyertya sem lenne a képen.
+  Felépítés: .af-view (perspektíva) → .af-rig (az egész szerkezet
+  elfordulása) → .af-wing-left / -right (a szárny mélységi lépése) →
+  .af-plane (a síkok, közös csuklótengely körül forognak).
 
-  Ezért mobilon nem `cover` van, hanem a kép TELJES SZÉLESSÉGE jelenik meg
-  egy alsó sávban, a Hero aljához igazítva. Így mindkét gyertyacsoport, a
-  perspektíva és a padló is látszik, a H1 mögötti felső zóna viszont tiszta
-  és sötét marad.
+  Felületek: csak a meglévő tokenek. A sík Aubergine, a csukló felől a
+  szabad él felé elhalkulva; az élek Porcelain hajszálvonalak; a belső
+  kontúr („metszés") még halkabb. Signal Berry Light kizárólag szárnyanként
+  EGY sík szabad élén, 45%-on — nagyon korlátozott kiemelés.
+  Nincs glow, blur, bloom vagy fényeffekt.
 */
-.hero-media {
+.af-view {
+  --af-hinge: 5%;
+  --af-w: 36%;
+  --af-top: -2%;
+  --af-h: 104%;
   position: absolute;
-  left: 50%;
-  /*
-    MOBIL KOMPOZÍCIÓ — mérés vezérelte, három iteráció után.
-
-    A szélesség és a látható képkivágat KÖLCSÖNÖSEN kizárja egymást: minél
-    szélesebbre nagyítjuk a képet (magasabb sáv), annál kisebb hányada
-    látszik, és 200% fölött már CSAK a folyosó közepe marad a képen — ott
-    viszont a gyertyák a legapróbbak. 132%-nál a forráskép vízszintes
-    ~77%-a látszik, tehát MINDKÉT gyertyacsoport nagy, előtéri gyertyái is.
-
-    A sáv a státuszközlés FÖLÖTT ér véget (bottom: 22%), ezért a kötelező
-    jogi szöveg tiszta, sötét alapra kerül, és nem kell erős sötétítéssel
-    elnyomni a képet. Mindkét éle maszkkal olvad a felületbe.
-  */
-  bottom: 22%;
-  width: 132%;
-  /*
-    KÖTELEZŐ: a Tailwind preflight `img { max-width: 100% }` szabálya
-    különben 100%-ra vágná a szélességet. Mérés igazolta: 205% helyett
-    390 px-en renderelt (219 px magas sáv), és a gyertyák gyakorlatilag
-    eltűntek a mobil Heróból.
-  */
-  max-width: none;
-  height: auto;
-  transform: translateX(-50%);
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 26%,
-    black 80%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(to bottom, transparent 0%, black 26%, black 80%, transparent 100%);
+  inset: 0;
+  perspective: 1800px;
+  perspective-origin: 50% 38%;
 }
 
-@media (min-width: 480px) {
-  .hero-media {
-    width: 118%;
-    bottom: 19%;
+/* Tablet: keskenyebb kép, ezért közelebbi perspektíva és szélesebb síkok. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .af-view--desktop {
+    --af-hinge: 1%;
+    --af-w: 42%;
+    perspective: 1300px;
   }
 }
 
-@media (min-width: 768px) {
-  /* Tabletnél és fölötte az arányok már összeérnek: teljes felületű cover. */
-  .hero-media {
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transform: none;
-    object-fit: cover;
-    object-position: 50% 50%;
-    -webkit-mask-image: none;
-    mask-image: none;
+/*
+  MOBIL — külön komponált rig, nem a desktop kivágata: 3 + 3 sík, a csukló
+  a képernyőn KÍVÜL, meredekebb szögek, közelebbi perspektíva, magasabb
+  enyészpont. Így a síkok a szélekről lépnek be, a középső olvasósáv
+  tisztább, és kevesebb réteget kell kompozitálni.
+*/
+.af-view--mobile {
+  --af-hinge: -6%;
+  --af-w: 70%;
+  --af-top: 2%;
+  --af-h: 96%;
+  perspective: 820px;
+  perspective-origin: 50% 24%;
+}
+
+.af-rig,
+.af-wing {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.af-plane {
+  --af-edge: rgb(244 243 241 / 24%);
+  --af-rim: rgb(244 243 241 / 13%);
+  position: absolute;
+  top: calc(var(--af-top) + var(--af-step, 0%));
+  height: calc(var(--af-h) - 2 * var(--af-step, 0%));
+  width: var(--af-w);
+  backface-visibility: visible;
+  will-change: transform;
+}
+
+/*
+  Lépcsőzött síkmagasság: a zártabb (belső) síkok rövidebbek, így
+  perspektívában egymásba ágyazott keretekként olvasódnak — rétegzett,
+  szerkesztett geometria, nem egyforma „lapok".
+*/
+.af-plane:nth-child(2) {
+  --af-step: 5%;
+}
+.af-plane:nth-child(3) {
+  --af-step: 10%;
+}
+.af-plane:nth-child(4) {
+  --af-step: 14%;
+}
+.af-plane:nth-child(5) {
+  --af-step: 18%;
+}
+
+.af-wing-left .af-plane {
+  left: var(--af-hinge);
+  transform-origin: 0% 50%;
+  background-image: linear-gradient(
+    to right,
+    rgb(73 52 71 / 38%) 0%,
+    rgb(73 52 71 / 16%) 50%,
+    rgb(73 52 71 / 0%) 100%
+  );
+  box-shadow:
+    inset -1px 0 0 0 var(--af-edge),
+    inset 0 1px 0 0 var(--af-rim),
+    inset 0 -1px 0 0 var(--af-rim);
+}
+
+.af-wing-right .af-plane {
+  right: var(--af-hinge);
+  transform-origin: 100% 50%;
+  background-image: linear-gradient(
+    to left,
+    rgb(73 52 71 / 38%) 0%,
+    rgb(73 52 71 / 16%) 50%,
+    rgb(73 52 71 / 0%) 100%
+  );
+  box-shadow:
+    inset 1px 0 0 0 var(--af-edge),
+    inset 0 1px 0 0 var(--af-rim),
+    inset 0 -1px 0 0 var(--af-rim);
+}
+
+/* Az egyetlen Berry-akcentus: a legnyitottabb sík szabad éle. */
+.af-plane--accent {
+  --af-edge: rgb(194 127 163 / 48%);
+}
+
+/* Mobilon kevesebb sík van: az élek egy fokkal erősebbek, hogy a mozgás a
+   szöveg mellett is olvasható maradjon. */
+.af-view--mobile .af-plane {
+  --af-edge: rgb(244 243 241 / 30%);
+  --af-rim: rgb(244 243 241 / 16%);
+}
+
+.af-view--mobile .af-wing-left .af-plane {
+  background-image: linear-gradient(
+    to right,
+    rgb(73 52 71 / 46%) 0%,
+    rgb(73 52 71 / 20%) 55%,
+    rgb(73 52 71 / 0%) 100%
+  );
+}
+
+.af-view--mobile .af-wing-right .af-plane {
+  background-image: linear-gradient(
+    to left,
+    rgb(73 52 71 / 46%) 0%,
+    rgb(73 52 71 / 20%) 55%,
+    rgb(73 52 71 / 0%) 100%
+  );
+}
+
+.af-view--mobile .af-plane--accent {
+  --af-edge: rgb(194 127 163 / 52%);
+}
+
+.af-view--mobile .af-plane:nth-child(2) {
+  --af-step: 6%;
+}
+.af-view--mobile .af-plane:nth-child(3) {
+  --af-step: 12%;
+}
+
+/* Belső kontúr — a sík „metszése", hajszálvonal. */
+.af-plane--contour::after {
+  content: "";
+  position: absolute;
+  inset: 9% 12%;
+  box-shadow: inset 0 0 0 1px rgb(244 243 241 / 9%);
+}
+
+/*
+  Datum-vonalak (csak desktop): a hátsó síkon (translateZ: -900 px) egy
+  vízszintes és két függőleges hajszálvonal adja a tér mértékét. A szerkezet
+  elfordulásakor a szárnyakhoz képest parallaxszal mozdulnak el — ettől
+  olvasódik a mozgás perspektivikus átrendeződésként.
+*/
+.af-datum {
+  position: absolute;
+  background-color: rgb(244 243 241 / 8%);
+  transform: translateZ(-900px);
+}
+
+.af-datum--h {
+  top: 64%;
+  left: -24%;
+  right: -24%;
+  height: 1px;
+}
+
+.af-datum--v {
+  top: -30%;
+  bottom: -30%;
+  width: 1px;
+}
+
+.af-datum--v1 {
+  left: 21%;
+}
+
+.af-datum--v2 {
+  right: 21%;
+}
+
+/*
+  ==========================================================================
+  HERO — VILÁGPIACI PANORÁMA (World Market Panorama v1.0)
+  ==========================================================================
+
+  Rétegek (WorldPanorama.tsx):
+    .wp-stage     3D színpad: statikus poszter (a jelenetből exportálva) +
+                  canvas. Mobilon (< 1024 px) CSAK a térképsáv, desktopon a
+                  teljes Hero-törzs (a térkép a szöveg alsó része mögé is
+                  befut, de a felső zónát a .wp-scrim nyugodtan tartja).
+    .wp-scrim     olvashatósági fátyol a szöveg mögött (desktop).
+    .wp-hotspots  a színpaddal azonos doboz; csak a 44 × 44 px-es gombok
+                  kattinthatók, a többi felület átengedi a görgetést/kattintást.
+    .wp-slot      előre lefoglalt térképsáv: panel, vezérlő, feliratok.
+                  pointer-events: none — csak az interaktív gyerekek kapják
+                  meg az eseményeket, a hotspotok így alatta is elérhetők.
+  Minden szín a meglévő tokenekből; nincs neon, glow, glassmorphism.
+*/
+/*
+  ETF-felirat: alul, középen, a jogi sáv fölött (mobilon 28 px, desktopon
+  44 px alsó távolság). --wp-etf-clear = az a sáv alulról, amelyet a felirat
+  (≈ 36 px a vonallal) + 12 px rés elfoglal — a panel és a vezérlők e fölött
+  maradnak. A térképsáv magassága a leghosszabb panelből adódik (mért
+  értékek a régióváltóval: 375 px-től ≤ 409 px, 320 px-en ≤ 449 px — ott a
+  panel belül görget; desktop ≤ 385 px): így a panel nem kerül az ETF vagy
+  a CTA fölé.
+*/
+.wp-root {
+  --wp-slot-h: 500px;
+  --wp-etf-bottom: 28px;
+  --wp-etf-clear: calc(var(--wp-etf-bottom) + 48px);
+  --wp-edge: max(var(--jg-gutter), calc((100% - 1280px) / 2 + var(--jg-gutter)));
+}
+
+@media (min-width: 1024px) {
+  .wp-root {
+    --wp-slot-h: 488px;
+    --wp-etf-bottom: 44px;
+  }
+}
+
+.wp-stage,
+.wp-hotspots {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--wp-slot-h);
+}
+
+@media (min-width: 1024px) {
+  .wp-stage,
+  .wp-hotspots {
+    top: 0;
+    height: auto;
+  }
+}
+
+.wp-stage {
+  z-index: 0;
+  overflow: hidden;
+  background-color: #17131a;
+}
+
+/* Mobil: a térképsáv felső és alsó éle lágyan olvad a Hero felületébe; az
+   alsó sáv (ETF-felirat) nyugodtabb, sötétebb alapot kap. */
+.wp-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-surface-deep) 0%,
+    rgb(27 22 28 / 0%) 16%,
+    rgb(27 22 28 / 0%) 74%,
+    rgb(24 24 27 / 72%) 100%
+  );
+}
+
+@media (min-width: 1024px) {
+  .wp-stage::after {
+    background-image: linear-gradient(
+      to bottom,
+      rgb(24 24 27 / 0%) 86%,
+      rgb(24 24 27 / 60%) 100%
+    );
+  }
+}
+
+.wp-poster,
+.wp-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.wp-poster {
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+.wp-canvas {
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.wp-canvas[data-visible="on"] {
+  opacity: 1;
+}
+
+/* Desktop olvashatósági fátyol: a felső (szöveg-) zóna nyugodt és sötét,
+   a térképsáv felé teljesen feloldódik. Nem a teljes jelenetet sötétíti. */
+.wp-scrim {
+  z-index: 1;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .wp-scrim {
+    display: block;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(23 19 26 / 94%) 0%,
+      rgb(23 19 26 / 86%) 30%,
+      rgb(23 19 26 / 52%) 46%,
+      rgb(23 19 26 / 0%) 60%
+    );
+  }
+}
+
+.wp-hotspots {
+  z-index: 25;
+}
+
+.wp-slot {
+  height: var(--wp-slot-h);
+  pointer-events: none;
+}
+
+.wp-slot :where(.wp-panel, .wp-motion-toggle, .wp-fallback-regions, .wp-noscript) {
+  pointer-events: auto;
+}
+
+/* ---- Hotspot ------------------------------------------------------------ */
+.wp-hotspot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  pointer-events: auto;
+  will-change: transform;
+  cursor: pointer;
+}
+
+.wp-hotspot[data-visible="off"] {
+  visibility: hidden;
+}
+
+.wp-hotspot-ring {
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  box-shadow:
+    inset 0 0 0 1.5px rgb(194 127 163 / 80%),
+    0 0 0 6px rgb(194 127 163 / 0%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.wp-hotspot:hover .wp-hotspot-ring,
+.wp-hotspot:focus-visible .wp-hotspot-ring,
+.wp-hotspot[data-active="true"] .wp-hotspot-ring {
+  transform: scale(1.12);
+  box-shadow:
+    inset 0 0 0 2px rgb(194 127 163 / 100%),
+    0 0 0 6px rgb(194 127 163 / 16%);
+}
+
+.wp-hotspot-label {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 6px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-porcelain);
+  padding: 2px 4px 2px 6px;
+}
+
+/* ---- Regionális panel ---------------------------------------------------- */
+.wp-panel {
+  position: absolute;
+  z-index: 2;
+  left: 12px;
+  right: 12px;
+  top: 12px;
+  /* Az ETF-sáv fölött ér véget; ha a tartalom hosszabb (320 px), belül görget. */
+  max-height: calc(100% - 12px - var(--wp-etf-clear));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 18px 14px;
+  border-radius: 12px;
+  border: 1px solid rgb(194 127 163 / 42%);
+  background-color: var(--color-surface-deep);
+  box-shadow: 0 28px 56px -28px rgb(0 0 0 / 85%);
+  color: var(--color-porcelain);
+  animation: wp-panel-in 190ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (min-width: 640px) {
+  .wp-panel {
+    left: auto;
+    width: min(440px, calc(100% - 24px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-panel {
+    top: auto;
+    left: auto;
+    right: var(--wp-edge);
+    bottom: var(--wp-etf-clear);
+    width: 440px;
+    max-height: none;
+    overflow: visible;
+    padding: 20px 22px 16px;
+  }
+
+  .wp-panel[data-placed="anchored"] {
+    right: auto;
+    bottom: auto;
+  }
+}
+
+.wp-panel[hidden] {
+  display: none;
+}
+
+@keyframes wp-panel-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+}
+
+.wp-panel-head {
+  position: relative;
+  padding-right: 44px;
+}
+
+/* Régióváltó (csak mobil/tablet, ahol a panel a térképsávot fedi). A
+   kiválasztott régió a gomb állapota (aria-pressed), ezért itt a panel
+   régiófelirata (eyebrow) nem ismétlődik. */
+.wp-panel-regions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.wp-panel-region {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid rgb(244 243 241 / 22%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-cool-silver);
+}
+
+.wp-panel-region:hover {
+  color: var(--color-porcelain);
+}
+
+.wp-panel-region[aria-pressed="true"] {
+  border-color: rgb(194 127 163 / 80%);
+  background-color: rgb(244 243 241 / 8%);
+  color: var(--color-porcelain);
+}
+
+@media (max-width: 1023.98px) {
+  .wp-panel-eyebrow {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-panel-regions {
+    display: none;
+  }
+}
+
+.wp-panel-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-cool-silver);
+}
+
+.wp-panel-title {
+  margin-top: 4px;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--color-porcelain);
+}
+
+@media (min-width: 1024px) {
+  .wp-panel-title {
+    font-size: 1.5rem;
+  }
+}
+
+.wp-panel-subtitle {
+  margin-top: 2px;
+  font-size: 0.9375rem;
+  color: var(--color-cool-silver);
+}
+
+.wp-panel-close {
+  position: absolute;
+  top: -10px;
+  right: -12px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--color-porcelain);
+}
+
+.wp-panel-close svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.wp-panel-close:hover {
+  background-color: rgb(244 243 241 / 8%);
+}
+
+/* Pontosan két oszlop: rugalmas névoszlop + tartalomhoz méretezett ticker. */
+.wp-list {
+  margin-top: 14px;
+  border-top: 1px solid rgb(244 243 241 / 14%);
+}
+
+.wp-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  column-gap: 20px;
+  align-items: center;
+  padding: 8px 2px;
+  border-bottom: 1px solid rgb(244 243 241 / 10%);
+}
+
+.wp-name {
+  min-width: 0;
+  font-size: 0.9375rem;
+  line-height: 1.32;
+  font-weight: 600;
+  color: var(--color-porcelain);
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 1024px) {
+  .wp-name {
+    font-size: 1rem;
+  }
+}
+
+.wp-ticker {
+  justify-self: end;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-cool-silver);
+}
+
+.wp-panel-note {
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--color-cool-silver);
+}
+
+/* Összekötő hajszálvonal a hotspot és a panel között (desktop). */
+.wp-connector {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.wp-connector line {
+  stroke: rgb(194 127 163 / 60%);
+  stroke-width: 1;
+}
+
+/* ---- Mozgásvezérlő (szöveges, nem lebegő videós ikon) -------------------- */
+.wp-motion-toggle {
+  position: absolute;
+  z-index: 1;
+  left: var(--wp-edge);
+  /* Mobilon a térképsáv bal felső sarkában (alul az ETF-felirat ül). */
+  top: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  /* Saját sötét alap: a mozgó térkép fölött is állandó a kontraszt. */
+  background-color: rgb(24 24 27 / 78%);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-cool-silver);
+  text-decoration: underline;
+  text-decoration-color: rgb(190 193 199 / 40%);
+  text-underline-offset: 4px;
+}
+
+.wp-motion-toggle:hover {
+  color: var(--color-porcelain);
+}
+
+@media (min-width: 1024px) {
+  .wp-motion-toggle {
+    top: auto;
+    bottom: 10px;
+  }
+}
+
+/* ---- Dekoratív feliratok -------------------------------------------------
+   RÉSZVÉNYEK / KÖTVÉNYEK csak széles desktopon; az ETF minden szélességen,
+   alul középen. Mindhárom aria-hidden, nem interaktív. */
+.wp-deco--left,
+.wp-deco--right {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .wp-deco--left,
+  .wp-deco--right {
+    display: block;
+  }
+}
+
+.wp-deco-item {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgb(190 193 199 / 82%);
+}
+
+.wp-deco-item::after {
+  content: "";
+  display: block;
+  width: 36px;
+  height: 1px;
+  margin: 12px auto 0;
+  background-color: rgb(194 127 163 / 60%);
+}
+
+.wp-deco--left {
+  left: var(--wp-edge);
+  top: -96px;
+}
+
+.wp-deco--right {
+  right: var(--wp-edge);
+  top: -96px;
+}
+
+.wp-deco--etf {
+  left: 50%;
+  bottom: var(--wp-etf-bottom);
+  transform: translateX(-50%);
+  /* A betűköz a szó végén is megjelenik: a bal oldali párja szimmetrikussá
+     teszi a dobozt, így a felirat és a vonal pontosan középen ül. */
+  padding-left: 0.32em;
+  line-height: 1.5;
+}
+
+/* ---- Fallback: régiógombok (WebGL2 nélkül / hiba esetén) ------------------ */
+.wp-fallback-regions {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--wp-etf-clear) + 4px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: min(100% - 24px, 640px);
+}
+
+.wp-fallback-button {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid rgb(244 243 241 / 26%);
+  background-color: rgb(27 22 28 / 82%);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-porcelain);
+}
+
+.wp-fallback-button[aria-expanded="true"] {
+  border-color: rgb(194 127 163 / 70%);
+}
+
+/* ---- JavaScript nélkül: natív <details> listák --------------------------- */
+.wp-noscript {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: var(--wp-etf-clear);
+  display: grid;
+  gap: 8px;
+}
+
+@media (min-width: 1024px) {
+  .wp-noscript {
+    left: auto;
+    right: var(--wp-edge);
+    width: 440px;
+  }
+}
+
+.wp-noscript-item {
+  border-radius: 10px;
+  border: 1px solid rgb(244 243 241 / 18%);
+  background-color: rgb(27 22 28 / 94%);
+  padding: 4px 14px;
+  color: var(--color-porcelain);
+}
+
+.wp-noscript-item summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wp-panel {
+    animation: none;
+  }
+
+  .wp-canvas {
+    transition: none;
   }
 }
 
@@ -591,13 +1377,17 @@ body {
   Csak a Hero alsó ~38%-át érinti, felfelé teljesen feloldódik, ezért a
   padló perspektívája és a tükröződések a copy alatt továbbra is látszanak;
   a státuszközlés viszont kontrollált, sötét alapot kap.
+
+  v2.0: a kép helyén az Architectural Flow él; a réteg változatlanul a
+  státuszközlés mögötti sötét, nyugodt alapot biztosítja (a mozgó síkok
+  élei itt elhalkulnak). A státuszközlés mért legrosszabb kontrasztja a
+  teljes loop alatt ≥ 5:1.
 */
 .hero-scrim {
   /*
-    MOBIL görbe — szándékosan nagyon enyhe. A képsáv itt a státuszközlés
-    FÖLÖTT ér véget (ld. .hero-media bottom: 22%), tehát a jogi szöveg már
-    eleve tiszta, sötét alapon ül; nem kell erős sötétítéssel elnyomni a
-    képet. Ez a réteg csak a Hero alsó peremét zárja le.
+    MOBIL görbe — szándékosan enyhe: mobilon a síkok kitöltése a szöveg
+    mögött eleve sötét Aubergine, ez a réteg csak a Hero alsó peremét
+    zárja le.
   */
   background-image: linear-gradient(
     to bottom,
@@ -625,39 +1415,10 @@ body {
 }
 
 /*
-  Elsődleges Hero-CTA — v1.5.2: TELJESEN SEMLEGES.
-
-  A v1.3–v1.5 változat Berry Soft (rózsaszín) felületet, alsó Berry
-  jelzővonalat, Berry kontúrt és Berry fókuszgyűrűt használt. Ez a kör
-  MINDET eltávolítja: a gomb Porcelain felület + Ink felirat, az élkezelés
-  pedig semleges (felső belső fény, hajszálnyi sötét kontúr, szűk vetett
-  árnyék). A Hero CTA-n a Berry/rózsaszín dekorációk száma: 0.
-
-  Mért kontraszt: Ink a Porcelainen 13,56:1 (AAA).
-
-  A fókuszgyűrű a Hero `.on-dark` szabályát kapja (Porcelain gyűrű + Ink
-  kontúr), mert a gomb világos felületen ül sötét szakaszon belül — így
-  mindkét irányban elválik, és nincs rajta rózsaszín.
+  A korábbi .hero-cta-primary (Porcelain, lekerekített) Hero- és
+  Szolgáltatások-CTA stílus v2.1-ben MEGSZŰNT: minden kapcsolatfelvételi CTA a
+  közös ContactCta megjelenést (.jg-cta, ld. a HEADER blokkban) használja.
 */
-.hero-cta-primary {
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 85%),
-    inset 0 -2px 0 0 rgb(39 38 42 / 14%),
-    0 0 0 1px rgb(39 38 42 / 10%),
-    0 14px 30px -16px rgb(0 0 0 / 90%);
-  transition:
-    background-color 220ms ease,
-    box-shadow 220ms ease,
-    transform 220ms ease;
-}
-
-.hero-cta-primary:hover {
-  box-shadow:
-    inset 0 1px 0 0 rgb(255 255 255 / 95%),
-    inset 0 -2px 0 0 rgb(39 38 42 / 22%),
-    0 0 0 1px rgb(39 38 42 / 16%),
-    0 18px 38px -18px rgb(0 0 0 / 95%);
-}
 
 /* ==========================================================================
    SÖTÉT SZAKASZOK MÉLYSÉGE — v1.4
@@ -888,11 +1649,12 @@ body {
 
 /* ==========================================================================
    REDUCED MOTION — globális, dekoratív CSS-effektekre (smooth scroll, hover/
-   accordion/menüátmenetek). A Hero háttéranimációja NEM CSS-alapú, ezért itt
-   nem kapcsolható ki: a HeroMarketMotion komponens maga figyeli a
-   prefers-reduced-motion médiaquery-t, és reduce esetén el sem indítja a
-   requestAnimationFrame-loopot — egyetlen statikus gyertyakompozíciót rajzol
-   ki (nincs parallax, nincs sodródás, nincs opacity-pulzálás).
+   accordion/menüátmenetek). A Hero háttérmozgása (Architectural Flow) NEM
+   CSS-alapú: a HeroArchitecturalFlow komponens gsap.matchMedia-val figyeli a
+   prefers-reduced-motion feltételt, és reduce esetén el sem indítja a
+   timeline-t (ez a v2.0 komponens jelenleg nincs használatban). A Hero
+   Világpiaci panorámája (WorldPanorama) reduce esetén statikus térképet
+   mutat, automatikus kameraút nélkül; a régióválasztás működik.
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html {
