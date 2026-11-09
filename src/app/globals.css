@@ -1654,6 +1654,24 @@ body {
 }
 
 /* ==========================================================================
+   GYIK — válasz nyitáskor rövid, visszafogott áttűnés (csak opacity, a
+   <details> natív nyitásán felül). Nincs magasság-animáció, tehát a tartalmat
+   semmi nem vághatja le; a reduced-motion alább kikapcsolja.
+   ========================================================================== */
+@keyframes jg-faq-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+details[open] > .jg-faq-answer {
+  animation: jg-faq-in 180ms ease-out;
+}
+
+/* ==========================================================================
    REDUCED MOTION — globális, dekoratív CSS-effektekre (smooth scroll, hover/
    accordion/menüátmenetek). A Hero háttérmozgása (Architectural Flow) NEM
    CSS-alapú: a HeroArchitecturalFlow komponens gsap.matchMedia-val figyeli a
@@ -1679,6 +1697,10 @@ body {
   .link-arrow,
   .group:hover .link-arrow {
     transform: none !important;
+  }
+
+  details[open] > .jg-faq-answer {
+    animation: none;
   }
 
   *,
