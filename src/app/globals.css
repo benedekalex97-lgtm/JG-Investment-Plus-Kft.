@@ -1373,6 +1373,44 @@ body {
 }
 
 /*
+  ==========================================================================
+  HERO — SZÖVEG-BELÉPŐ (egyszeri, kizárólag CSS)
+  ==========================================================================
+  Eyebrow → H1 → bevezető → CTA: áttűnés + 10 px emelkedés, 90 ms-os
+  lépcsővel, összesen 870 ms. Az első festéssel indul (nem vár JS-re, a
+  szöveg szerveroldali HTML), így az LCP-t nem késlelteti. JavaScript nélkül
+  (scripting: none) és prefers-reduced-motion: reduce esetén nincs animáció:
+  a szöveg azonnal, elmozdulás nélkül látható. A `translate` tulajdonság
+  független a `transform`-tól, nem ütközik más átalakítással; a „backwards"
+  kitöltés miatt a lefutás után semmi nem marad az elemeken (nincs
+  maradó rétegképzés / stacking context).
+*/
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-hero-copy] > * {
+    animation: hero-copy-in 600ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
+  }
+
+  [data-hero-copy] > :nth-child(2) {
+    animation-delay: 90ms;
+  }
+
+  [data-hero-copy] > :nth-child(3) {
+    animation-delay: 180ms;
+  }
+
+  [data-hero-copy] > :nth-child(4) {
+    animation-delay: 270ms;
+  }
+}
+
+@keyframes hero-copy-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+/*
   .hero-scrim — ALSÓ KONTRASZTVÉDŐ SÁV (v1.5.2).
 
   A statikus kép alsó harmada fényes, tükröződő padló. A kötelező

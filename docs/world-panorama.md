@@ -96,6 +96,28 @@ mélységbe futva; a nézési cél az é. sz. ~35–40°-án, így Afrika nem ur
 képet. Mobil: külön, átlós kompozíció (38–45°); széles mobil sávon (tablet)
 legalább 72°-os függőleges látószög, hogy a pontok a sávban maradjanak.
 
+## „A kereskedési nap" (v1.2)
+
+A 24 s-os kör egy 24 órás kereskedési napot jelképez; a piacok átadják egymásnak a
+napot (Tokió → London → New York). Minden effekt dekoratív, csendes, a meglévő
+tokenekből (Berry Light, Porcelain); ragyogás, utófeldolgozás, render target és
+árnyéktérkép nincs. Legfeljebb 5 további rajzolási hívás (2 impulzuscső, 3 gyűrűhullám),
+és csak akkor, amikor láthatók.
+
+| Elem | Hol | Paraméterek |
+| --- | --- | --- |
+| Impulzus az íveken | `trading-day.ts` (`ambientAt`), `engine.ts` | Tokió → London p 0,08 → 0,30; London → New York p 0,38 → 0,60; hossz az ív 12%-a (elöl 30%, hátul 70% lecsengés), szinusz-easing, a két végén lágy be-/kiúszás; Berry Light → Porcelain 70%-ban keverve, átlátszatlanság ≤ 0,9, a cső sugara az alapív 1,6-szorosa, csak a fej körüli szakasz rajzolódik (`setDrawRange`). |
+| Nyitás (gyűrűhullám + gyűrűerősödés) | ua. | Tokió p 0,04, London 0,33, New York 0,63; egyetlen vékony gyűrű 2,4 s alatt a jelölőgyűrű 3,4-szereséig tágul, átlátszatlanság ≤ 0,33; a jelölőgyűrű 0,8 s felfutás, 1,2 s kitartás, 3 s lecsengés alatt finoman erősödik (Porcelain felé 45%, 0,85 → 1,0, +6% lépték). p ≈ 0,84 után ~3,9 s csend a kör zárásáig. |
+| Élő fény | ua. | A kulcsfény azimutja ±6°, `sin(2πp)`; magasság és távolság változatlan. |
+| Nyitány (egyszer) | `trading-day.ts` (`introAt`), `WorldPanorama.tsx` | 2,4 s, p-től független: impulzus New York → London → Tokió, hullám az érkezéskor (0 / 0,75 / 1,4 s), a hotspotfeliratok ugyanezekre az ütemekre jelennek meg (áttűnés + 6 px, 0,5 s). Megállításkor (rámutatás, koppintás, vezérlő, rejtett lap, kigördülés) 0,3 s alatt lágyan lezárul; utána a kör 0,8 s alatt veszi át. Reduced motion / tooSlow / fallback: nincs nyitány. |
+| Görgetési emelés | `engine.setScroll`, `WorldPanorama.tsx` | Teljes kigördülésnél +4° emelkedés, +6% távolság, power1.out; passzív scroll-figyelő, kockánként egy frissítés (egyszeri gsap.ticker-hívás), csak látható Hero és engedélyezett mozgás mellett. Leállított mozgásnál / reduced motion mellett a kamera nem követi. |
+| Szöveg-belépő | `globals.css` | Csak CSS: eyebrow → H1 → bevezető → CTA, áttűnés + 10 px, 600 ms, 90 ms-os lépcső (össz. 870 ms); `scripting: none` és `prefers-reduced-motion: reduce` esetén nincs. |
+
+Mivel a kör minden effektje p tiszta függvénye, p = 0 ≡ p = 1, és pontosan akkor áll
+meg, amikor a kamera. p = 0-ban minden effekt nyugalomban van: az első élő kocka (és a
+reduced motion statikus térképe) pixelre azonos a korábbival, a posztereket nem kellett
+újraexportálni.
+
 ## Részvényadatok — ellenőrzési állapot
 
 Minden tétel `verification.status = "unverified"`. A nevek és tickerek a brief

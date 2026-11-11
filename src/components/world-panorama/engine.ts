@@ -15,6 +15,14 @@
  * nyugodtan (τ ≈ 0,6 s) áll be: megálláskor ~0,25 s alatt nyugszik (a
  * hotspot nem fut ki a kurzor alól), folytatáskor nincs rántás. Ez csak a
  * sebességet simítja, a pálya ugyanaz.
+ *
+ * „A KERESKEDÉSI NAP" (trading-day.ts): csendes, dekoratív réteg ugyanazon
+ * a p fázison — impulzus az íveken (Tokió → London → New York), egyetlen
+ * vékony gyűrűhullám a nyitó városnál, a jelölőgyűrű finom erősödése és a
+ * kulcsfény ±6°-os azimut-lengése. Mivel p tiszta függvénye, a kamerával
+ * együtt áll meg és indul. Egyszeri nyitány (setIntro, p-től független),
+ * görgetéshez kötött finom kameraemelés (setScroll). Utófeldolgozás,
+ * render target és árnyéktérkép nincs; legfeljebb 5 további rajzolási hívás.
  */
 
 import {
@@ -49,9 +57,10 @@ import {
   WebGLRenderer,
 } from "three";
 import { gsap } from "gsap";
-import { cameraAt, stepMotion, type Rig } from "./camera-path";
+import { cameraAt, CYCLE, stepMotion, type Rig } from "./camera-path";
 import { projectWorld } from "./geo";
 import { REGIONS, type RegionId } from "./markets";
+import { ambientAt, createDayFrame, introAt, PULSE_LENGTH, type DayFrame } from "./trading-day";
 
 export type LandData = { polygons: number[][][] };
 
@@ -87,6 +96,17 @@ export type Panorama = {
   setRunning: (run: boolean) => void;
   resize: (width: number, height: number, lensShift: number) => void;
   renderNow: () => void;
+  /**
+   * Egyszeri nyitány: `time` = a nyitány ideje másodpercben (p-től független),
+   * `gain` = a réteg erőssége (0–1; interakciókor lágyan 0-ra fut). `null` →
+   * a nyitány véget ért: a kereskedési nap köre ezután lágyan átveszi.
+   */
+  setIntro: (time: number | null, gain?: number) => void;
+  /**
+   * Görgetési haladás (0 = a Hero a helyén, 1 = teljesen kigördült): a kamera
+   * finoman emelkedik és hátrál. Megállított kameránál egy kockát renderel.
+   */
+  setScroll: (progress: number) => void;
   dispose: () => void;
 };
 
@@ -436,6 +456,73 @@ function createGroundTextures(shapes: Shape[], rig: Rig) {
 /** A mobil kameraút legkisebb függőleges látószöge (fok) — ld. render(). */
 const MIN_VFOV_MOBILE = 72;
 
+/** A kulcsfény alaphelyzete (bal felülről-hátulról). */
+const KEY_POSITION = [-11, 12, -7] as const;
+
+/*
+  A kereskedési nap rétegének megjelenése — csak a meglévő tokenek
+  (Berry Light, Porcelain), ragyogás nélkül.
+*/
+/** Az impulzus csőszegmenseinek száma (azonos az alapívvel) és keresztmetszete. */
+const ARC_SEGMENTS = 96;
+const ARC_RADIAL = 6;
+/** Az impulzus színe: Berry Light → Porcelain felé keverve; legnagyobb átlátszatlansága. */
+const PULSE_TINT = 0.7;
+const PULSE_OPACITY = 0.9;
+/** Az impulzuscső sugara az alapívhez képest (fedje az alapívet, ne legyen „gyöngy"). */
+const PULSE_THICKNESS = 1.6;
+/** Az impulzus eleje rövidebb, a vége hosszabban cseng le (az irány így olvasható). */
+const PULSE_AHEAD = PULSE_LENGTH * 0.3;
+const PULSE_BEHIND = PULSE_LENGTH * 0.7;
+/** A jelölőgyűrű erősödése: Porcelain felé keverés, átlátszatlanság, lépték. */
+const RING_TINT = 0.45;
+const RING_OPACITY = 0.85;
+const RING_GROW = 0.06;
+/** A kör lágy átvétele a nyitány után (s, a kamerával együtt halad). */
+const AMBIENT_FADE_IN = 0.8;
+/** Görgetési emelés teljes kigördüléskor: +4° emelkedés, +6% távolság. */
+const SCROLL_LIFT = (4 * Math.PI) / 180;
+const SCROLL_PULL = 0.06;
+
+/** Városindex a trading-day.ts sorrendjében. */
+const CITY_INDEX: Record<RegionId, number> = { americas: 0, europe: 1, asia: 2 };
+
+type PulseUniforms = { uHead: { value: number }; uDir: { value: number } };
+
+/**
+ * Az impulzus anyaga: MeshBasicMaterial, egyetlen apró shader-kiegészítéssel —
+ * az ív menti koordináta (a cső uv.x-e) szerinti lágy, aszimmetrikus súly
+ * (elöl rövid, hátul hosszabb lecsengés). Nincs textúra, ragyogás vagy
+ * utófeldolgozás; a szín a meglévő tokenekből.
+ */
+function createPulseMaterial(color: Color) {
+  const uniforms: PulseUniforms = { uHead: { value: 0 }, uDir: { value: 1 } };
+  // toneMapped: false — a keverék pontosan a tokenszín marad (az ACES nem szürkíti).
+  const material = new MeshBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uHead = uniforms.uHead;
+    shader.uniforms.uDir = uniforms.uDir;
+    shader.vertexShader = shader.vertexShader.replace(
+      "void main() {",
+      "varying float vArcU;\nvoid main() {\n\tvArcU = uv.x;",
+    );
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "void main() {",
+        `uniform float uHead;\nuniform float uDir;\nvarying float vArcU;\nvoid main() {`,
+      )
+      .replace(
+        "#include <alphamap_fragment>",
+        `#include <alphamap_fragment>
+	float pulseD = ( vArcU - uHead ) * uDir;
+	float pulseK = pulseD >= 0.0 ? pulseD / ${PULSE_AHEAD.toFixed(4)} : -pulseD / ${PULSE_BEHIND.toFixed(4)};
+	float pulseW = clamp( 1.0 - pulseK * pulseK, 0.0, 1.0 );
+	diffuseColor.a *= pulseW * sqrt( pulseW );`,
+      );
+  };
+  return { material, uniforms };
+}
+
 export function createPanorama(options: PanoramaOptions): Panorama {
   const { canvas, rig } = options;
   const renderer = new WebGLRenderer({
@@ -462,8 +549,12 @@ export function createPanorama(options: PanoramaOptions): Panorama {
      ragyogás nélkül. */
   scene.add(new HemisphereLight(COLORS.sky, COLORS.skyGround, 0.8));
   const key = new DirectionalLight(COLORS.keyLight, 2.1);
-  key.position.set(-11, 12, -7);
+  key.position.set(KEY_POSITION[0], KEY_POSITION[1], KEY_POSITION[2]);
   scene.add(key);
+  /* Élő fény: a kulcsfény azimutja p szerint ±6°-ot leng a függőleges
+     tengely körül (azonos magasság és távolság → az expozíció nem változik). */
+  const keyRadius = Math.hypot(KEY_POSITION[0], KEY_POSITION[2]);
+  const keyAzimuth = Math.atan2(KEY_POSITION[0], KEY_POSITION[2]);
   const rim = new DirectionalLight(COLORS.rimLight, 1.2);
   rim.position.set(16, 3, -12);
   scene.add(rim);
@@ -529,18 +620,43 @@ export function createPanorama(options: PanoramaOptions): Panorama {
   const markerMat = new MeshStandardMaterial({ color: COLORS.marker, roughness: 0.32, metalness: 0.35 });
   const ringGeo = new RingGeometry(rig === "desktop" ? 0.17 : 0.26, rig === "desktop" ? 0.2 : 0.3, 48);
   ringGeo.rotateX(-Math.PI / 2);
-  const ringMat = new MeshBasicMaterial({ color: COLORS.arc, transparent: true, opacity: 0.85, depthWrite: false });
-  geometries.push(markerGeo, ringGeo);
-  materials.push(markerMat, ringMat);
+  /*
+    Városonként saját gyűrűanyag (a kereskedési nap városonként erősíti) —
+    alaphelyzetben pontosan a korábbi közös anyag: Berry Light, 0,85.
+    Gyűrűhullám: városonként egy újrahasznosított, vékony gyűrű a jelölőgyűrű
+    síkjában; csak hullám közben látható (különben nincs rajzolási hívás).
+  */
+  const arcColor = new Color(COLORS.arc);
+  const porcelain = new Color(COLORS.marker);
+  const rippleGeo = new RingGeometry(rig === "desktop" ? 0.188 : 0.284, rig === "desktop" ? 0.2 : 0.3, 64);
+  rippleGeo.rotateX(-Math.PI / 2);
+  geometries.push(markerGeo, ringGeo, rippleGeo);
+  materials.push(markerMat);
+  const rings: Mesh<RingGeometry, MeshBasicMaterial>[] = [];
+  const ripples: Mesh<RingGeometry, MeshBasicMaterial>[] = [];
   for (const region of REGIONS) {
     const { x, z } = projectWorld(region.city.lon, region.city.lat);
     const point = new Vector3(x, land.top + 0.08, z);
     cityWorld[region.id] = point;
     const marker = new Mesh(markerGeo, markerMat);
     marker.position.copy(point);
+    const ringMat = new MeshBasicMaterial({ color: COLORS.arc, transparent: true, opacity: RING_OPACITY, depthWrite: false });
     const ring = new Mesh(ringGeo, ringMat);
     ring.position.set(x, land.top + 0.012, z);
-    scene.add(marker, ring);
+    const rippleMat = new MeshBasicMaterial({
+      color: arcColor.clone().lerp(porcelain, 0.25),
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+    const rippleMesh = new Mesh(rippleGeo, rippleMat);
+    rippleMesh.position.set(x, land.top + 0.014, z);
+    rippleMesh.visible = false;
+    rippleMesh.renderOrder = 1;
+    materials.push(ringMat, rippleMat);
+    rings[CITY_INDEX[region.id]] = ring;
+    ripples[CITY_INDEX[region.id]] = rippleMesh;
+    scene.add(marker, ring, rippleMesh);
   }
   const arcMat = new MeshBasicMaterial({ color: COLORS.arc, transparent: true, opacity: 0.55, depthWrite: false });
   materials.push(arcMat);
@@ -548,15 +664,84 @@ export function createPanorama(options: PanoramaOptions): Panorama {
     ["americas", "europe", 2.1],
     ["europe", "asia", 3.2],
   ];
+  const arcRadius = rig === "desktop" ? 0.018 : 0.03;
+  const pulses: { mesh: Mesh<TubeGeometry, MeshBasicMaterial>; uniforms: PulseUniforms }[] = [];
   for (const [from, to, lift] of arcs) {
     const a = cityWorld[from];
     const b = cityWorld[to];
     const mid = a.clone().add(b).multiplyScalar(0.5);
     mid.y += lift;
-    const tube = new TubeGeometry(new QuadraticBezierCurve3(a, mid, b), 96, rig === "desktop" ? 0.018 : 0.03, 6, false);
+    const curve = new QuadraticBezierCurve3(a, mid, b);
+    const tube = new TubeGeometry(curve, ARC_SEGMENTS, arcRadius, ARC_RADIAL, false);
     geometries.push(tube);
     scene.add(new Mesh(tube, arcMat));
+    /* Impulzus: ugyanazon az íven kissé vastagabb cső, csak impulzus közben
+       rajzolva, és akkor is csak a fej körüli szakasza (setDrawRange). */
+    const pulseTube = new TubeGeometry(curve, ARC_SEGMENTS, arcRadius * PULSE_THICKNESS, ARC_RADIAL, false);
+    const { material, uniforms } = createPulseMaterial(arcColor.clone().lerp(porcelain, PULSE_TINT));
+    const mesh = new Mesh(pulseTube, material);
+    mesh.visible = false;
+    mesh.renderOrder = 2; // mindig az alapív után (átlátszó rétegek rendezése)
+    geometries.push(pulseTube);
+    materials.push(material);
+    scene.add(mesh);
+    pulses.push({ mesh, uniforms });
   }
+
+  /* A kereskedési nap rétegének alkalmazása egy kockára — foglalás nélkül. */
+  const ambient = createDayFrame();
+  const intro = createDayFrame();
+  let introTime: number | null = null;
+  let introGain = 0;
+  let ambientGain = 1;
+  const applyDay = () => {
+    const ag = ambientGain;
+    const ig = introTime === null ? 0 : introGain;
+    for (let i = 0; i < 2; i++) {
+      const a = ambient.pulseAlpha[i] * ag;
+      const b = intro.pulseAlpha[i] * ig;
+      const from: DayFrame = b > a ? intro : ambient;
+      const alpha = Math.max(a, b);
+      const { mesh, uniforms } = pulses[i];
+      mesh.visible = alpha > 0.002;
+      if (!mesh.visible) continue;
+      const head = from.pulseHead[i];
+      const dir = from.pulseDir[i];
+      mesh.material.opacity = PULSE_OPACITY * alpha;
+      uniforms.uHead.value = head;
+      uniforms.uDir.value = dir;
+      // Csak a fej körüli csőszakasz kerül rajzolásra (indexpuffer-tartomány).
+      const lo = head - (dir > 0 ? PULSE_BEHIND : PULSE_AHEAD);
+      const hi = head + (dir > 0 ? PULSE_AHEAD : PULSE_BEHIND);
+      const s0 = Math.max(0, Math.floor(lo * ARC_SEGMENTS));
+      const s1 = Math.min(ARC_SEGMENTS, Math.ceil(hi * ARC_SEGMENTS));
+      mesh.geometry.setDrawRange(s0 * ARC_RADIAL * 6, Math.max(0, s1 - s0) * ARC_RADIAL * 6);
+    }
+    for (let c = 0; c < 3; c++) {
+      const a = ambient.rippleAlpha[c] * ag;
+      const b = intro.rippleAlpha[c] * ig;
+      const alpha = Math.max(a, b);
+      const ripple = ripples[c];
+      ripple.visible = alpha > 0.002;
+      if (ripple.visible) {
+        const scale = b > a ? intro.rippleScale[c] : ambient.rippleScale[c];
+        ripple.scale.set(scale, 1, scale);
+        ripple.material.opacity = alpha;
+      }
+      const k = Math.max(ambient.ring[c] * ag, intro.ring[c] * ig);
+      const ring = rings[c];
+      ring.material.color.copy(arcColor).lerp(porcelain, RING_TINT * k);
+      ring.material.opacity = RING_OPACITY + (1 - RING_OPACITY) * k;
+      const grow = 1 + RING_GROW * k;
+      ring.scale.set(grow, 1, grow);
+    }
+    // Élő fény (tisztán p-ből; p = 0-ban pontosan az alaphelyzet).
+    if (ambient.lightAzimuth === 0) key.position.set(KEY_POSITION[0], KEY_POSITION[1], KEY_POSITION[2]);
+    else {
+      const az = keyAzimuth + ambient.lightAzimuth;
+      key.position.set(keyRadius * Math.sin(az), KEY_POSITION[1], keyRadius * Math.cos(az));
+    }
+  };
 
   /* --- Méretezés: DPR- és pixelkorlát (adaptív renderfelbontással) --- */
   let width = 1;
@@ -582,10 +767,32 @@ export function createPanorama(options: PanoramaOptions): Panorama {
   const projection = {} as Projection;
   const scratch = new Vector3();
   let firstFrame = true;
+  /** Görgetési emelés (0–1, már simítva) — additív eltolás a pálya fölött. */
+  let lift = 0;
   const render = () => {
     const state = cameraAt(rig, phase, land.top);
-    camera.position.set(...state.position);
-    camera.lookAt(...state.target);
+    const tx = state.target[0];
+    const ty = state.target[1];
+    const tz = state.target[2];
+    if (lift > 0) {
+      // A pálya pontja gömbi koordinátákban a cél körül: emelkedés + táv eltolása.
+      const dx = state.position[0] - tx;
+      const dy = state.position[1] - ty;
+      const dz = state.position[2] - tz;
+      const flat = Math.hypot(dx, dz);
+      const dist = Math.hypot(flat, dy) * (1 + SCROLL_PULL * lift);
+      const el = Math.atan2(dy, flat) + SCROLL_LIFT * lift;
+      const az = Math.atan2(dx, dz);
+      camera.position.set(
+        tx + dist * Math.cos(el) * Math.sin(az),
+        ty + dist * Math.sin(el),
+        tz + dist * Math.cos(el) * Math.cos(az),
+      );
+    } else camera.position.set(...state.position);
+    camera.lookAt(tx, ty, tz);
+    ambientAt(phase, ambient);
+    if (introTime !== null) introAt(introTime, intro);
+    applyDay();
     // Vízszintes látószög → függőleges a (lencseeltolással nőtt) virtuális kép arányával.
     // A mobil kompozíció széles sávon (tablet) se veszítse el a függőleges
     // terjedelmét: ott legalább MIN_VFOV_MOBILE (telefonon ez nem lép életbe).
@@ -645,6 +852,11 @@ export function createPanorama(options: PanoramaOptions): Panorama {
     const step = stepMotion(speed, targetSpeed, dt);
     speed = step.speed;
     phase = (phase + step.phaseAdvance) % 1;
+    // A nyitány után a kör lágyan veszi át a réteget — a kamerával együtt
+    // halad (fázisidőben), így megállítva ez is áll.
+    if (introTime === null && ambientGain < 1) {
+      ambientGain = Math.min(1, ambientGain + (step.phaseAdvance * CYCLE) / AMBIENT_FADE_IN);
+    }
     if (step.stopped) stop();
     render();
   };
@@ -678,6 +890,26 @@ export function createPanorama(options: PanoramaOptions): Panorama {
     },
     renderNow() {
       render();
+    },
+    setIntro(time, gain = 1) {
+      if (time === null) {
+        if (introTime === null) return;
+        introTime = null;
+        introGain = 0;
+      } else {
+        introTime = time;
+        introGain = Math.max(0, Math.min(1, gain));
+        ambientGain = 0; // a nyitány alatt a kör hallgat
+      }
+      if (!listening) render();
+    },
+    setScroll(progress) {
+      const x = Math.max(0, Math.min(1, progress));
+      const eased = 1 - (1 - x) * (1 - x); // power1.out — a lassú kigördülés is érezhető, a vége nyugodt
+      // Apró változásra nem renderelünk; a nyugalmi (0) helyzetet viszont mindig pontosan visszaállítjuk.
+      if (eased === lift || (eased !== 0 && Math.abs(eased - lift) < 1e-4)) return;
+      lift = eased;
+      if (!listening) render();
     },
     dispose() {
       stop();
