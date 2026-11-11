@@ -38,6 +38,8 @@ import { CTA_HREF, CTA_LABEL } from "./Header";
 const MIN_VIEWPORT_HEIGHT = 420;
 /** A sticky header magassága mobilon — a hero CTA „kiment" ez alatt. */
 const HEADER_H = 72;
+/** A sáv magassága + biztonsági rés: eddig a magasságig nem lóghat alá a Hero. */
+const BAR_CLEARANCE = 80;
 
 export default function MobileContactBar() {
   const [visible, setVisible] = useState(false);
@@ -56,6 +58,7 @@ export default function MobileContactBar() {
     // Desktopon nincs mit figyelni (a komponens ilyenkor nem is renderel).
     if (desktop) return;
 
+    const hero = document.getElementById("top");
     const heroCta = document.querySelector("#top .jg-cta");
     const targets = [
       document.getElementById("kapcsolat"),
@@ -70,9 +73,13 @@ export default function MobileContactBar() {
       const vh = window.innerHeight;
 
       // 1) A hero saját CTA-ja a fejléc alá, FELÜL kiment.
-      const past = heroCta
-        ? heroCta.getBoundingClientRect().bottom <= HEADER_H
-        : false;
+      // A sáv a Hero EGYETLEN részét sem takarhatja (térkép, ETF-felirat, jogi
+      // státuszközlés): csak akkor jelenik meg, amikor a Hero saját CTA-ja már
+      // kifutott felül, ÉS a teljes Hero alja a sáv teteje fölé ért.
+      const heroBottom = hero ? hero.getBoundingClientRect().bottom : 0;
+      const past =
+        (heroCta ? heroCta.getBoundingClientRect().bottom <= HEADER_H : false) &&
+        heroBottom <= vh - BAR_CLEARANCE;
       // 2) Kapcsolat / lábléc: amíg bármelyik látszik, a sáv rejtve.
       const atTarget = targets.some((el) => {
         const r = el.getBoundingClientRect();

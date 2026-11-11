@@ -59,7 +59,7 @@ export const PULSE_LENGTH = 0.12;
 const PULSE_PEAK = 1;
 /** Gyűrűhullám: a jelölőgyűrű sugarának legfeljebb ennyiszereséig tágul. */
 const RIPPLE_SCALE = 3.4;
-const RIPPLE_PEAK = 0.42;
+const RIPPLE_PEAK = 0.55;
 /** A kulcsfény azimutjának lengése (±6°). */
 const LIGHT_SWING = (6 * Math.PI) / 180;
 

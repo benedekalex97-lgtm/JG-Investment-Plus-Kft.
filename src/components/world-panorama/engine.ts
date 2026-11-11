@@ -628,7 +628,7 @@ export function createPanorama(options: PanoramaOptions): Panorama {
   */
   const arcColor = new Color(COLORS.arc);
   const porcelain = new Color(COLORS.marker);
-  const rippleGeo = new RingGeometry(rig === "desktop" ? 0.188 : 0.284, rig === "desktop" ? 0.2 : 0.3, 64);
+  const rippleGeo = new RingGeometry(rig === "desktop" ? 0.18 : 0.276, rig === "desktop" ? 0.2 : 0.3, 64);
   rippleGeo.rotateX(-Math.PI / 2);
   geometries.push(markerGeo, ringGeo, rippleGeo);
   materials.push(markerMat);
