@@ -1,5 +1,6 @@
 import ContactCta from "./ContactCta";
 import Reveal from "./Reveal";
+import { rv } from "./RevealParts";
 import Section from "./Section";
 import { whyJg } from "@/content/homepage";
 
@@ -35,10 +36,14 @@ export default function WhyJG() {
     >
       <ul className="-mt-2">
         {whyJg.pillars.map((pillar, index) => (
+          /*
+            v2 — pillérenkénti belépő (Reveal group): az elválasztó vonalak
+            kirajzolódnak, utána a római szám, majd a cím és a leírás követi.
+          */
           <Reveal
             as="li"
             key={pillar.title}
-            delay={index * 100}
+            variant="group"
             className="group relative py-10 first:pt-0 sm:py-12"
           >
             {/*
@@ -51,10 +56,14 @@ export default function WhyJG() {
               <>
                 <span
                   aria-hidden="true"
+                  data-rv="rule"
+                  style={rv(0)}
                   className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-border-strong via-border to-transparent"
                 />
                 <span
                   aria-hidden="true"
+                  data-rv="rule"
+                  style={rv(0)}
                   className="absolute top-0 left-0 h-px w-14 bg-signal-berry/70"
                 />
               </>
@@ -64,16 +73,26 @@ export default function WhyJG() {
               {/* Nagy, halvány római szám — tisztán tipográfiai jelölés. */}
               <span
                 aria-hidden="true"
+                data-rv="rise"
+                style={rv(160)}
                 className="font-display text-[2.75rem] leading-[0.9] tracking-[0.06em] text-signal-berry/45 transition-colors duration-500 group-hover:text-signal-berry/70 sm:w-20 sm:text-[3.5rem]"
               >
                 {pillar.numeral}
               </span>
 
               <div>
-                <h3 className="font-display text-[1.5rem] leading-[1.22] tracking-[-0.01em] text-text-primary sm:text-[1.8125rem]">
+                <h3
+                  data-rv="rise"
+                  style={rv(230)}
+                  className="font-display text-[1.5rem] leading-[1.22] tracking-[-0.01em] text-text-primary sm:text-[1.8125rem]"
+                >
                   {pillar.title}
                 </h3>
-                <p className="mt-4 max-w-[72ch] text-base leading-[1.76] text-text-secondary sm:text-[1.0625rem]">
+                <p
+                  data-rv="rise"
+                  style={rv(300)}
+                  className="mt-4 max-w-[72ch] text-base leading-[1.76] text-text-secondary sm:text-[1.0625rem]"
+                >
                   {pillar.body}
                 </p>
               </div>
@@ -86,7 +105,7 @@ export default function WhyJG() {
         Kontextuális CTA a szakasz végén. v2.1: a közös ContactCta megjelenés
         (a Header kapcsolatfelvételi gombjának formavilága), világos változat.
       */}
-      <Reveal delay={whyJg.pillars.length * 100} className="mt-10 sm:mt-12">
+      <Reveal delay={120} className="mt-10 sm:mt-12">
         <ContactCta
           href={whyJg.cta.href}
           label={whyJg.cta.label}

@@ -1,5 +1,6 @@
 import ContactCta from "./ContactCta";
 import Reveal from "./Reveal";
+import { rv } from "./RevealParts";
 import Section from "./Section";
 import { services } from "@/content/homepage";
 
@@ -54,17 +55,25 @@ export default function Services() {
     >
       <ul className="grid gap-x-16 gap-y-14 sm:grid-cols-2">
         {services.items.map((item, index) => (
+          /*
+            v2 — tételenkénti belépő (Reveal group): előbb a felső hajszálvonal
+            rajzolódik ki balról jobbra, majd a sorszám, a cím és a leírás
+            követi rövid staggerrel. A jobb oszlop 90 ms-mal a bal után indul.
+          */
           <Reveal
             as="li"
             key={item.title}
-            delay={index * 80}
+            variant="group"
+            delay={(index % 2) * 90}
             className="group"
           >
             <span
               aria-hidden="true"
+              data-rv="rule"
+              style={rv(0)}
               className="block h-px w-full bg-white/14 transition-colors duration-300 group-hover:bg-signal-berry-light"
             />
-            <div className="flex items-baseline gap-4">
+            <div data-rv="rise" style={rv(150)} className="flex items-baseline gap-4">
               <span
                 aria-hidden="true"
                 className="font-display mt-5 block text-[1.875rem] leading-none tabular-nums text-cool-silver/55 transition-colors duration-300 group-hover:text-signal-berry-light"
@@ -77,10 +86,18 @@ export default function Services() {
                 className="mt-5 block h-px w-5 shrink-0 bg-white/20 transition-all duration-300 group-hover:w-9 group-hover:bg-signal-berry-light"
               />
             </div>
-            <h3 className="font-display mt-5 max-w-[22ch] text-[1.4375rem] leading-[1.22] tracking-[-0.008em] text-porcelain sm:text-[1.5625rem]">
+            <h3
+              data-rv="rise"
+              style={rv(220)}
+              className="font-display mt-5 max-w-[22ch] text-[1.4375rem] leading-[1.22] tracking-[-0.008em] text-porcelain sm:text-[1.5625rem]"
+            >
               {item.title}
             </h3>
-            <p className="mt-4 max-w-[46ch] text-base leading-[1.72] text-cool-silver">
+            <p
+              data-rv="rise"
+              style={rv(290)}
+              className="mt-4 max-w-[46ch] text-base leading-[1.72] text-cool-silver"
+            >
               {item.body}
             </p>
           </Reveal>

@@ -1665,30 +1665,297 @@ body {
 }
 
 /* ==========================================================================
-   MIKROINTERAKCIÓK — szekció-belépő animáció
-   A .jg-reveal elemek 14 px-rel lejjebbről, átlátszóból úsznak be, amikor
-   először a viewportba érnek (IntersectionObserver, ld. Reveal.tsx). A
-   stagger késleltetést a --reveal-delay inline változó adja.
+   MIKROINTERAKCIÓK — szekció-belépő animáció (REVEAL v2)
+   A Reveal (ld. Reveal.tsx) a `.jg-reveal` osztályt és a `data-reveal`
+   variánst teszi az elemre, amikor a script már fut. Kezdőállapot: rejtett
+   (CSAK transform / opacity); a megjelenéskor `data-revealed="true"` —
+   ilyenkor KEYFRAME-animáció játssza le egyszer; `data-revealed="instant"` —
+   a betöltéskor már látható elem, animáció nélkül, azonnal.
+
+   MIÉRT keyframe és nem transition: a belépő nem írja felül az elemek saját
+   `transition` szabályait (pl. a dokumentumsorok háttér-hoverét), és a
+   `backwards` kitöltés a késleltetés alatt is a rejtett állapotot tartja.
+
+   Variánsok: rise · fade · rule (scaleX) · grow (scaleY) · mask (a szavak
+   vágott sordobozból emelkednek) · group (az elem nyugszik, a benne lévő
+   `[data-rv="…"]` leszármazottak lépnek be). A teljes késleltetés a csoport
+   `--reveal-delay` és a leszármazott `--rv-d` értékének összege.
 
    FONTOS: az alapállapot NEM rejti el a tartalmat véglegesen — ha a
-   JavaScript bármiért nem futna le, a .no-js-safe szabály (és a
-   reduced-motion ág) azonnal láthatóvá teszi. A szöveg sosem függ a
-   scripttől.
+   JavaScript bármiért nem futna le, semmi nem kap `.jg-reveal` osztályt, a
+   tartalom látható marad. A szöveg sosem függ a scripttől.
    ========================================================================== */
-.jg-reveal {
-  opacity: 0;
-  transform: translateY(14px);
-  transition:
-    opacity 620ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    transform 620ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
+:root {
+  --jg-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-.jg-reveal[data-revealed="true"] {
-  opacity: 1;
+@keyframes jg-rv-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes jg-rv-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes jg-rv-rule {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes jg-rv-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes jg-rv-mask {
+  from {
+    transform: translateY(1.5em);
+  }
+}
+
+/* Szavankénti sordoboz-maszk (MaskWords) — a markup mindig ilyen, JS nélkül
+   is; a pad + negatív margó az ékezetes nagybetűknek és a szárvégeknek ad
+   helyet, a margódoboz (a sormagasság) változatlan marad. */
+.jg-mw {
+  display: inline-block;
+  vertical-align: top;
+  overflow: hidden;
+  overflow: clip;
+  padding: 0.14em 0.06em 0.26em;
+  margin: -0.14em -0.06em -0.26em;
+}
+.jg-mi {
+  display: inline-block;
+}
+
+/* Kezdőállapotok (csak amíg a Reveal még nem engedte be az elemet). Nincs
+   will-change: a böngésző a transform/opacity animációt a lejátszás idejére
+   magától emeli ki, így nem tartunk ~70 réteget előre. */
+.jg-reveal:not([data-revealed])[data-reveal="rise"],
+.jg-reveal:not([data-revealed])[data-reveal="group"] [data-rv="rise"] {
+  opacity: 0;
+  transform: translateY(14px);
+}
+.jg-reveal:not([data-revealed])[data-reveal="fade"],
+.jg-reveal:not([data-revealed])[data-reveal="group"] [data-rv="fade"] {
+  opacity: 0;
+}
+.jg-reveal[data-reveal="rule"],
+.jg-reveal[data-reveal="group"] [data-rv="rule"] {
+  transform-origin: 0 50%;
+}
+.jg-reveal:not([data-revealed])[data-reveal="rule"],
+.jg-reveal:not([data-revealed])[data-reveal="group"] [data-rv="rule"] {
+  transform: scaleX(0);
+}
+.jg-reveal[data-reveal="grow"],
+.jg-reveal[data-reveal="group"] [data-rv="grow"] {
+  transform-origin: 50% 0;
+}
+.jg-reveal:not([data-revealed])[data-reveal="grow"],
+.jg-reveal:not([data-revealed])[data-reveal="group"] [data-rv="grow"] {
+  transform: scaleY(0);
+}
+.jg-reveal:not([data-revealed])[data-reveal="mask"] .jg-mi,
+.jg-reveal:not([data-revealed])[data-reveal="group"] [data-rv="mask"] .jg-mi {
+  transform: translateY(1.5em);
+}
+
+/* Lejátszás — egyszer, a késleltetés alatt a kezdőállapotot tartva. */
+.jg-reveal[data-revealed="true"][data-reveal="rise"],
+.jg-reveal[data-revealed="true"][data-reveal="fade"],
+.jg-reveal[data-revealed="true"][data-reveal="rule"],
+.jg-reveal[data-revealed="true"][data-reveal="grow"],
+.jg-reveal[data-revealed="true"][data-reveal="group"] [data-rv],
+.jg-reveal[data-revealed="true"][data-reveal="mask"] .jg-mi,
+.jg-reveal[data-revealed="true"][data-reveal="group"] [data-rv="mask"] .jg-mi {
+  animation-duration: 620ms;
+  animation-timing-function: var(--jg-ease);
+  animation-fill-mode: backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + var(--rv-d, 0ms));
+}
+.jg-reveal[data-revealed="true"][data-reveal="rise"],
+.jg-reveal[data-revealed="true"][data-reveal="group"] [data-rv="rise"] {
+  animation-name: jg-rv-rise;
+}
+.jg-reveal[data-revealed="true"][data-reveal="fade"],
+.jg-reveal[data-revealed="true"][data-reveal="group"] [data-rv="fade"] {
+  animation-name: jg-rv-fade;
+  animation-duration: 560ms;
+}
+.jg-reveal[data-revealed="true"][data-reveal="rule"],
+.jg-reveal[data-revealed="true"][data-reveal="group"] [data-rv="rule"] {
+  animation-name: jg-rv-rule;
+  animation-duration: 700ms;
+}
+.jg-reveal[data-revealed="true"][data-reveal="grow"],
+.jg-reveal[data-revealed="true"][data-reveal="group"] [data-rv="grow"] {
+  animation-name: jg-rv-grow;
+  animation-duration: 700ms;
+}
+.jg-reveal[data-revealed="true"][data-reveal="mask"] .jg-mi,
+.jg-reveal[data-revealed="true"][data-reveal="group"] [data-rv="mask"] .jg-mi {
+  animation-name: jg-rv-mask;
+  animation-duration: 720ms;
+}
+
+/* ==========================================================================
+   ORIENTÁCIÓ — olvasási előrehaladás-hajszál (ReadingProgress.tsx)
+   A header alsó élén ül, az aktív szakasz-jelölő (.jg-nav-marker) ALATT a
+   festési sorrendben. Muted Plum: halkabb a jelölő Signal Berry Light
+   rombuszánál. Kizárólag transform: scaleX (a JS írja, 1 : 1 a görgetéssel).
+   ========================================================================== */
+.jg-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  pointer-events: none;
+  background-color: var(--color-muted-plum);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   MOBIL KAPCSOLAT-SÁV (< 1024 px) — MobileContactBar.tsx
+   Tömör Deep felület hajszálvonalas felső éllel, blur nélkül. Rejtve:
+   `visibility: hidden` (+ a komponens `inert`-je) — nincs a tab-sorrendben.
+   Amíg látszik, a <html> `data-jg-bar="on"` attribútumot kap: a
+   scroll-padding-bottom megakadályozza, hogy a fókuszált elem a sáv mögé
+   kerüljön (WCAG 2.4.11).
+   ========================================================================== */
+:root {
+  --jg-bar-h: calc(56px + env(safe-area-inset-bottom, 0px));
+}
+
+html[data-jg-bar="on"] {
+  scroll-padding-bottom: calc(var(--jg-bar-h) + 8px);
+}
+
+.jg-contact-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+  padding-top: 6px;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  background-color: var(--color-surface-deep);
+  box-shadow: inset 0 1px 0 0 rgb(244 243 241 / 10%);
+  transform: translateY(100%);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 240ms var(--jg-ease),
+    opacity 240ms var(--jg-ease),
+    visibility 0s linear 240ms;
+}
+
+.jg-contact-bar[data-visible="true"] {
   transform: none;
-  will-change: auto;
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@media (min-width: 1024px) {
+  .jg-contact-bar {
+    display: none;
+  }
+  html[data-jg-bar="on"] {
+    scroll-padding-bottom: 0;
+  }
+}
+
+/* ==========================================================================
+   ÉRKEZÉS A KAPCSOLATHOZ — ArrivalCue.tsx
+   Egyetlen, halk tónusos sáv (Signal Berry ~10%) söpör végig az elsődleges
+   elérhetőségek blokkján, ≤ 700 ms, transform + opacity. Csak a
+   data-cue="play" állapotban látszik; ezt a komponens kizárólag horgonyos
+   érkezéskor adja, reduced-motion alatt soha.
+   ========================================================================== */
+.jg-arrive {
+  position: relative;
+}
+.jg-arrive-sweep {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* A sáv szélei sem vágódnak élesen a blokk határán. */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+}
+.jg-arrive-sweep::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--color-signal-berry) 10%, transparent),
+    transparent
+  );
+  opacity: 0;
+  transform: translateX(-100%);
+  /* Függőlegesen is elhalványul: nem „doboz", hanem fényfoltként olvasódik. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+.jg-arrive[data-cue="play"] .jg-arrive-sweep::before {
+  animation: jg-arrive 700ms cubic-bezier(0.45, 0.05, 0.35, 1) both;
+}
+@keyframes jg-arrive {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  30%,
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(260%);
+  }
+}
+
+/* ==========================================================================
+   NYOMÁS-VISSZAJELZÉS (:active) — a hoverrel már rendelkező sorokon/linkeken.
+   Halk: 1 px-es lenyomás + tónusváltás; nincs új díszítés.
+   ========================================================================== */
+.jg-press {
+  transition:
+    color 200ms ease,
+    background-color 200ms ease,
+    transform 120ms ease;
+}
+.jg-press:active {
+  transform: translateY(1px);
+  color: var(--color-signal-berry-dark);
+}
+/* Elsődleges elérhetőség (tel: / mailto:): a teljes sor „nyomható" felület. */
+@media (hover: hover) {
+  .jg-press-row:hover {
+    background-color: color-mix(in srgb, var(--color-border) 45%, transparent);
+  }
+}
+.jg-press-row:focus-visible {
+  background-color: color-mix(in srgb, var(--color-border) 45%, transparent);
+}
+.jg-press-row:active {
+  background-color: color-mix(in srgb, var(--color-border) 80%, transparent);
+}
+.jg-header nav a:active,
+footer a:active {
+  opacity: 0.74;
 }
 
 /* ==========================================================================
@@ -1706,12 +1973,39 @@ body {
   }
 
   /* Minden dekoratív belépőanimáció kikapcsolva: a tartalom azonnal,
-     elmozdulás és áttűnés nélkül látható. */
+     elmozdulás és áttűnés nélkül látható. (A Reveal ilyenkor eleve nem
+     kapcsolja be; ez a biztonsági öv.) REVEAL v2: variánsok,
+     csoport-leszármazottak, maszk. */
   .jg-reveal,
-  .jg-reveal[data-revealed="true"] {
+  .jg-reveal [data-rv],
+  .jg-reveal .jg-mi {
     opacity: 1 !important;
     transform: none !important;
+    animation: none !important;
     transition: none !important;
+  }
+
+  /* Érkezés-visszajelzés: soha. */
+  .jg-arrive-sweep {
+    display: none !important;
+  }
+
+  /* Mobil kapcsolat-sáv: átmenet nélkül jelenik meg / tűnik el. */
+  .jg-contact-bar {
+    transition: none !important;
+  }
+
+  /* Olvasási hajszál: nincs átmenet (az érték a görgetési állapotot mutatja). */
+  .jg-progress {
+    transition: none !important;
+  }
+
+  /* :active nyomás-visszajelzés: nincs mozgás, a tónusváltás marad. */
+  .jg-press {
+    transition: none !important;
+  }
+  .jg-press:active {
+    transform: none !important;
   }
 
   .link-arrow,

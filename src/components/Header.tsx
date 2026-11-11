@@ -13,6 +13,7 @@ import { useGSAP } from "@gsap/react";
 import { nav } from "@/content/homepage";
 import ContactCta, { CtaArrow } from "./ContactCta";
 import Logo from "./Logo";
+import ReadingProgress from "./ReadingProgress";
 
 gsap.registerPlugin(useGSAP);
 
@@ -61,8 +62,9 @@ gsap.registerPlugin(useGSAP);
  *   bezárt állapotban nincs is a DOM-ban.
  */
 
-const CTA_LABEL = "Kapcsolatfelvétel";
-const CTA_HREF = "/#kapcsolat";
+/* Exportálva: a MobileContactBar UGYANEZT a feliratot és célt használja. */
+export const CTA_LABEL = "Kapcsolatfelvétel";
+export const CTA_HREF = "/#kapcsolat";
 
 const ITEMS = nav.items.map((item) => ({
   ...item,
@@ -489,6 +491,12 @@ export default function Header() {
             </span>
           </button>
         </div>
+
+        {/*
+          Olvasási előrehaladás-hajszál (ld. ReadingProgress.tsx). A jelölő ELŐTT
+          áll a DOM-ban, így az aktív szakasz rombusza fölé fest.
+        */}
+        <ReadingProgress />
 
         {/* Aktív szakasz-jelölő (desktop), a header alsó hajszálvonalán. */}
         <span
