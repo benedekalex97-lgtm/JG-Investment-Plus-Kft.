@@ -1,4 +1,6 @@
+import ArrivalCue from "./ArrivalCue";
 import Reveal from "./Reveal";
+import { rv } from "./RevealParts";
 import Section from "./Section";
 import { contact } from "@/content/homepage";
 
@@ -32,12 +34,15 @@ function PrimaryContact({
   value,
   href,
   first = false,
+  index,
 }: {
   label: string;
   value: string;
   href?: string;
   /** Az első sor fölé nem kerül elválasztó. */
   first?: boolean;
+  /** A sor sorszáma — a v2 belépő staggerét adja. */
+  index: number;
 }) {
   /*
     A CÍMKE az <a>-n KÍVÜL marad — ahogy a v1.2-ben is volt. Ha a linken belülre
@@ -49,7 +54,11 @@ function PrimaryContact({
     "font-display block text-[1.375rem] leading-tight tracking-[-0.01em] break-words text-text-primary sm:text-[1.5625rem]";
 
   return (
-    <div className={`group relative pb-6 sm:pb-7 ${first ? "pt-0" : "pt-6 sm:pt-7"}`}>
+    <div
+      data-rv="rise"
+      style={rv(index * 80)}
+      className={`group relative pb-6 sm:pb-7 ${first ? "pt-0" : "pt-6 sm:pt-7"}`}
+    >
       {/*
         Irányított elválasztó: balról induló, jobbra elhalványuló vonal,
         rövid Berry indítással, ami hoverre megnyúlik. v1.6: a világos
@@ -59,10 +68,14 @@ function PrimaryContact({
         <>
           <span
             aria-hidden="true"
+            data-rv="rule"
+            style={rv(index * 80 + 90)}
             className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-border-strong via-border to-transparent"
           />
           <span
             aria-hidden="true"
+            data-rv="rule"
+            style={rv(index * 80 + 90)}
             className="absolute top-0 left-0 h-px w-10 bg-signal-berry/70 transition-all duration-300 group-hover:w-20"
           />
         </>
@@ -78,7 +91,7 @@ function PrimaryContact({
       {href ? (
         <a
           href={href}
-          className={`mt-2 flex min-h-12 items-center transition-colors hover:text-signal-berry ${valueClass}`}
+          className={`jg-press jg-press-row -mx-3 mt-2 flex min-h-12 items-center rounded-md px-3 hover:text-signal-berry ${valueClass}`}
         >
           {value}
         </a>
@@ -99,24 +112,36 @@ export default function Contact() {
       headingId="kapcsolat-cim"
       lead={contact.lead}
     >
-      {/* Elsődleges elérhetőségek — nagy, egyenrangú, kattintható blokkok. */}
-      <Reveal>
-        {contact.details.map((detail, index) => (
-          <PrimaryContact
-            key={detail.label}
-            label={detail.label}
-            value={detail.value}
-            href={detail.href}
-            first={index === 0}
-          />
-        ))}
+      {/*
+        Elsődleges elérhetőségek — nagy, egyenrangú, kattintható blokkok.
+        v2: a sorok staggerrel lépnek be (a hajszálvonalaik kirajzolódnak),
+        a blokkot pedig az ArrivalCue csomagolja: a #kapcsolat felé érkezéskor
+        EGYSZER egy halk tónusos sáv söpör végig rajta.
+      */}
+      <Reveal variant="group">
+        <ArrivalCue>
+          {contact.details.map((detail, index) => (
+            <PrimaryContact
+              key={detail.label}
+              label={detail.label}
+              value={detail.value}
+              href={detail.href}
+              first={index === 0}
+              index={index}
+            />
+          ))}
+        </ArrivalCue>
       </Reveal>
 
       {/* Másodlagos információk — kisebb súllyal, két hasábban. A vizuális
           leválasztás erősebb, mint a v1.3-ban: a fő elérhetőségek alatt
           nagyobb a levegő, így a másodlagos adatok nem versenyeznek velük. */}
-      <Reveal delay={100} className="mt-14 grid gap-10 border-t border-border pt-11 sm:mt-16 sm:grid-cols-2 sm:gap-14">
-        <div>
+      <Reveal
+        variant="group"
+        delay={220}
+        className="mt-14 grid gap-10 border-t border-border pt-11 sm:mt-16 sm:grid-cols-2 sm:gap-14"
+      >
+        <div data-rv="rise" style={rv(0)}>
           <h3 className="flex items-center gap-3 text-xs font-semibold tracking-[0.14em] text-accent">
             <span aria-hidden="true" className="block h-px w-5 bg-signal-berry/60" />
             {contact.businessHours.heading}
@@ -133,7 +158,7 @@ export default function Contact() {
           </dl>
         </div>
 
-        <div>
+        <div data-rv="rise" style={rv(90)}>
           <h3 className="flex items-center gap-3 text-xs font-semibold tracking-[0.14em] text-accent">
             <span aria-hidden="true" className="block h-px w-5 bg-signal-berry/60" />
             {contact.khSupport.heading}
@@ -147,7 +172,7 @@ export default function Contact() {
                 {item.href ? (
                   <a
                     href={item.href}
-                    className="inline-flex min-h-11 items-center break-all text-[0.9375rem] font-medium text-text-primary underline underline-offset-4 transition-colors hover:text-signal-berry"
+                    className="jg-press inline-flex min-h-11 items-center break-all text-[0.9375rem] font-medium text-text-primary underline underline-offset-4 hover:text-signal-berry"
                   >
                     {item.value}
                   </a>
@@ -160,7 +185,7 @@ export default function Contact() {
         </div>
       </Reveal>
 
-      <Reveal delay={160}>
+      <Reveal delay={280}>
         <p className="mt-12 max-w-[80ch] border-l-2 border-l-accent pl-5 text-[0.9375rem] leading-relaxed text-text-secondary">
           {contact.orderNotice}
         </p>

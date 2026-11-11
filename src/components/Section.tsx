@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import Reveal from "./Reveal";
+import { MaskWords, rv } from "./RevealParts";
 
 type SectionProps = {
   id: string;
@@ -64,8 +66,18 @@ export default function Section({
 }: SectionProps) {
   const compact = size === "compact";
   const dark = tone === "deep";
+  /*
+    v2 — SZAKASZFEJLÉC-BELÉPŐ (Reveal group). Egyetlen, koreografált sor:
+    a sorszám és a címke közti vonal kirajzolódik, a címke áttűnik, a H2
+    vágott sordobozból emelkedik ki, végül a lead követi. A számot nem
+    animáljuk: a „hol vagyok?" kérdésre azonnal válaszol.
+
+    NINCS elrendezés-ugrás: minden elem a végleges geometriájával, a helyén
+    áll a kezdettől; csak transform / opacity / clip változik. A sticky
+    viselkedés a külső div-en marad, a csoport-wrapper egy sima blokk.
+  */
   const header = (
-    <>
+    <Reveal variant="group">
       <p
         className={`flex items-baseline gap-3.5 text-sm font-semibold tracking-[0.18em] uppercase ${
           dark ? "text-signal-berry-light" : "text-accent"
@@ -78,12 +90,18 @@ export default function Section({
         ) : null}
         <span
           aria-hidden="true"
+          data-rv="rule"
+          style={rv(0)}
           className={`h-px w-7 ${dark ? "bg-signal-berry-light/50" : "bg-border-strong"}`}
         />
-        <span>{label}</span>
+        <span data-rv="fade" style={rv(70)}>
+          {label}
+        </span>
       </p>
       <h2
         id={headingId}
+        data-rv="mask"
+        style={rv(140)}
         className={`font-display mt-6 leading-[1.1] tracking-[-0.014em] [overflow-wrap:normal] hyphens-none text-balance ${
           dark ? "text-porcelain" : "text-text-primary"
         } ${
@@ -92,10 +110,12 @@ export default function Section({
             : "text-[2rem] sm:text-[2.5rem] lg:text-[2.875rem]"
         }`}
       >
-        {heading}
+        <MaskWords text={heading} />
       </h2>
       {lead ? (
         <p
+          data-rv="rise"
+          style={rv(280)}
           className={`mt-6 max-w-xl text-base leading-[1.72] text-pretty sm:text-[1.0625rem] ${
             dark ? "text-cool-silver" : "text-text-secondary"
           }`}
@@ -103,7 +123,7 @@ export default function Section({
           {lead}
         </p>
       ) : null}
-    </>
+    </Reveal>
   );
 
   return (
