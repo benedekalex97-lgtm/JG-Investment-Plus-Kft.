@@ -103,6 +103,43 @@ grafikáját (kis monitoros webtrader-áttekintéssel), a K&H főoldalát, illet
 a régi webtrader egy dialógusát mutatja; a webtrader2 oldal 22305.jpg
 bannere (630 × 360) marketinggrafika.
 
+## 3. v1.1 — folyamatos webtrader-felvétel keresése (2026-11-16)
+
+Cél: egyetlen összefüggő, azonos verziójú webtrader 2.0 felvétel a
+portfólió → sor kiválasztása (kurzorral) → adatlap → grafikon → görgetés
+jelenetsorhoz, a kétképes áttűnés kiváltására. **Eredmény: nem érhető el;
+a laptopos javítás blokkolt.** A futó kód nem változott, a kétképes
+változat ideiglenesen marad; a mobiltrader-bemutató változatlan.
+
+Elvégzett próbálkozások (hálózati/biztonsági beállítás nem módosult):
+
+| # | Próbálkozás | Eredmény |
+|---|---|---|
+| 1 | `yt-dlp` metaadat-lekérés, pqAbdMKSSvM | „Sign in to confirm you're not a bot” — bot-ellenőrzés; nem kerültük meg |
+| 2 | A YouTube watch-oldal közvetlen lekérése | 302 → google.com/sorry (captcha); nem kerültük meg |
+| 3 | Beágyazott lejátszó Chromiumban (`www.youtube.com/embed/pqAbdMKSSvM`) | „Error 153 – Video player configuration error”; videó nem töltött be |
+| 4 | A hivatalos webtrader2 oldal böngészőben | a `youtube-nocookie.com` iframe és a videótárhely nem érhető el a környezetből |
+| 5 | Aláírás nélküli YouTube storyboard (`i.ytimg.com/sb/...`) | 403; egyébként is csak 160–320 px-es előnézet lenne |
+| 6 | khertekpapir.hu sitemap (3410 URL), 16 releváns oldal átnézve (tudástár, videótár, kereskedési rendszerek, webtrader-problémák) | webtraderhez GIF/MP4 nincs; a `/ugyfeltamogatas/videotar` 404, a `/ugyfeltamogatas/tudastar/webtrader` üres |
+| 7 | A K&H Értékpapír YouTube-csatorna listája | további webtrader 2.0 videók: `yQpFRrAD-aI` (számlanyitás véglegesítése), `H63e__DghQA` (új K&H webtrader – pénzműveletek), `Pnrjq9M_Al0` (befektetővédelmi kérdőív) — mind YouTube, ugyanúgy nem feldolgozható |
+| 8 | A `/szolgaltatasok/kereskedesi-rendszereink/webtrader` oldal 7 videója | a RÉGI webtrader felülete — verziókeverés miatt nem használható |
+| 9 | Webes keresés további hivatalos K&H/Patria bemutatóra | nincs más K&H-tárhely; a Patria Finance WebTrader másik (cseh) termék, nem helyettesítheti |
+
+### Hiányzó forrás (pontosan)
+
+A `v_AP_bpaKkI` („K&H webtrader - megbízás beadása”) videó MP4-fájlja vagy
+1:1 képernyőfelvétele, amelyből a 2025-04-03-i OTP Bank adatlap-kocka
+származik; ennek a portfóliónézettől az adatlap görgetéséig tartó
+szakasza. Ha ebben nincs portfólióból indított kiválasztás, akkor a
+`pqAbdMKSSvM` („portfólió menü áttekintése”) videó egy sor-kiválasztást
+tartalmazó szakasza — egyetlen felvételből, hogy a verzió, a demófiók és
+a papír ne keveredjen.
+
+Beérkezés után a feldolgozás terve: a kiválasztott időszak ffprobe-mérése,
+kontaktlap, majd a jelenetsor kockáinak kinyerése (`ffmpeg -ss … -to …`),
+ugyanazzal a vágással és avatar-kitakarással, mint a mostani képeknél,
+és a telefonnal azonos, canvasra rajzolt, görgetéssel vezérelt képsor.
+
 ## Ismert korlátok
 
 - A webtrader-jelenetben nem látható a részvény kiválasztása (az OTP Bank
