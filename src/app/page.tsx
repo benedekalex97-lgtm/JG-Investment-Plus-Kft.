@@ -5,6 +5,7 @@ import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import MobileContactBar from "@/components/MobileContactBar";
 import OfficialDocuments from "@/components/OfficialDocuments";
 import Services from "@/components/Services";
 import WhyJG from "@/components/WhyJG";
@@ -74,6 +75,9 @@ export default function Home() {
 
       {/* A világos Kapcsolat után éles, átmeneti sáv nélküli lezárás. */}
       <Footer transitionFrom={null} />
+
+      {/* Mobil (< 1024 px) kapcsolat-sáv: a hero CTA-ja után, a Kapcsolatig. */}
+      <MobileContactBar />
     </>
   );
 }

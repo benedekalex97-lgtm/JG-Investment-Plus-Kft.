@@ -1,4 +1,5 @@
 import Reveal from "./Reveal";
+import { rv } from "./RevealParts";
 import Section from "./Section";
 import { about } from "@/content/homepage";
 
@@ -68,14 +69,24 @@ export default function About() {
         })}
       </Reveal>
 
-      <Reveal as="figure" delay={90} className="mt-14 max-w-[60ch] sm:mt-16">
+      {/*
+        v2 — az idézet belépője: előbb a Berry jelzősáv nő fentről lefelé,
+        majd (átfedéssel) áttűnik maga az idézet.
+      */}
+      <Reveal as="figure" variant="group" className="mt-14 max-w-[60ch] sm:mt-16">
         <div className="relative pl-7 sm:pl-9">
           {/* Berry jelzővonal, a tetején erősebb — nem egyenletes border. */}
           <span
             aria-hidden="true"
+            data-rv="grow"
+            style={rv(0)}
             className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal-berry via-signal-berry/70 to-accent/25"
           />
-          <blockquote className="font-display text-[1.6875rem] leading-[1.32] tracking-[-0.01em] text-balance text-text-primary sm:text-[1.9375rem] lg:text-[2.1875rem]">
+          <blockquote
+            data-rv="fade"
+            style={rv(380)}
+            className="font-display text-[1.6875rem] leading-[1.32] tracking-[-0.01em] text-balance text-text-primary sm:text-[1.9375rem] lg:text-[2.1875rem]"
+          >
             <span aria-hidden="true" className="text-signal-berry">
               „
             </span>
@@ -91,7 +102,7 @@ export default function About() {
         Institutional facts rail — kontrasztos Carbon panel. Tényszerű
         adatsáv, nem marketingblokk: nincs ikon, pecsét vagy badge.
       */}
-      <Reveal delay={160} className="mt-16 sm:mt-18">
+      <Reveal variant="group" className="mt-16 sm:mt-18">
         {/*
           v1.4: a panel nem lapos Deep téglalap többé. A `.jg-inset-panel`
           tonális gradienst (raise -> deep -> sink), felső belső fényt és
@@ -113,10 +124,20 @@ export default function About() {
           Fióktelepe)") miatt a cellák vízszintes paddingje szűkebb, a
           szövegméret pedig egy hajszállal kisebb, mint a v1.4-ben.
         */}
-        <dl className="jg-inset-panel on-dark grid overflow-hidden rounded-xl sm:grid-cols-3">
+        {/*
+          v2 — a panel áttűnik, a cellák rövid staggerrel követik, a geometriai
+          jelölések pedig SORRENDBEN rajzolódnak ki (cellákon át számolva).
+        */}
+        <dl
+          data-rv="fade"
+          style={rv(0)}
+          className="jg-inset-panel on-dark grid overflow-hidden rounded-xl sm:grid-cols-3"
+        >
           {about.facts.map((fact, index) => (
             <div
               key={fact.label}
+              data-rv="rise"
+              style={rv(110 + index * 80)}
               className={`border-white/10 px-6 py-8 sm:px-7 sm:py-9 ${
                 index < about.facts.length - 1 ? "border-b sm:border-r sm:border-b-0" : ""
               }`}
@@ -130,7 +151,12 @@ export default function About() {
               */}
               <span aria-hidden="true" className="flex items-center gap-1">
                 {Array.from({ length: index + 1 }, (_, i) => (
-                  <span key={i} className="block h-0.5 w-2.5 bg-signal-berry-light" />
+                  <span
+                    key={i}
+                    data-rv="rule"
+                    style={rv(330 + ((index * (index + 1)) / 2 + i) * 70)}
+                    className="block h-0.5 w-2.5 bg-signal-berry-light"
+                  />
                 ))}
               </span>
               <dt className="mt-3.5 text-[0.6875rem] font-semibold tracking-[0.14em] text-cool-silver uppercase">

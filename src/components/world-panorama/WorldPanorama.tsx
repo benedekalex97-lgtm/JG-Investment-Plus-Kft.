@@ -9,9 +9,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { gsap } from "gsap";
 import type { Rig } from "./camera-path";
 import type { Panorama, Projection } from "./engine";
 import { PANEL_NOTE, PANEL_SUBTITLE, REGIONS, type RegionId } from "./markets";
+import { INTRO_BEATS, INTRO_DURATION } from "./trading-day";
 
 /**
  * WorldPanorama — „Világpiaci panoráma" a Hero mögött.
@@ -35,6 +37,20 @@ import { PANEL_NOTE, PANEL_SUBTITLE, REGIONS, type RegionId } from "./markets";
  * türelmi idő, a panelre lépés törli. Kattintás / Enter / Space / koppintás
  * → rögzített panel; bezárás: bezárógomb, Escape, másik régió, külső
  * kattintás. Egyszerre egy panel; régióváltáskor a tartalom vált.
+ *
+ * NYITÁNY (oldalbetöltésenként egyszer, csak ha az első élő kockánál a mozgás
+ * engedélyezett és fut): egy GSAP-timeline ~2,4 s alatt végigvezet egy
+ * impulzust New York → London → Tokió irányban (engine.setIntro), és ugyanezekre
+ * az ütemekre jelennek meg a hotspotfeliratok (áttűnés + 6 px emelkedés). A
+ * hotspotok az első élő kockától kattinthatók. Ha a kamera bármi miatt megáll
+ * (rámutatás, koppintás, mozgásvezérlő, rejtett lap, kigördülés), a nyitány
+ * azonnal, lágyan (0,3 s) lezárul. Reduced motion / tooSlow / fallback: nincs
+ * nyitány, a feliratok azonnal látszanak.
+ *
+ * GÖRGETÉS: passzív scroll-figyelő, kockánként legfeljebb egy frissítés (a
+ * gsap.tickeren, egyszeri hívással), csak amíg a Hero látható és a mozgás
+ * engedélyezett — a kamera finoman emelkedik és hátrál (engine.setScroll).
+ * Leállított mozgásnál (és reduced motion mellett) a kamera nem követi.
  */
 
 type Mode = "loading" | "live" | "fallback";
@@ -122,13 +138,110 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
     stateRef.current = { motionAllowed, active };
   }, [motionAllowed, active]);
 
+  /* ---------------- Nyitány (egyszer) ---------------- */
+  const introPlayed = useRef(false);
+  const introRef = useRef<gsap.core.Timeline | null>(null);
+  const introFinishRef = useRef<gsap.core.Timeline | null>(null);
+  const introProxy = useRef({ time: 0, gain: 1 });
+
+  const introLabels = () =>
+    ORDER.map((id) => hotspotRefs.current[id]?.querySelector<HTMLElement>(".wp-hotspot-label") ?? null);
+
+  /** Leállítja a nyitányt (és a lezáró tweent), a feliratokat a CSS-re bízza. */
+  const killIntro = useCallback(() => {
+    introRef.current?.kill();
+    introFinishRef.current?.kill();
+    if (introRef.current || introFinishRef.current) {
+      gsap.set(introLabels().filter((el): el is HTMLElement => el !== null), { clearProps: "all" });
+    }
+    introRef.current = null;
+    introFinishRef.current = null;
+  }, []);
+
+  /**
+   * Interakció (vagy bármilyen megállás) a nyitány alatt: azonnali, lágy
+   * lezárás — a vászon-réteg 0,3 s alatt elhalkul, a feliratok 0,2 s alatt
+   * teljesen megjelennek. Utána a kereskedési nap köre veszi át.
+   */
+  const finishIntro = useCallback(() => {
+    const tl = introRef.current;
+    if (!tl) return;
+    tl.kill();
+    introRef.current = null;
+    const proxy = introProxy.current;
+    const labels = introLabels().filter((el): el is HTMLElement => el !== null);
+    introFinishRef.current = gsap
+      .timeline({
+        onComplete: () => {
+          introFinishRef.current = null;
+          engineRef.current?.setIntro(null);
+          gsap.set(labels, { clearProps: "all" });
+        },
+      })
+      .to(
+        proxy,
+        {
+          gain: 0,
+          duration: 0.3,
+          ease: "power1.out",
+          onUpdate: () => engineRef.current?.setIntro(proxy.time, proxy.gain),
+        },
+        0,
+      )
+      .to(labels, { autoAlpha: 1, y: 0, duration: 0.2, ease: "power1.out", overwrite: true }, 0);
+  }, []);
+
   const syncRunning = useCallback(() => {
     const engine = engineRef.current;
     if (!engine) return;
     const { hidden, inView } = runtimeRef.current;
     const { motionAllowed: allowed, active: panel } = stateRef.current;
-    engine.setRunning(allowed && !hidden && inView && panel === null);
+    const run = allowed && !hidden && inView && panel === null;
+    engine.setRunning(run);
+    if (!run) finishIntro();
+  }, [finishIntro]);
+
+  /* ---------------- Görgetéshez kötött kameraemelés ---------------- */
+  /*
+    Sorban áll-e már frissítés, és a sorban álló egyszeri ticker-hívás (a
+    leiratkozáshoz). Külön jelző kell: ha a ticker alszik (autoSleep — pl.
+    megállított kameránál), a gsap.ticker.add() felébreszti, és a hívást MÉG
+    az add() visszatérése előtt lefuttathatja.
+  */
+  const scrollQueued = useRef(false);
+  const scrollTick = useRef<gsap.TickerCallback | null>(null);
+  const applyScroll = useCallback(() => {
+    scrollQueued.current = false;
+    scrollTick.current = null;
+    const engine = engineRef.current;
+    const root = rootRef.current;
+    if (!engine || !root || !stateRef.current.motionAllowed || !runtimeRef.current.inView) return;
+    const box = root.getBoundingClientRect();
+    engine.setScroll(box.height > 0 ? -box.top / box.height : 0);
   }, []);
+  /** Kockánként legfeljebb egy frissítés: egyszeri, előre sorolt gsap.ticker-hívás (nem saját loop). */
+  const scheduleScroll = useCallback(() => {
+    if (scrollQueued.current) return;
+    scrollQueued.current = true;
+    const tick = gsap.ticker.add(applyScroll, true, true);
+    if (scrollQueued.current) scrollTick.current = tick; // ha már le is futott, nincs mit tárolni
+  }, [applyScroll]);
+  useEffect(() => {
+    const onScroll = () => {
+      if (runtimeRef.current.inView) scheduleScroll();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (scrollTick.current) gsap.ticker.remove(scrollTick.current);
+      scrollTick.current = null;
+      scrollQueued.current = false;
+    };
+  }, [scheduleScroll]);
+  // A Hero visszatérésekor / a mozgás engedélyezésekor a kamera felveszi az aktuális görgetést.
+  useEffect(() => {
+    if (mode === "live" && motionAllowed) scheduleScroll();
+  }, [mode, motionAllowed, scheduleScroll]);
 
   useEffect(() => {
     syncRunning();
@@ -235,6 +348,50 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
     if (mode === "live" && projectionRef.current) onProject(projectionRef.current);
   }, [mode, onProject]);
 
+  /*
+    Nyitány: az első élő kockánál, festés ELŐTT (layout effect) döntünk —
+    így a feliratok nem villannak fel. Oldalbetöltésenként egyszer; ha ekkor
+    a mozgás nem engedélyezett vagy nem fut, a nyitány elmarad.
+  */
+  useLayoutEffect(() => {
+    if (mode !== "live" || introPlayed.current) return;
+    introPlayed.current = true;
+    const engine = engineRef.current;
+    const { hidden, inView } = runtimeRef.current;
+    if (!engine || !motionAllowed || hidden || !inView || active !== null) return;
+    const proxy = introProxy.current;
+    proxy.time = 0;
+    proxy.gain = 1;
+    engine.setIntro(0, 1);
+    const labels = introLabels();
+    const present = labels.filter((el): el is HTMLElement => el !== null);
+    gsap.set(present, { autoAlpha: 0, xPercent: -50, x: 0, y: 6 });
+    const tl = gsap.timeline({
+      onComplete: () => {
+        introRef.current = null;
+        engineRef.current?.setIntro(null);
+        gsap.set(present, { clearProps: "all" });
+      },
+    });
+    tl.to(
+      proxy,
+      {
+        time: INTRO_DURATION,
+        duration: INTRO_DURATION,
+        ease: "none",
+        onUpdate: () => engineRef.current?.setIntro(proxy.time, proxy.gain),
+      },
+      0,
+    );
+    labels.forEach((label, i) => {
+      if (label) tl.to(label, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, INTRO_BEATS[i]);
+    });
+    introRef.current = tl;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- csak az élővé váláskor dönt, egyszer
+  }, [mode]);
+
+  useEffect(() => () => killIntro(), [killIntro]);
+
   /* ---------------- Motor betöltése / újraépítése rigváltáskor ---------------- */
   useEffect(() => {
     if (!rig) return;
@@ -265,6 +422,7 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
           onProject,
           onFirstFrame: () => setMode("live"),
           onContextLost: () => {
+            killIntro();
             engineRef.current = null;
             setMode("fallback");
           },
@@ -274,6 +432,7 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
         const { width, height } = layoutRef.current;
         engine.resize(width, height, lensShiftFor());
         syncRunning();
+        scheduleScroll();
       } catch {
         if (!disposed) setMode("fallback");
       }
@@ -281,10 +440,11 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
 
     return () => {
       disposed = true;
+      killIntro();
       engineRef.current = null;
       engine?.dispose();
     };
-  }, [rig, measure, lensShiftFor, onProject, syncRunning]);
+  }, [rig, measure, lensShiftFor, onProject, syncRunning, scheduleScroll, killIntro]);
 
   /* ---------------- Méretváltozás, láthatóság, lapváltás ---------------- */
   useEffect(() => {
@@ -301,6 +461,7 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
     const viewObserver = new IntersectionObserver(([entry]) => {
       runtimeRef.current.inView = entry.isIntersecting;
       syncRunning();
+      if (entry.isIntersecting) scheduleScroll();
     });
     viewObserver.observe(root);
     const onVisibility = () => {
@@ -314,7 +475,7 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
       viewObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [measure, lensShiftFor, syncRunning]);
+  }, [measure, lensShiftFor, syncRunning, scheduleScroll]);
 
   /* ---------------- Panel: nyitás / zárás ---------------- */
   const clearCloseTimer = () => {
