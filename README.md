@@ -43,7 +43,7 @@ KIZÁRÓLAG az alábbi okokból tértünk el:
    javítása.
 
 Szerkezet: Hero → 01 Rólunk → 02 Szolgáltatások → 03 Miért mi? →
-04 Hivatalos dokumentumok → 05 Kapcsolat → Jogi tájékoztató.
+04 Gyakori kérdések → 05 Hivatalos dokumentumok → 06 Kapcsolat → Jogi tájékoztató.
 A v1.1 külön FOLYAMAT szakasza és a konverziós CTA-sáv eltávolítva (egyik sem
 része a referenciaoldalnak); a konverziós útvonalat a header-CTA, a hero-CTA
 és a Kapcsolat szakasz biztosítja. A navigációban a „Hogyan működik?" pont
@@ -345,6 +345,8 @@ src/
                               master market path; reduced-motion + pause-kezeléssel)
     About.tsx  Services.tsx  WhyJG.tsx  Process.tsx    01–04. szakasz
     CtaBand.tsx               konverziós CTA-sáv (az oldal egyetlen Carbon szakasza)
+    Faq.tsx                   04. szakasz — Gyakori kérdések (natív details/summary;
+                              tartalma: src/content/faq.ts)
     OfficialDocuments.tsx     05. szakasz — hivatalos dokumentumok linklistája
     LegalAccordion.tsx        kliens accordion (aria-expanded/-controls; a tartalom
                               összecsukva is a DOM-ban marad)
