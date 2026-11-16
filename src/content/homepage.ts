@@ -68,11 +68,16 @@ export const nav = {
    *      a mellette (a divider után) álló "Kapcsolatfelvétel" CTA célját
    *      (mindkettő "/#kapcsolat"-ra mutatott) — redundáns, egymás melletti
    *      pár volt, nem két különböző cél.
+   *
+   * v1.2 — a „Gyakori kérdések" (#gyakori-kerdesek) is menüpont lett, így a
+   * főoldal minden szakasza elérhető a headerből: az öt tétel + a
+   * „Kapcsolatfelvétel" CTA (ami a Kapcsolat szakaszra visz).
    */
   items: [
     { label: "Rólunk", href: "/#rolunk" },
     { label: "Szolgáltatások", href: "/#szolgaltatasok" },
     { label: "Miért mi?", href: "/#miert-a-jg" },
+    { label: "Gyakori kérdések", href: "/#gyakori-kerdesek" },
     { label: "Hivatalos dokumentumok", href: "/#hivatalos-dokumentumok" },
   ],
 } as const;
