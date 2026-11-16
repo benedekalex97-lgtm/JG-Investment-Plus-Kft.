@@ -8,6 +8,7 @@ import Hero from "@/components/Hero";
 import MobileContactBar from "@/components/MobileContactBar";
 import OfficialDocuments from "@/components/OfficialDocuments";
 import Services from "@/components/Services";
+import TradingPlatforms from "@/components/TradingPlatforms";
 import WhyJG from "@/components/WhyJG";
 import { nav } from "@/content/homepage";
 
@@ -31,7 +32,13 @@ export const metadata: Metadata = {
  * Főoldal — v1.2, a jóváhagyott hero-referencia (Lovable) szerkezete szerint.
  *
  *   Hero  →  01 Rólunk  →  02 Szolgáltatások  →  03 Miért mi?
- *   →  04 Gyakori kérdések  →  05 Hivatalos dokumentumok  →  06 Kapcsolat
+ *   →  04 Kereskedési felületek  →  05 Gyakori kérdések
+ *   →  06 Hivatalos dokumentumok  →  07 Kapcsolat
+ *
+ * v1.4: a Miért mi? és a GYIK közé bekerült a 04. Kereskedési felületek
+ * (sötét); a GYIK 05, a Hivatalos dokumentumok 06, a Kapcsolat 07. A
+ * szakaszhátterek pontosan két tónusban váltakoznak: sötét (Deep) és
+ * világos (Porcelain/canvas) — a GYIK ezért már canvas, nem fehér.
  *
  * v1.3: a Gyakori kérdések (04) a Miért mi? és a Hivatalos dokumentumok közé
  * került; a két utóbbi sorszáma 05, illetve 06.
@@ -68,6 +75,7 @@ export default function Home() {
         <About />
         <Services />
         <WhyJG />
+        <TradingPlatforms />
         <Faq />
         <OfficialDocuments />
         <Contact />

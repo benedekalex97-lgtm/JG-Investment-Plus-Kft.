@@ -1,5 +1,5 @@
 /**
- * Gyakori kérdések — a főoldal 04. szakaszának tartalma.
+ * Gyakori kérdések — a főoldal 05. szakaszának tartalma.
  *
  * A kérdések, válaszok és a közös tájékoztatás szövege Alex által
  * implementációra elfogadott tervezet (karakterre változatlanul beépítve; a
@@ -43,7 +43,7 @@ export const faq: {
   /** A GYIK alatti, mindig látható közös tájékoztatás. */
   notice: string;
 } = {
-  sectionNumber: "04",
+  sectionNumber: "05",
   sectionLabel: "Gyakori kérdések",
   heading: "Gyakori kérdések",
   items: [

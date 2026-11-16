@@ -4,7 +4,7 @@ import { MaskWords, rv } from "./RevealParts";
 
 type SectionProps = {
   id: string;
-  /** Kétjegyű szakaszszám (01–06) — vizuális ritmus, nem tartalom. */
+  /** Kétjegyű szakaszszám (01–07) — vizuális ritmus, nem tartalom. */
   number?: string;
   label: string;
   heading: string;

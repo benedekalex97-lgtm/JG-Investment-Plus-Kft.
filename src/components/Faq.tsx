@@ -2,7 +2,7 @@ import Section from "./Section";
 import { faq } from "@/content/faq";
 
 /**
- * Faq — 04. szakasz, „Gyakori kérdések".
+ * Faq — 05. szakasz, „Gyakori kérdések".
  *
  * SZERKEZET: natív <details>/<summary>. A projekt egyetlen meglévő
  * accordionja (LegalAccordion) kliens-komponens és egyszerre csak egy panelt
@@ -22,10 +22,9 @@ import { faq } from "@/content/faq";
  *
  * HEADING: a szakaszcím h2 (Section), minden kérdés h3, a <summary>-n belül.
  *
- * FELÜLET: a főoldalon a Miért minket? (canvas/Porcelain) és a sötét
- * Hivatalos dokumentumok közé ékelődik. Világos marad, de a `surface` (fehér)
- * tónust kapja + hajszálvonalat a tetején, hogy ne olvadjon össze a
- * Porcelain szomszédjával (ld. a Section jegyzetét).
+ * FELÜLET: a főoldalon a sötét Kereskedési felületek és a sötét Hivatalos
+ * dokumentumok közé ékelődik, ezért a szabályos két tónusú ritmusban a
+ * világos `canvas` (Porcelain) tónust kapja — fehér (`surface`) helyett.
  *
  * LINKPOLITIKA: a külső források a meglévő mintát követik (target="_blank",
  * rel="noopener noreferrer", akadálymentes „új lapon nyílik meg" jelzés).
@@ -39,7 +38,6 @@ export default function Faq() {
       label={faq.sectionLabel}
       heading={faq.heading}
       headingId="gyakori-kerdesek-cim"
-      tone="surface"
     >
       <div className="border-t border-border-strong">
         {faq.items.map((item) => (
