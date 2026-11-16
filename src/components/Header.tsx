@@ -428,7 +428,7 @@ export default function Header() {
             <ul
               ref={navListRef}
               onPointerLeave={navRelease}
-              className="-ml-2.5 flex items-center xl:-ml-4"
+              className="-ml-1.5 flex items-center xl:-ml-3.5"
             >
               {ITEMS.map((item) => (
                 <li key={item.href}>
@@ -443,9 +443,9 @@ export default function Header() {
                     }}
                     onFocus={onNavFocus}
                     onBlur={onNavBlur}
-                    className="group flex min-h-11 items-center rounded px-2.5 whitespace-nowrap text-cool-silver transition-colors duration-200 hover:text-porcelain focus-visible:text-porcelain aria-[current=location]:text-porcelain xl:px-4"
+                    className="group flex min-h-11 items-center rounded px-1.5 whitespace-nowrap text-cool-silver transition-colors duration-200 hover:text-porcelain focus-visible:text-porcelain aria-[current=location]:text-porcelain xl:px-3.5"
                   >
-                    <span data-nav-label="" className="text-[0.875rem] tracking-[0.005em] xl:text-[0.9375rem]">
+                    <span data-nav-label="" className="text-[0.8125rem] tracking-[0.005em] xl:text-[0.9375rem]">
                       {item.label}
                     </span>
                   </a>
