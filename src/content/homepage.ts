@@ -72,11 +72,15 @@ export const nav = {
    * v1.2 — a „Gyakori kérdések" (#gyakori-kerdesek) is menüpont lett, így a
    * főoldal minden szakasza elérhető a headerből: az öt tétel + a
    * „Kapcsolatfelvétel" CTA (ami a Kapcsolat szakaszra visz).
+   *
+   * v1.3 — a „Kereskedési felületek" (#kereskedesi-feluletek) is menüpont,
+   * a főoldali sorrendnek megfelelően a Miért mi? és a GYIK között.
    */
   items: [
     { label: "Rólunk", href: "/#rolunk" },
     { label: "Szolgáltatások", href: "/#szolgaltatasok" },
     { label: "Miért mi?", href: "/#miert-a-jg" },
+    { label: "Kereskedési felületek", href: "/#kereskedesi-feluletek" },
     { label: "Gyakori kérdések", href: "/#gyakori-kerdesek" },
     { label: "Hivatalos dokumentumok", href: "/#hivatalos-dokumentumok" },
   ],

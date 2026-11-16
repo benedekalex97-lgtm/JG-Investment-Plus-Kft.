@@ -421,14 +421,14 @@ export default function Header() {
           {/* Masthead-tagolás: teljes magasságú függőleges hajszálvonal. */}
           <span
             aria-hidden="true"
-            className="mx-5 hidden w-px shrink-0 bg-porcelain/10 lg:block xl:mx-10"
+            className="mx-5 hidden w-px shrink-0 bg-porcelain/10 lg:mx-3 lg:block xl:mx-7"
           />
 
           <nav aria-label={nav.menuLabel} className="hidden min-w-0 flex-1 items-center lg:flex">
             <ul
               ref={navListRef}
               onPointerLeave={navRelease}
-              className="-ml-1.5 flex items-center xl:-ml-3.5"
+              className="-ml-[0.3125rem] flex items-center xl:-ml-3"
             >
               {ITEMS.map((item) => (
                 <li key={item.href}>
@@ -443,9 +443,22 @@ export default function Header() {
                     }}
                     onFocus={onNavFocus}
                     onBlur={onNavBlur}
-                    className="group flex min-h-11 items-center rounded px-1.5 whitespace-nowrap text-cool-silver transition-colors duration-200 hover:text-porcelain focus-visible:text-porcelain aria-[current=location]:text-porcelain xl:px-3.5"
+                    className="group flex min-h-11 items-center rounded px-[0.3125rem] whitespace-nowrap text-cool-silver transition-colors duration-200 hover:text-porcelain focus-visible:text-porcelain aria-[current=location]:text-porcelain xl:px-3"
                   >
-                    <span data-nav-label="" className="text-[0.8125rem] tracking-[0.005em] xl:text-[0.9375rem]">
+                    {/*
+                      v1.3 — hat menüpont: a hosszú, kétszavas feliratok
+                      (Kereskedési felületek, Gyakori kérdések, Hivatalos
+                      dokumentumok) a max. 7em szélesség miatt a szóközüknél
+                      két sorba törnek (szón belül soha: min-w-min +
+                      overflow-wrap: normal), így minden tétel egy sorban fér el a
+                      CTA mellett 1024 px-től. A szövegcsomópont változatlan
+                      (az akadálymentes név ugyanaz), a jelölő a doboz
+                      közepéhez igazodik.
+                    */}
+                    <span
+                      data-nav-label=""
+                      className="inline-block max-w-[7em] min-w-min text-center text-[0.8125rem] leading-[1.2] tracking-[0.005em] whitespace-normal [overflow-wrap:normal] hyphens-none xl:text-[0.9375rem]"
+                    >
                       {item.label}
                     </span>
                   </a>
