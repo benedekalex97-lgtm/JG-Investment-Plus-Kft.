@@ -14,8 +14,12 @@ export const tradingPlatforms = {
   sectionNumber: "04",
   heading: "Kereskedési felületek",
   lead: "A K&H Értékpapír digitális felületei számítógépen és mobilon.",
-  disclaimer: "Szemléltető felületbemutató, nem élő piaci adatok.",
-  sourceNote: "Képernyők: a K&H Értékpapír nyilvános bemutatóanyagai.",
+  /**
+   * A szakasz alatti közlés — Reni (2026-11-19) által megadott szöveg,
+   * karakterre változatlanul. Ez nem jelent K&H Compliance-jóváhagyást.
+   */
+  notice:
+    "A képernyőképek kizárólag a kereskedési felület működésének szemléltetését szolgálják. Az ábrázolt adatok, árfolyamok és hozamok nem feltétlenül aktuálisak, nem minősülnek befektetési ajánlásnak, befektetési tanácsadásnak vagy hozamígéretnek. A képek forrása: K&H Értékpapír.",
   webtrader: {
     name: "K&H webtrader",
     detail: "Portfólió, majd az OTP Bank adatlapja",

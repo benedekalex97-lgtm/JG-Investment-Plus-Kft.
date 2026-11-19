@@ -2231,27 +2231,24 @@ details[open] > .jg-faq-answer {
   color: var(--color-cool-silver);
 }
 
+/* A szakasz alatti közlés: hosszabb bekezdés, ezért balra zárt és
+   olvasható sorhosszú. */
 .tp-note {
+  max-width: 68ch;
   font-size: 0.8125rem;
   line-height: 1.6;
   color: var(--color-cool-silver);
-  text-align: center;
+  text-wrap: pretty;
 }
 
 @media (min-width: 1024px) {
   .tp-stage {
     --tp-top: 80px;
     /* Széles: a magasságból, a szélességből és egy felső korlátból a legkisebb. */
-    --tp-ph: clamp(240px, min(calc(100svh - 380px), calc((min(100vw, 1280px) - 136px) * 0.43)), 500px);
+    --tp-ph: clamp(240px, min(calc(100svh - 400px), calc((min(100vw, 1280px) - 136px) * 0.43)), 500px);
     gap: 2rem;
     padding-top: 96px;
     padding-bottom: 96px;
-  }
-
-  .tp-head {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-    column-gap: 4rem;
   }
 
   .tp-devices {
@@ -2267,8 +2264,10 @@ details[open] > .jg-faq-answer {
     flex: none;
   }
 
+  /* Desktopon apró betűs közlésként a teljes tartalomszélességet használja
+     (két sor), hogy a sticky jelenet függőlegesen beférjen. */
   .tp-note {
-    text-align: left;
+    max-width: none;
   }
 }
 
@@ -2283,8 +2282,15 @@ details[open] > .jg-faq-answer {
     top: var(--tp-top);
     height: calc(100svh - var(--tp-top));
     justify-content: center;
-    padding-top: 28px;
-    padding-bottom: 28px;
+    /* A címsor alatti lead és a hosszabb alsó közlés miatt szűkebb ritmus,
+       hogy a teljes jelenet 720 px magas nézetben is beférjen. */
+    gap: 1.5rem;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .tp-head {
+    gap: 0.75rem;
   }
 }
 
@@ -2311,10 +2317,6 @@ details[open] > .jg-faq-answer {
 }
 
 @media (min-width: 1024px) and (max-height: 639px) {
-  .tp-head {
-    grid-template-columns: 1fr;
-  }
-
   .tp-devices {
     flex-direction: column;
     align-items: center;

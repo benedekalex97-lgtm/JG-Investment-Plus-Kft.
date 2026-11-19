@@ -287,7 +287,7 @@ export default function TradingPlatforms() {
               <p
                 data-rv="rise"
                 style={rv(280)}
-                className="max-w-md text-base leading-[1.72] text-pretty text-cool-silver sm:text-[1.0625rem]"
+                className="max-w-xl text-base leading-[1.72] text-pretty text-cool-silver sm:text-[1.0625rem]"
               >
                 {t.lead}
               </p>
@@ -388,9 +388,7 @@ export default function TradingPlatforms() {
             </div>
           </div>
 
-          <p className="tp-note">
-            <span>{t.disclaimer}</span> <span className="text-cool-silver/70">{t.sourceNote}</span>
-          </p>
+          <p className="tp-note">{t.notice}</p>
         </div>
       </div>
     </section>
