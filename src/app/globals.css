@@ -2295,8 +2295,8 @@ details[open] > .jg-faq-answer {
 }
 
 /* B) Keskeny/alacsonyabb, de >= 560 px magas: a telefon sticky sávban fut. */
-@media (prefers-reduced-motion: no-preference) and (max-width: 1023px) and (min-height: 560px),
-  (prefers-reduced-motion: no-preference) and (min-width: 1024px) and (min-height: 560px) and (max-height: 639px) {
+@media (prefers-reduced-motion: no-preference) and (max-width: 1023px) and (min-height: 500px),
+  (prefers-reduced-motion: no-preference) and (min-width: 1024px) and (min-height: 500px) and (max-height: 639px) {
   .tp-phone-track {
     width: 100%;
     height: calc(100svh + 150svh);
@@ -2312,7 +2312,7 @@ details[open] > .jg-faq-answer {
   }
 
   .tp-stage {
-    --tp-ph: clamp(300px, calc(100svh - var(--tp-top) - var(--jg-bar-h) - 110px), 600px);
+    --tp-ph: clamp(260px, calc(100svh - var(--tp-top) - var(--jg-bar-h) - 110px), 600px);
   }
 }
 

@@ -57,22 +57,25 @@ M_FRAMES = (
     + list(range(172, 186))
 )
 
-# Történeti szakaszok: (görgetési előrehaladás tartomány) ← (forráskocka tartomány)
-PHASES = [
-    ((0.00, 0.16), (0, 21)),  # áttekintés: portfólióérték + kedvencek
-    ((0.16, 0.38), (22, 116)),  # keresés, „tesla" begépelése, kiválasztás
-    ((0.38, 0.64), (117, 171)),  # adatlap megnyílik, grafikon betölt
-    ((0.64, 0.90), (172, 185)),  # görgetés a Teljesítmény-adatokig
-]
+# Görgetési hozzárendelés (v1.2, egyenletes ütem).
+# A v1.0 a forrás IDEJÉHEZ kötötte az előrehaladást: a 0–0,16 és a 0,90–1
+# sáv mozdulatlan volt, a gyors UI-átmenet (22–31. kocka) viszont ~20 px
+# görgetésre jutott — mobilon ez „beragad, majd ugrik" érzetet adott.
+# Most minden kiválasztott kocka közel azonos görgetési lépést kap; a
+# betöltés-pörgettyű kockái fél súllyal szerepelnek. Rövid kezdő- és
+# záró-állás marad, hogy az első és az utolsó állapot is látható legyen.
+P_START, P_END = 0.06, 0.94
+SPINNER = range(120, 157)
 
 
-def progress_for(src: int) -> float:
-    for (p0, p1), (f0, f1) in PHASES:
-        if f0 <= src <= f1:
-            if f1 == f0:
-                return p0
-            return round(p0 + (p1 - p0) * (src - f0) / (f1 - f0), 4)
-    raise ValueError(src)
+def frame_progress() -> list:
+    weights = [0.0] + [0.5 if f in SPINNER else 1.0 for f in M_FRAMES[1:]]
+    total = sum(weights)
+    out, acc = [], 0.0
+    for f, w in zip(M_FRAMES, weights):
+        acc += w
+        out.append((f, round(P_START + (P_END - P_START) * acc / total, 4)))
+    return out
 
 
 def pixelate(im: Image.Image, box) -> Image.Image:
@@ -106,9 +109,14 @@ def main(src_dir: str) -> None:
         path = os.path.join(OUT_M, f"f-{src:03d}.webp")
         frame.save(path, "WEBP", quality=80, method=6)
         total += os.path.getsize(path)
-        entries.append((src, progress_for(src)))
+        entries.append(src)
     print("mobiltrader frames", len(entries), "bytes", total, "size", gif.size)
 
+    write_manifest()
+
+
+def write_manifest() -> None:
+    entries = frame_progress()
     ts = os.path.join(ROOT, "src", "content", "trading-platforms-frames.ts")
     with open(ts, "w", encoding="utf-8") as fh:
         fh.write("/*\n * GENERÁLT FÁJL — scripts/trading-platforms/build-assets.py.\n")
@@ -118,10 +126,15 @@ def main(src_dir: str) -> None:
         for src, p in entries:
             fh.write(f"  [{src}, {p}],\n")
         fh.write("];\n\n")
-        fh.write(f"export const MOBILTRADER_SIZE = {{ width: {gif.size[0]}, height: {gif.size[1]} }} as const;\n")
+        fh.write("export const MOBILTRADER_SIZE = { width: 376, height: 834 } as const;\n")
         fh.write(f"export const WEBTRADER_SIZE = {{ width: {WT_CROP[2] - WT_CROP[0]}, height: {WT_CROP[3] - WT_CROP[1]} }} as const;\n")
     print(ts)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    # --manifest-only: csak a görgetési manifeszt újragenerálása (forrásfájlok
+    # és képújrakódolás nélkül).
+    if sys.argv[1:] == ["--manifest-only"]:
+        write_manifest()
+    else:
+        main(sys.argv[1])

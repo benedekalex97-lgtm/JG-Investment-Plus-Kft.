@@ -30,9 +30,11 @@ engedélyezte a felhasználást.
 | Végső fájlok | `public/trading-platforms/mobiltrader/f-###.webp` (376 × 834) |
 | Személyes adat | nincs látható név vagy ügyfélazonosító (ellenőrizve a kontaktlapokon) |
 
-Görgetési hozzárendelés: 0–16 % áttekintés (kocka 0) · 16–38 % keresés és
-kiválasztás (22–116) · 38–64 % adatlap megnyílik, grafikon betölt (117–171) ·
-64–90 % görgetés a Teljesítmény-adatokig (172–185) · 90–100 % végállapot.
+Görgetési hozzárendelés (v1.2): 0–6 % kezdőállás (kocka 0), 6–94 % között
+minden kiválasztott kocka közel azonos görgetési lépést kap (a betöltés-
+pörgettyű 120–156. kockái fél súllyal), 94–100 % záróállás. A v1.0 a forrás
+idejéhez kötött hozzárendelése mobilon „beragad, majd ugrik” érzetet adott
+(hosszú mozdulatlan sávok, majd 10 kocka ~20 px görgetésen).
 
 A mobilos felvételek közül ez az egyetlen, amely egy folyamatos felvételben
 mutatja a részvény kiválasztását, az adatlapot és a grafikont. A „befektetésed

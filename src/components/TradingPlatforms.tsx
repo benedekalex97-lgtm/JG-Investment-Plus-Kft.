@@ -29,8 +29,15 @@ const WT_SIZES = "(min-width: 1024px) 860px, 92vw";
  * görgetési előrehaladáson. Ez visszafogott, REKONSTRUÁLT átmenet (opacity),
  * nem a webtrader saját animációja — a forrásban a kattintás nem látható.
  */
-const WT_FADE_START = 0.34;
-const WT_FADE_END = 0.44;
+// A telefonon az adatlap a 0,594–0,608 előrehaladásnál nyílik meg
+// (116→119. forráskocka, ld. trading-platforms-frames.ts): a laptop ezzel
+// egy időben vált.
+const WT_FADE_START = 0.55;
+const WT_FADE_END = 0.65;
+/* Keskeny nézetben a laptop saját áthaladása csak ~450–560 px görgetés: ott
+   a 0,34–0,44 sáv ~50 px lenne (gyakorlatilag vágás), ezért szélesebb. */
+const WT_FADE_NARROW_START = 0.25;
+const WT_FADE_NARROW_END = 0.7;
 
 /** Az utolsó képkocka, amelynek előrehaladása <= p (bináris keresés). */
 function frameIndexAt(p: number): number {
@@ -91,9 +98,13 @@ export default function TradingPlatforms() {
 
       const draw = () => {
         if (!ctx2d) return;
-        // A kért kocka, vagy ha még nincs meg, a legközelebbi korábbi betöltött.
-        let i = wanted;
-        while (i >= 0 && !frames[i]) i--;
+        // A kért kocka, vagy ha még nincs meg, a legközelebbi betöltött
+        // (mindkét irányban; egyenlő távolságnál a korábbi).
+        let i = -1;
+        for (let d = 0; d < frames.length; d++) {
+          if (wanted - d >= 0 && frames[wanted - d]) { i = wanted - d; break; }
+          if (wanted + d < frames.length && frames[wanted + d]) { i = wanted + d; break; }
+        }
         if (i < 0 || i === drawn) return;
         ctx2d.drawImage(frames[i]!, 0, 0, canvas.width, canvas.height);
         drawn = i;
@@ -103,25 +114,33 @@ export default function TradingPlatforms() {
       const load = async () => {
         if (started) return;
         started = true;
-        const order = MOBILTRADER_FRAMES.map((_, i) => i);
-        let next = 0;
-        const worker = async () => {
-          while (!disposed && next < order.length) {
-            const i = order[next++];
-            const img = new Image();
-            img.decoding = "async";
-            img.src = frameSrc(MOBILTRADER_FRAMES[i][0]);
-            try {
-              await img.decode();
-              if (disposed) return;
-              frames[i] = img;
-              if (i <= wanted) draw();
-            } catch {
-              /* Hibás kocka: kimarad, a korábbi kocka / poszter marad látható. */
-            }
+        const loadOne = async (i: number) => {
+          const img = new Image();
+          img.decoding = "async";
+          img.src = frameSrc(MOBILTRADER_FRAMES[i][0]);
+          try {
+            await img.decode();
+            if (disposed) return;
+            frames[i] = img;
+            draw();
+          } catch {
+            /* Hibás kocka: kimarad, a legközelebbi kocka / poszter marad látható. */
           }
         };
-        await Promise.all([worker(), worker(), worker()]);
+        // Előbb az első kocka (a kezdőállapot sosem más kocka), utána durvából
+        // finomba: az utolsó, majd minden 8., 4., 2., végül minden kocka —
+        // lassú hálózaton is bármely előrehaladáshoz van közeli kocka.
+        await loadOne(0);
+        const n = MOBILTRADER_FRAMES.length;
+        const order: number[] = [n - 1];
+        for (const step of [8, 4, 2, 1]) {
+          for (let i = 1; i < n; i += step) if (!order.includes(i)) order.push(i);
+        }
+        let next = 0;
+        const worker = async () => {
+          while (!disposed && next < order.length) await loadOne(order[next++]);
+        };
+        await Promise.all(Array.from({ length: 6 }, worker));
       };
 
       const io = new IntersectionObserver(
@@ -131,13 +150,20 @@ export default function TradingPlatforms() {
             void load();
           }
         },
-        { rootMargin: "150% 0px 150% 0px" },
+        { rootMargin: "400% 0px 400% 0px" },
       );
-      io.observe(section);
+      // Csak mozgásos módban figyelünk (ld. matchMedia lent): reduced motion
+      // esetén a canvas rejtett, a kockákra nincs szükség.
+      let watching = false;
+      const watchForLoad = () => {
+        if (watching || started) return;
+        watching = true;
+        io.observe(section);
+      };
 
       /* ---- Renderelés az előrehaladásból (nincs React state). ---- */
-      const renderLaptop = (p: number) => {
-        const o = gsap.utils.clamp(0, 1, (p - WT_FADE_START) / (WT_FADE_END - WT_FADE_START));
+      const renderLaptop = (p: number, a = WT_FADE_START, b = WT_FADE_END) => {
+        const o = gsap.utils.clamp(0, 1, (p - a) / (b - a));
         wtNext.style.opacity = String(o);
       };
       const renderPhone = (p: number) => {
@@ -163,7 +189,7 @@ export default function TradingPlatforms() {
       mm.add(
         {
           wide: "(min-width: 1024px) and (min-height: 640px)",
-          tall: "(min-height: 560px)",
+          tall: "(min-height: 500px)",
           motion: "(prefers-reduced-motion: no-preference)",
         },
         (context) => {
@@ -177,6 +203,8 @@ export default function TradingPlatforms() {
             wtNext.style.opacity = "";
             return;
           }
+
+          watchForLoad();
 
           if (wide) {
             const proxy = { p: 0 };
@@ -202,9 +230,9 @@ export default function TradingPlatforms() {
             gsap.to(lp, {
               p: 1,
               ease: "none",
-              onUpdate: () => renderLaptop(lp.p),
+              onUpdate: () => renderLaptop(lp.p, WT_FADE_NARROW_START, WT_FADE_NARROW_END),
               scrollTrigger: {
-                // Az áttűnés (0,34–0,44) így nagyjából a nézet közepén történik.
+                // A keskeny áttűnési sáv (0,25–0,70) a laptop áthaladásának közepén van.
                 trigger: laptop,
                 start: "top 70%",
                 end: "bottom 30%",
