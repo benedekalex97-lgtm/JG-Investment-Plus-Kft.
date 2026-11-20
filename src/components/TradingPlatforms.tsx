@@ -4,6 +4,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import ContactCta from "./ContactCta";
 import Reveal from "./Reveal";
 import { MaskWords, rv } from "./RevealParts";
 import { tradingPlatforms as t } from "@/content/trading-platforms";
@@ -439,7 +440,20 @@ export default function TradingPlatforms() {
             </div>
           </div>
 
-          <p className="tp-note">{t.notice}</p>
+          <div className="tp-foot">
+            <p className="tp-note">{t.notice}</p>
+            {/* Desktop: Számlanyitás CTA. < 1024 px-en az alsó kapcsolat-sáv veszi át
+                (MobileContactBar), ezért itt a CSS elrejti. */}
+            <div className="tp-cta">
+              <ContactCta
+                href={t.cta.href}
+                label={t.cta.label}
+                tone="dark"
+                display="inline-flex"
+                className="min-h-12 gap-6 pr-5 pl-6 text-[0.9375rem]"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>

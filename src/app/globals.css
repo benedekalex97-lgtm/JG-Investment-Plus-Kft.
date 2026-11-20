@@ -2245,7 +2245,29 @@ details[open] > .jg-faq-answer {
   text-wrap: pretty;
 }
 
+/* Számlanyitás CTA: csak desktopon (< 1024 px-en az alsó kapcsolat-sáv). */
+.tp-cta {
+  display: none;
+}
+
 @media (min-width: 1024px) {
+  .tp-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2.5rem;
+  }
+
+  .tp-foot .tp-note {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .tp-cta {
+    display: block;
+    flex: none;
+  }
+
   .tp-stage {
     --tp-top: 80px;
     /* Széles: a magasságból, a szélességből és egy felső korlátból a legkisebb. */

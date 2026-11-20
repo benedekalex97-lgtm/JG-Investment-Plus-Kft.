@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import ContactCta from "./ContactCta";
 import { CTA_HREF, CTA_LABEL } from "./Header";
+import { tradingPlatforms } from "@/content/trading-platforms";
 
 /**
  * MobileContactBar — „a következő lépés mindig egy koppintásra van".
@@ -40,14 +41,9 @@ import { CTA_HREF, CTA_LABEL } from "./Header";
  */
 
 const MIN_VIEWPORT_HEIGHT = 420;
-/** A kereskedési felületek szakasz alatt a sáv felirata ez. */
-const TRADING_LABEL = "Számlanyitás";
-/**
- * A „Számlanyitás" gomb célja. Amíg a hivatalos számlanyitási link nincs meg
- * (megrendelői ígéret), null: a gomb a Kapcsolat szakaszra (CTA_HREF) visz.
- * A link megérkezésekor ide kell beírni (egyetlen sor), pl. "https://…".
- */
-const TRADING_HREF: string | null = null;
+/** A kereskedési felületek szakasz alatt a sáv felirata és célja: a közös tartalmi modellből. */
+const TRADING_LABEL = tradingPlatforms.cta.label;
+const TRADING_HREF = tradingPlatforms.cta.href;
 /** A sticky header magassága mobilon — a hero CTA „kiment" ez alatt. */
 const HEADER_H = 72;
 /** A sáv magassága + biztonsági rés: eddig a magasságig nem lóghat alá a Hero. */
@@ -162,7 +158,7 @@ export default function MobileContactBar() {
       className="jg-contact-bar jg-safe-x on-dark"
     >
       <ContactCta
-        href={inTrading && TRADING_HREF ? TRADING_HREF : CTA_HREF}
+        href={inTrading ? TRADING_HREF : CTA_HREF}
         label={inTrading ? TRADING_LABEL : CTA_LABEL}
         tone="dark"
         className="min-h-11 w-full gap-6 px-5 text-[0.9375rem]"

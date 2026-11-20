@@ -274,3 +274,15 @@ Rövid, egy-egy kockányi ugrások; kitalált átmenetet nem alkalmaztunk.
   a mobilalkalmazás azóta változhatott.
 - A forrás felbontása (376 px széles GIF, 1280 × 720 JPEG-bélyegkocka) a
   legkisebb szövegek olvashatóságát korlátozza.
+
+## Számlanyitás CTA
+
+- Felirat és cél egyetlen helyen: `src/content/trading-platforms.ts`
+  (`tradingPlatforms.cta`, a fájl elején az `ACCOUNT_OPENING_HREF` konstans).
+- Amíg a hivatalos számlanyitási link nincs meg, a cél a Kapcsolat szakasz
+  (`/#kapcsolat`). A link megérkezésekor az `ACCOUNT_OPENING_HREF` értékét kell
+  megadni; mindkét gomb ezt követi.
+- Desktopon (≥ 1024 px) a gomb a szakasz alján, a közlés mellett áll
+  (`.tp-foot` / `.tp-cta`); a sticky jelenet magassága nem változik.
+- < 1024 px-en a gombot az alsó kapcsolat-sáv (`MobileContactBar`) adja,
+  amíg a szakasz látszik; a szakaszgomb ilyenkor rejtve van.
