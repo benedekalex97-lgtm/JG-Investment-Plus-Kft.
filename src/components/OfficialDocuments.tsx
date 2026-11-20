@@ -4,7 +4,7 @@ import Section from "./Section";
 import { officialDocuments } from "@/content/homepage";
 
 /**
- * OfficialDocuments — 04. szakasz.
+ * OfficialDocuments — 06. szakasz.
  *
  * Vizuálisan MÁSODLAGOS (kisebb címsor, szűkebb ritmus), de nem egyszerű
  * HTML-lista: 56–64 px magas sorok, kategóriajelölő sorszámmal, hoverre

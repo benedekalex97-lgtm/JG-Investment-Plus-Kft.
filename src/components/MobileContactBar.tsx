@@ -26,6 +26,10 @@ import { CTA_HREF, CTA_LABEL } from "./Header";
  * rAF-fojtott scroll/resize mérés dönt a tényleges geometriából — csak
  * olvasás, nincs írás és nincs elrendezés-kikényszerítés görgetés közben.
  *
+ * FELIRAT: amíg a 04. Kereskedési felületek szakasz látszik a viewportban, a
+ * gomb felirata „Számlanyitás" (a cél ugyanaz: a Kapcsolat szakasz); egyébként
+ * a header felirata.
+ *
  * FÓKUSZ (WCAG 2.4.11): amíg a sáv látszik, a <html> `data-jg-bar="on"`
  * attribútumot kap, és a globals.css ehhez illeszkedő `scroll-padding-bottom`-ot
  * ad — a billentyűzettel fókuszált elem így sosem kerül a sáv mögé. Rejtve a
@@ -36,6 +40,14 @@ import { CTA_HREF, CTA_LABEL } from "./Header";
  */
 
 const MIN_VIEWPORT_HEIGHT = 420;
+/** A kereskedési felületek szakasz alatt a sáv felirata ez. */
+const TRADING_LABEL = "Számlanyitás";
+/**
+ * A „Számlanyitás" gomb célja. Amíg a hivatalos számlanyitási link nincs meg
+ * (megrendelői ígéret), null: a gomb a Kapcsolat szakaszra (CTA_HREF) visz.
+ * A link megérkezésekor ide kell beírni (egyetlen sor), pl. "https://…".
+ */
+const TRADING_HREF: string | null = null;
 /** A sticky header magassága mobilon — a hero CTA „kiment" ez alatt. */
 const HEADER_H = 72;
 /** A sáv magassága + biztonsági rés: eddig a magasságig nem lóghat alá a Hero. */
@@ -43,6 +55,7 @@ const BAR_CLEARANCE = 80;
 
 export default function MobileContactBar() {
   const [visible, setVisible] = useState(false);
+  const [inTrading, setInTrading] = useState(false);
   const [desktop, setDesktop] = useState(false);
 
   // < 1024 px-en létezik; fölötte nem renderelünk.
@@ -64,6 +77,7 @@ export default function MobileContactBar() {
       document.getElementById("kapcsolat"),
       document.querySelector("footer"),
     ].filter((el): el is HTMLElement => el !== null);
+    const trading = document.getElementById("kereskedesi-feluletek");
     const header = document.querySelector("header");
     const vv = window.visualViewport;
     let frame = 0;
@@ -92,6 +106,11 @@ export default function MobileContactBar() {
       const tooShort = (vv?.height ?? vh) < MIN_VIEWPORT_HEIGHT;
 
       setVisible(past && !atTarget && !menuOpen && !tooShort);
+      // 5) A kereskedési felületek szakasz látszik-e (a sáv felirata ehhez igazodik).
+      if (trading) {
+        const r = trading.getBoundingClientRect();
+        setInTrading(r.bottom > 0 && r.top < vh);
+      }
     };
     const schedule = () => {
       if (!frame) frame = window.requestAnimationFrame(measure);
@@ -143,8 +162,8 @@ export default function MobileContactBar() {
       className="jg-contact-bar jg-safe-x on-dark"
     >
       <ContactCta
-        href={CTA_HREF}
-        label={CTA_LABEL}
+        href={inTrading && TRADING_HREF ? TRADING_HREF : CTA_HREF}
+        label={inTrading ? TRADING_LABEL : CTA_LABEL}
         tone="dark"
         className="min-h-11 w-full gap-6 px-5 text-[0.9375rem]"
       />
