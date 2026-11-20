@@ -28,7 +28,9 @@ import { faq } from "@/content/faq";
  *
  * LINKPOLITIKA: a külső források a meglévő mintát követik (target="_blank",
  * rel="noopener noreferrer", akadálymentes „új lapon nyílik meg" jelzés).
- * Strukturált adat (FAQPage/QAPage) szándékosan NINCS.
+ * Strukturált adat: a FAQPage JSON-LD a főoldalon él (src/lib/seo.ts), a
+ * fenti kérdés–válasz párokból karakterre azonosan generálva (SEO-audit,
+ * 2026-11-20).
  */
 export default function Faq() {
   return (

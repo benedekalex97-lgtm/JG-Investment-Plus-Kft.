@@ -11,6 +11,7 @@ import Services from "@/components/Services";
 import TradingPlatforms from "@/components/TradingPlatforms";
 import WhyJG from "@/components/WhyJG";
 import { nav } from "@/content/homepage";
+import { baseOpenGraph, homeJsonLd, serializeJsonLd } from "@/lib/seo";
 
 /*
  * v1.0 — a főoldal SAJÁT canonicalja, itt és nem a gyökér layoutban.
@@ -26,6 +27,7 @@ import { nav } from "@/content/homepage";
  */
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
+  openGraph: { ...baseOpenGraph, url: "/" },
 };
 
 /**
@@ -67,6 +69,12 @@ export default function Home() {
       >
         {nav.skipLink}
       </a>
+
+      {/* Strukturált adat (Organization, WebSite, FAQPage) — ld. src/lib/seo.ts. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(homeJsonLd) }}
+      />
 
       <Header />
 

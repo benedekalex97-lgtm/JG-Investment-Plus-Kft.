@@ -1331,8 +1331,8 @@ body {
   left: var(--wp-edge);
   /* Mobilon a térképsáv bal felső sarkában (alul az ETF-felirat ül). */
   top: 10px;
-  /* Diszkrét, háttér nélküli szöveges vezérlő (11 px). Az érintési felület
-     32 px magas — a WCAG 2.5.8 24 px-es minimuma fölött. */
+  /* Diszkrét, háttér nélküli szöveges vezérlő (11 px). A látható doboz
+     32 px magas; az érintési felület a ::before réteggel 44 px. */
   min-height: 32px;
   padding: 0 6px;
   border-radius: 6px;
@@ -1349,6 +1349,14 @@ body {
   text-decoration: underline;
   text-decoration-color: rgb(190 193 199 / 40%);
   text-underline-offset: 3px;
+}
+
+/* SEO-audit (2026-11-20): a látható gomb változatlan, de az érintési
+   felület egy átlátszó réteggel 44 px magasra nő (felül-alul 6–6 px). */
+.wp-motion-toggle::before {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
 }
 
 .wp-motion-toggle:hover {
