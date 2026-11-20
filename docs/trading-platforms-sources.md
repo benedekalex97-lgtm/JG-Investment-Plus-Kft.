@@ -73,6 +73,9 @@ Mind a fenti oldalon, mind 376 × 834 px GIF; kontaktlapon megnézve.
 
 ## 2. K&H webtrader (új, „webtrader 2.0”)
 
+> **Elavult (2026-11-16-i állapot).** A 2. és 3. szakasz a videók nélküli
+> időszak története; a jelenlegi megoldást a 4. szakasz írja le.
+
 Forrásoldal:
 https://www.khertekpapir.hu/szolgaltatasok/kereskedesi-rendszereink/webtrader2
 
@@ -155,15 +158,111 @@ kontaktlap, majd a jelenetsor kockáinak kinyerése (`ffmpeg -ss … -to …`),
 ugyanazzal a vágással és avatar-kitakarással, mint a mostani képeknél,
 és a telefonnal azonos, canvasra rajzolt, görgetéssel vezérelt képsor.
 
+## 4. v2.0 — webtrader képsor a négy hivatalos videóból (2026-11-20)
+
+A 2–3. szakaszban leírt akadály (YouTube bot-ellenőrzés) a fejlesztő helyi
+gépéről nem állt fenn: a négy videót `yt-dlp` letöltötte, és a kockákat
+tényleges megtekintés (kontaktlapok, teljes felbontású kockák) után
+választottuk ki. **A 2. szakasz két állóképe és a kétképes áttűnés ezzel
+megszűnt**; a régi `webtrader-*-{1268,760}.webp` fájlok törölve.
+
+Letöltés: **2026-11-20**, parancs:
+`yt-dlp -f "bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[ext=mp4]" -o "%(id)s.%(ext)s" <URL>`.
+Forrásoldal: https://www.khertekpapir.hu/szolgaltatasok/kereskedesi-rendszereink/webtrader2
+
+| Videó | URL | Felbontás / fps | Hossz | Felvétel |
+|---|---|---|---|---|
+| Portfólió menü áttekintése | https://www.youtube.com/watch?v=pqAbdMKSSvM | 1920×1080, 29,97 | 38,0 s | 2025-04-04 (óra: 10:47) |
+| Megbízás beadása | https://www.youtube.com/watch?v=v_AP_bpaKkI | 1920×1080, 29,97 | 47,8 s | 2025-04-03 (óra: 15:27–15:29) |
+| Pénzműveletek | https://www.youtube.com/watch?v=75gK6HnQPvA | 1920×1080, 29,97 | 174,0 s | 2025-04-04 (a felület ideje: 13:38) |
+| Rendszeres befektetés | https://www.youtube.com/watch?v=MJRRY_CtKSk | 1920×1080, 29,97 | 61,3 s | 2025-05-28 (adatlap-idő: 10:35) |
+
+Mind a négy az új webtrader 2.0 felülete (azonos navigáció, „A webtrader 2.0
+tesztelési fázisban van" sáv). Minden videó a K&H „ÉN&" nyitó- és záró-
+grafikájával kezdődik és végződik, a vágásoknál kék „söprés" átmenet van;
+ezek NEM kerültek be (a kockaidők mind tiszta felületkockák).
+
+### Felhasznált időszakok és kockák
+
+A kockaidők (mp) a `build-assets.py` `WT_SEGMENTS` listájában vannak; a
+fájlnév a manifeszt (`WEBTRADER_FRAMES`) sorszáma, az előrehaladás a
+szakaszon belül egyenletes.
+
+| # | Szakasz | Videó, időszak | Kocka | Előrehaladás |
+|---|---|---|---|---|
+| 1 | Portfólió áttekintése: áttekintés → Portfólió, fülek (Normál, TBSZ, NYESZ), pénznemváltás, oszlopbeállítás | pqAbdMKSSvM 4,5–23,6 s | 23 | 0,02–0,28 |
+| 2 | Részvény kiválasztása kurzorral: Kereskedés → Részvények → keresés „otp" → találat | v_AP_bpaKkI 4,5–20,2 s | 17 | 0,296–0,587 |
+| 3 | OTP Bank adatlap grafikonnal, görgetés a Teljesítmény-adatokig és vissza | v_AP_bpaKkI 21,4–26,8 s | 12 | 0,608–0,70 |
+| 4 | Megbízás beadása: vétel panel, portfólió, mennyiség, limitár-grafikon, összefoglaló, mobilkulcs | v_AP_bpaKkI 27,6–42,2 s | 12 | 0,712–0,822 |
+| 5 | Pénzműveletek: menü, beutalás (portfólió, pénznem), devizakonverzió, pénzátvezetés | 75gK6HnQPvA 4,5–19,5 s és 127–165 s | 11 | 0,834–0,906 |
+| 6 | Rendszeres befektetés: lista, ETF-ek, piaci adatok, vétel űrlap, összefoglaló, siker, lista | MJRRY_CtKSk 25,8–52,3 s | 11 | 0,918–0,97 |
+
+Összesen **86 kocka**. A telefon az adatlapot a 0,594–0,608 előrehaladásnál
+nyitja meg; a laptop az OTP Bank adatlapja ugyanitt tölt be (a 2. szakasz
+utolsó, betöltő-vázas kockája 0,587, a 3. szakasz első kockája 0,608).
+
+### Vágás, maszkolás, méret
+
+- Minden videóban a böngészőoldal ablaka (viewport) ugyanott van, ezért egy
+  vágás szolgál mind a négyre: `(7, 95, 1904, 1024)` az 1920×1080-as kockán
+  (1897 × 929 px, 2,04 : 1). A böngésző címsora a bővítmény-ikonokkal, a
+  Windows-tálca az órával és a jobb szélső görgetősáv ezzel lekerül. (A
+  pénzműveletes videóban a böngésző- és tálcasáv eleve fehérre van kitakarva,
+  ezért a címsor megtartása nem lett volna egységes; a böngészősáv
+  elhagyása a korábbi „címsor maradhat" kérésnél szigorúbb, de nem sért
+  semmit.) A laptop kijelzőjének képaránya ennek megfelelően 1280 : 627.
+- Személyes adat: a jobb felső „TA" monogramos avatar minden kockán
+  végleges pixelezéssel (12 px-es blokkok + elmosás, a képbe égetve)
+  kitakarva, ahol nem takarja a jobb oldali panel; a „megbízás összefoglaló"
+  panel „számlára" sorában megjelenő kis monogram ugyanígy. A script minden
+  kockára automatikusan ellenőrzi a két helyet (sötét-pixel arány), és
+  kiírja a kitakarás nélküli kockákat (ezek a panel alatt lévők). Átnézve:
+  nevet, ügyfélazonosítót, számlaszámot, e-mail-címet egyetlen felhasznált
+  kocka sem mutat. A pénzműveletes videó 1:04–2:00 közötti része (másik
+  számla, ügyfélnév, bankszámlaszámok) és a beutalás-űrlap számlaszám/IBAN
+  sorai (22 s után) szándékosan kimaradtak.
+- Kimenet: `public/trading-platforms/webtrader/{1280,760}/f-###.webp`, WebP
+  (q74 / q72). Összméret: **1280 px: 2,88 MB**, **760 px: 1,36 MB**.
+- A canvas a kijelzőhöz illő méretet tölti (CSS-szélesség × DPR, legfeljebb 2;
+  800 px fölött a 1280-as, alatta a 760-as). Poszter: az 1. kocka;
+  reduced motion alatt a 41. kocka (OTP Bank adatlap grafikonnal).
+
+### Memória (Chromium 1440×900, Playwright)
+
+A dekódolt kockákból csak a kért körüli ±5 kockás ablak él (ImageBitmap). A
+renderer-folyamat privát memóriája végigmenve a teljes jeleneten: 96–155 MB
+(a betöltés utáni 97–118 MB-hoz képest legfeljebb +40 MB). Összehasonlításul
+mind a 86–87 kocka egyidejű dekódolása +265 MB lenne (83 → 348 MB; elméleti
+87 × 1280 × 627 × 4 B = 266 MB). Mobil (760 px-es kockák): 95–116 MB.
+
+### Ismert ugrások (két videó találkozása)
+
+A négy videó három külön napon, külön demófiók-állapotban készült; a felület
+azonos, a számok nem. Ahol két videó találkozik, a két kocka ugyanannak a
+felületnek két oldala, de a demófiók adatai ugranak:
+
+1. **Portfólió (pqAbdMKSSvM) → Részvény keresése (v_AP_bpaKkI):** mindkét
+   kocka a Portfólió oldal „Összes" fülével indul; az összérték 286 146 HUF →
+   287 813 HUF (kb. 0,6 %-os eltérés), az értékpapírlista azonos.
+2. **Megbízás (v_AP_bpaKkI) → Pénzműveletek (75gK6HnQPvA):** az OTP-adatlapról
+   az Áttekintés oldalra váltunk, ahol az összérték 82 460 HUF (másik számla-
+   állapot). Az oldalváltás miatt természetesnek hat, de a számok nem
+   folytatják az előző kockát.
+3. **Pénzműveletek → Rendszeres befektetés (MJRRY_CtKSk):** másik nap
+   (2025-05-28); az Áttekintés oldalról a Rendszeres befektetés oldalra váltunk.
+
+Rövid, egy-egy kockányi ugrások; kitalált átmenetet nem alkalmaztunk.
+
 ## Ismert korlátok
 
-- A webtrader-jelenetben nem látható a részvény kiválasztása (az OTP Bank
-  sora a portfólió-kockán nem szerepel), és az adatlap görgetett, további
-  adatokat mutató állapota sincs meg. Hiányzó képernyőállapotok:
-  (1) webtrader portfólió, OTP Bank sorának kiválasztása;
-  (2) webtrader OTP Bank adatlap lejjebb görgetve.
-  Ezek a `v_AP_bpaKkI` / `pqAbdMKSSvM` videókban valószínűleg szerepelnek,
-  de a videók nem voltak feldolgozhatók.
+- A webtrader-jelenetben a felhasználó nem ugyanazt a papírt veszi meg,
+  mint amit a portfólióban lát, és a pénzműveletek, illetve a rendszeres
+  befektetés egy másik számlaállapotból és napról való (ld. a fenti ugrások).
+  A felvételek „demó"-fiókból vannak; az ábrázolt adatok nem élők.
+- A videók közti kapcsolat nem a webtrader saját animációja: a kockák
+  közti váltás görgetés-vezérelt kockacsere, nem folyamatos videó.
+- A kijelző keskeny nézetben (mobil) kicsi, a legkisebb szövegek ott nem
+  olvashatók; a telefon a fő olvasható felület.
 - A két eszköz két különböző papírt mutat (webtrader: OTP Bank; mobiltrader:
   Tesla Inc), mert a források nem tartalmaznak közös papírt mindkét
   felületen. A feliratok ezt nevesítik.
