@@ -3,11 +3,15 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { meta, nav } from "@/content/homepage";
+import { baseOpenGraph } from "@/lib/seo";
 import { privacyPolicy } from "@/content/privacy-policy";
 
+const pageTitle = `${privacyPolicy.title} · ${meta.wordmark}`;
+
 export const metadata: Metadata = {
-  title: `${privacyPolicy.title} · ${meta.wordmark}`,
+  title: pageTitle,
   alternates: { canonical: "/adatkezelesi-tajekoztato" },
+  openGraph: { ...baseOpenGraph, title: pageTitle, url: "/adatkezelesi-tajekoztato" },
 };
 
 /** Ékezetek nélküli, kötőjeles azonosító a címsorokhoz (csak horgony-cél, nem tartalom). */

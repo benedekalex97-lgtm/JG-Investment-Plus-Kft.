@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SITE_URL } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_TITLE, baseOpenGraph } from "@/lib/seo";
 import "./globals.css";
 
 /*
@@ -27,15 +28,21 @@ import "./globals.css";
  */
 const newsreader = Newsreader({
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
+  /*
+   * SEO-audit (2026-11-20): csak a ténylegesen használt vastagságok — a
+   * renderelt oldalakon mérve Newsreader 400/500, Inter 400/500/600; dőlt
+   * stílus és Inter 700 sehol. Új vastagság használata előtt ide is fel kell
+   * venni, különben a böngésző műfélkövért rajzol.
+   */
+  weight: ["400", "500"],
+  style: ["normal"],
   variable: "--font-newsreader",
   display: "swap",
 });
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   variable: "--font-inter",
   display: "swap",
 });
@@ -62,26 +69,19 @@ const isProductionEnvironment = process.env.VERCEL_ENV === "production";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "JG Investment Plus Kft. · A K&H Értékpapír függő ügynöke",
-  description:
-    "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a pontos szolgáltatási kört a K&H Értékpapír honlapján közzétett hatályos hirdetmény tartalmazza.",
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
   robots: isProductionEnvironment
     ? { index: true, follow: true }
     : { index: false, follow: false },
   /*
-   * Minimális Open Graph — kizárólag a már jóváhagyott title/description
-   * értékekből, új marketingcopy és OG image nélkül. Azok az oldalak, amelyek
-   * nem definiálnak saját openGraph mezőt (pl. az adatkezelési tájékoztató),
-   * ezt öröklik alapértelmezésként — ez nem szándékolt pontatlanság, csak a
-   * jelenlegi minimális, egy szintű OG-lefedettség.
+   * Open Graph — a jóváhagyott title/description értékekből (src/lib/seo.ts),
+   * OG image nélkül (az új megosztási kép K&H-jóváhagyásra vár). Az og:url-t
+   * és a saját og:title-t minden oldal maga adja meg (baseOpenGraph
+   * kiterjesztésével), mert az oldalszintű openGraph a gyökérét egészében
+   * lecseréli; itt ezért nincs url, így egyetlen oldal sem örököl hibásat.
    */
-  openGraph: {
-    title: "JG Investment Plus Kft. · A K&H Értékpapír függő ügynöke",
-    description:
-      "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a pontos szolgáltatási kört a K&H Értékpapír honlapján közzétett hatályos hirdetmény tartalmazza.",
-    type: "website",
-    locale: "hu_HU",
-  },
+  openGraph: baseOpenGraph,
 };
 
 export const viewport: Viewport = {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { meta, nav } from "@/content/homepage";
+import { baseOpenGraph } from "@/lib/seo";
 import { legalNotice } from "@/content/legal-notice";
 
 /**
@@ -39,9 +40,12 @@ import { legalNotice } from "@/content/legal-notice";
  * horgonyra.
  */
 
+const pageTitle = `${legalNotice.heading} · ${meta.wordmark}`;
+
 export const metadata: Metadata = {
-  title: `${legalNotice.heading} · ${meta.wordmark}`,
+  title: pageTitle,
   alternates: { canonical: "/jogi-tajekoztato" },
+  openGraph: { ...baseOpenGraph, title: pageTitle, url: "/jogi-tajekoztato" },
 };
 
 /** Ékezetek nélküli, kötőjeles azonosító a címsorokhoz (csak horgony-cél, nem tartalom). */
