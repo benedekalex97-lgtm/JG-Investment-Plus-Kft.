@@ -2357,6 +2357,15 @@ details[open] > .jg-faq-answer {
   }
 }
 
+/* Telefonos nézet: csak a K&H mobiltrader; a laptop (webtrader) nem jelenik
+   meg, mert egymás alatt futnának, és a görgetés túl hosszú lenne.
+   (Ugyanez a feltétel él a TradingPlatforms.tsx-ben: PHONE_QUERY.) */
+@media (max-width: 767px), (max-height: 499px) and (max-width: 1023px) {
+  .tp-laptop-track {
+    display: none;
+  }
+}
+
 /* Reduced motion: statikus, informatív állóképek; nincs sticky, nincs scrub. */
 @media (prefers-reduced-motion: reduce) {
   .tp-screen .tp-canvas {

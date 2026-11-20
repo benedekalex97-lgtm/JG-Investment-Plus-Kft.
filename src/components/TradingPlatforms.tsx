@@ -41,6 +41,8 @@ const WT_PROGRESS = WEBTRADER_FRAMES.map((f) => f[2]);
 const WT_POSTER = 0;
 /** Reduced motion: az OTP Bank adatlapja grafikonnal (a 3. szakasz eleje). */
 const WT_STILL = WEBTRADER_FRAMES.findIndex((f) => f[0] === "v_AP_bpaKkI" && f[1] === 22);
+/** Telefonos nézet: a laptop nem jelenik meg, csak a K&H mobiltrader (ld. CSS). */
+const PHONE_QUERY = "(max-width: 767px), (max-height: 499px) and (max-width: 1023px)";
 /** A kijelző (CSS px × DPR, legfeljebb 2) e fölött a 1280-as, alatta a 760-as kockákat tölti. */
 const WT_BIG_ABOVE = 800;
 
@@ -55,7 +57,8 @@ const WT_BIG_ABOVE = 800;
  * szélesség és >= 640 px magasság) a teljes jelenet CSS sticky; egyetlen
  * ScrollTrigger méri az előrehaladást (scrub), és egy proxy-értéken át
  * közvetlenül a canvasokat frissíti — nincs React state képkockánként.
- * Keskeny nézetben a laptop és a telefon egyaránt a saját, AZONOS magasságú
+ * Telefonos nézetben (< 768 px) csak a K&H mobiltrader látszik. Tableten és
+ * keskeny desktopon a laptop és a telefon egyaránt a saját, AZONOS magasságú
  * sticky sávjában fut végig a jeleneten (.tp-laptop-track / .tp-phone-track,
  * azonos start/end logika), ezért a két kijelző scroll-hossza pixelre egyezik.
  *
@@ -132,8 +135,10 @@ export default function TradingPlatforms() {
       /* ---- Laptop: képkocka-betöltés, dekódolt kockák csúszó ablakban. ---- */
       let wtPlayer: WindowedPlayer | null = null;
       let wtProgress = 0;
+      // Telefonos nézetben a laptop nem jelenik meg (CSS), ezért nem is töltünk.
+      let laptopOn = true;
       const startWebtrader = () => {
-        if (wtPlayer) return;
+        if (wtPlayer || !laptopOn) return;
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const big = wtScreen.getBoundingClientRect().width * dpr > WT_BIG_ABOVE;
         const size = big ? "1280" : "760";
@@ -201,16 +206,20 @@ export default function TradingPlatforms() {
           wide: "(min-width: 1024px) and (min-height: 640px)",
           tall: "(min-height: 500px)",
           motion: "(prefers-reduced-motion: no-preference)",
+          phone: PHONE_QUERY,
         },
         (context) => {
-          const { wide, tall, motion } = context.conditions as {
+          const { wide, tall, motion, phone } = context.conditions as {
             wide: boolean;
             tall: boolean;
             motion: boolean;
+            phone: boolean;
           };
+          laptopOn = !phone;
           if (!motion) return; // Statikus: a CSS az állóképeket mutatja; nincs scrub.
 
           watchForLoad();
+          if (laptopOn && started) startWebtrader();
 
           if (wide) {
             // A) egyetlen közös trigger: a laptop és a telefon ugyanazt méri.
@@ -246,7 +255,7 @@ export default function TradingPlatforms() {
             const sharedLen = () => {
               const tallest = Math.max(laptopTrack.offsetHeight, phoneTrack.offsetHeight);
               return tall
-                ? Math.round(tallest - (window.innerHeight - trackTop(laptopTrack)))
+                ? Math.round(tallest - (window.innerHeight - trackTop(phoneTrack)))
                 : Math.round(tallest + window.innerHeight * 0.6);
             };
             const config = (tr: HTMLElement, fig: HTMLElement): ScrollTrigger.Vars => ({
@@ -257,13 +266,16 @@ export default function TradingPlatforms() {
               invalidateOnRefresh: true,
               onRefresh: recordLen(fig),
             });
-            const lp = { p: 0 };
-            gsap.to(lp, {
-              p: 1,
-              ease: "none",
-              onUpdate: () => renderLaptop(lp.p),
-              scrollTrigger: config(laptopTrack, laptopFig),
-            });
+            if (!phone) {
+              const lp = { p: 0 };
+              gsap.to(lp, {
+                p: 1,
+                ease: "none",
+                onUpdate: () => renderLaptop(lp.p),
+                scrollTrigger: config(laptopTrack, laptopFig),
+              });
+              renderLaptop(0);
+            }
             const pp = { p: 0 };
             gsap.to(pp, {
               p: 1,
@@ -271,7 +283,6 @@ export default function TradingPlatforms() {
               onUpdate: () => renderPhone(pp.p),
               scrollTrigger: config(phoneTrack, phoneFig),
             });
-            renderLaptop(0);
             renderPhone(0);
           }
         },

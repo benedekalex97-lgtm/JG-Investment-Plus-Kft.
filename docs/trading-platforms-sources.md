@@ -261,8 +261,12 @@ Rövid, egy-egy kockányi ugrások; kitalált átmenetet nem alkalmaztunk.
   A felvételek „demó"-fiókból vannak; az ábrázolt adatok nem élők.
 - A videók közti kapcsolat nem a webtrader saját animációja: a kockák
   közti váltás görgetés-vezérelt kockacsere, nem folyamatos videó.
-- A kijelző keskeny nézetben (mobil) kicsi, a legkisebb szövegek ott nem
-  olvashatók; a telefon a fő olvasható felület.
+- Telefonos nézetben (< 768 px szélesség, illetve fekvő telefon: < 500 px
+  magas és < 1024 px széles) a laptop NEM jelenik meg, csak a K&H
+  mobiltrader: a két eszköz egymás alatt futott volna, és a szakasz
+  túl hosszú lett (390 × 844-en 2609 px a korábbi ~5200 px helyett). Ott a
+  webtrader-kockák le sem töltődnek. Tableten (768 px-től) a laptop és a
+  telefon egymás alatt, azonos hosszú sávban fut.
 - A két eszköz két különböző papírt mutat (webtrader: OTP Bank; mobiltrader:
   Tesla Inc), mert a források nem tartalmaznak közös papírt mindkét
   felületen. A feliratok ezt nevesítik.
