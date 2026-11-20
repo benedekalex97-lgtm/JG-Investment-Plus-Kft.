@@ -2051,10 +2051,11 @@ details[open] > .jg-faq-answer {
 
    Három görgetési elrendezés (csak prefers-reduced-motion: no-preference):
      A) széles (>= 1024 × 640): a teljes jelenet sticky, egy közös sávban;
-     B) keskeny, de elég magas (>= 560 px): a laptop a saját áthaladása
-        alatt vált, a telefon egy rövid sticky sávban fut végig;
-     C) alacsony (< 560 px, pl. fekvő telefon): nincs sticky; mindkét eszköz
-        a saját áthaladása alatt halad.
+     B) keskeny, de elég magas (>= 500 px): a laptop és a telefon egyaránt a
+        saját, AZONOS magasságú sticky sávjában fut végig (.tp-laptop-track /
+        .tp-phone-track), ezért a két kijelző scroll-hossza pixelre egyezik;
+     C) alacsony (< 500 px, pl. fekvő telefon): nincs sticky; mindkét eszköz
+        egy-egy azonos magasságú (100svh) blokkban halad.
    A sávmagasságok tisztán CSS-ből jönnek (nem JS-ből): az oldal szerkezete
    az első festéstől stabil, a footer és a következő szakaszok nem ugranak.
    ========================================================================== */
@@ -2082,6 +2083,17 @@ details[open] > .jg-faq-answer {
 }
 
 /* ---- Laptop ---- */
+/* A track/sticky burkoló csak a keskeny elrendezések sticky sávjához kell
+   (ld. B); egyébként átlátszó, a figura középre igazítva. */
+.tp-laptop-track {
+  width: 100%;
+}
+
+.tp-laptop-sticky {
+  display: flex;
+  justify-content: center;
+}
+
 .tp-laptop-fig {
   /* A talp 14%-kal szélesebb a fedélnél: a teljes szélesség így is elfér. */
   width: min(calc(100% / 1.14), 640px);
@@ -2192,14 +2204,6 @@ details[open] > .jg-faq-answer {
   -webkit-user-drag: none;
 }
 
-.tp-wt-next {
-  opacity: 0;
-}
-
-.tp-wt-next[data-failed="true"] {
-  display: none;
-}
-
 .tp-canvas {
   opacity: 0;
 }
@@ -2258,8 +2262,15 @@ details[open] > .jg-faq-answer {
     gap: calc(var(--tp-ph) * 0.11 + 16px);
   }
 
+  .tp-laptop-track {
+    width: auto;
+    flex: none;
+  }
+
   .tp-laptop-fig {
-    /* Laptop-kijelző magassága = 0,8 × telefonkijelző; 1268:686 képarány. */
+    /* A laptop szélessége a telefonkijelzőből származik (a kijelző 1,85 : 1
+       arányú sávjára méretezve); a webtrader-kockák képaránya ennél laposabb
+       (1280 : 627), ezért a kijelző magassága kissé kisebb a telefonénál. */
     width: calc(var(--tp-ph) * 0.8 * 1268 / 686 / 0.96);
     flex: none;
   }
@@ -2297,11 +2308,13 @@ details[open] > .jg-faq-answer {
 /* B) Keskeny/alacsonyabb, de >= 560 px magas: a telefon sticky sávban fut. */
 @media (prefers-reduced-motion: no-preference) and (max-width: 1023px) and (min-height: 500px),
   (prefers-reduced-motion: no-preference) and (min-width: 1024px) and (min-height: 500px) and (max-height: 639px) {
+  .tp-laptop-track,
   .tp-phone-track {
     width: 100%;
     height: calc(100svh + 150svh);
   }
 
+  .tp-laptop-sticky,
   .tp-phone-sticky {
     position: sticky;
     top: var(--tp-top);
@@ -2322,27 +2335,31 @@ details[open] > .jg-faq-answer {
     align-items: center;
   }
 
+  .tp-laptop-track {
+    width: 100%;
+  }
+
   .tp-laptop-fig {
     width: min(calc(100% / 1.14), 680px);
   }
 }
 
+/* C) Alacsony (< 500 px): nincs sticky; a két eszköz egy-egy azonos magasságú
+   blokkban halad, így a scroll-hosszuk itt is egyezik. */
+@media (prefers-reduced-motion: no-preference) and (max-height: 499px) {
+  .tp-laptop-track,
+  .tp-phone-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100svh;
+  }
+}
+
 /* Reduced motion: statikus, informatív állóképek; nincs sticky, nincs scrub. */
 @media (prefers-reduced-motion: reduce) {
-  .tp-wt-first {
-    visibility: hidden;
-  }
-
-  .tp-wt-next {
-    opacity: 1 !important;
-  }
-
   .tp-screen .tp-canvas {
     display: none;
-  }
-
-  /* Ha az adatlap-kép nem tölt be, a portfólió-állókép marad látható. */
-  .tp-screen--wt:has(.tp-wt-next[data-failed="true"]) .tp-wt-first {
-    visibility: visible;
   }
 }
