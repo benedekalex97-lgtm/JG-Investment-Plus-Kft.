@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -116,7 +117,17 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="hu" className={`${newsreader.variable} ${inter.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/*
+          Vercel Web Analytics — süti (cookie) nélküli, összesített
+          látogatottsági statisztika; fejlesztői módban nem mér. Az adatkezelési
+          tájékoztató 7. pontja (privacy-policy.ts → `analytics`) írja le.
+          Csak akkor gyűjt adatot, ha a Vercel-projektben a Web Analytics be
+          van kapcsolva.
+        */}
+        <Analytics />
+      </body>
     </html>
   );
 }

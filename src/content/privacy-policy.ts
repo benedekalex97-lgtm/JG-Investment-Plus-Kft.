@@ -29,6 +29,15 @@
  * GDPR-szerepet (adatfeldolgozó/al-adatfeldolgozó), nem határoz meg
  * megőrzési időt és nem tesz adattovábbítási garanciát — csak a bizonyított
  * technikai tényt közli.
+ *
+ * v1.1 KIEGÉSZÍTÉS (2026-11-20) — LÁTOGATOTTSÁGI STATISZTIKA (`analytics`
+ * mező, lent). Ugyanilyen weboldal-specifikus technikai kiegészítés, NEM
+ * DOCX-forrás: a Vercel Web Analytics bekapcsolását írja le, a `hosting`
+ * szakasszal azonos elvek szerint (bizonyított technikai tény, GDPR-szerep,
+ * megőrzési idő és jogalap megjelölése nélkül). Additív módosítás: meglévő
+ * szöveg nem törlődött; a `hosting.notUsedItems` „analitikai szolgáltatást"
+ * tétele kiegészült („sütit (cookie-t) használó …"), hogy a mérés
+ * bekapcsolása után is igaz maradjon.
  */
 
 export type PrivacyLegalBasisItem = {
@@ -188,7 +197,7 @@ export const privacyPolicy = {
     notUsedIntro: "A JG Investment Plus Kft. weboldala jelenleg nem használ:",
     notUsedItems: [
       "webes adatbekérő űrlapot",
-      "analitikai szolgáltatást",
+      "sütit (cookie-t) használó analitikai szolgáltatást",
       "marketing trackinget",
       "marketing cookie-t",
     ],
@@ -203,6 +212,44 @@ export const privacyPolicy = {
      * különálló: az `effectiveDate` sorát ez a mező nem módosítja.
      */
     publishedDate: "Weboldal-specifikus technikai kiegészítés közzététele: 2026. szeptember 17.",
+  },
+
+  /**
+   * LÁTOGATOTTSÁGI STATISZTIKA — v1.1 kiegészítés (2026-11-20), NEM
+   * DOCX-forrás. Ld. a fájl fejlécének megjegyzését. Tények, amelyekre épül:
+   * a @vercel/analytics csomag (2.0.1) nem használ sütit, localStorage-ot,
+   * sessionStorage-ot vagy IndexedDB-t (forráskód-ellenőrzés); az adatkörök a
+   * Vercel Web Analytics API dokumentált dimenziói (útvonal, hivatkozó domain,
+   * UTM, ország, eszköztípus, operációs rendszer, böngésző, egyedi események).
+   * A Vercel által kiszolgált /_vercel/insights/script.js (v0.1.3) sütit nem
+   * állít be; localStorage-ba („__va_attribution") CSAK identify()/group()
+   * hívásra ír, sütit CSAK az „enableCookie" parancsra használ.
+   *
+   * FIGYELEM: a „nem használ sütit, nem tárol adatot a böngészőben" állítás
+   * addig igaz, amíg a kód NEM hív identify/group/enableCookie funkciót, és
+   * az egyedi események (track) nem tartalmaznak személyes adatot. Ezek
+   * bármelyikének bevezetése előtt ezt a szakaszt frissíteni kell.
+   */
+  analytics: {
+    heading: "Látogatottsági statisztika",
+    intro:
+      "A weboldal a látogatottság összesített mérésére a Vercel Web Analytics szolgáltatást használja, amelyet a weboldal tárhelyszolgáltatója, a Vercel Inc. (ld. 6. pont) biztosít.",
+    cookieText:
+      "A mérés nem használ sütit (cookie-t), és nem tárol adatot a látogató böngészőjében vagy eszközén.",
+    dataIntro: "A mérés során a következő adatok kerülhetnek rögzítésre:",
+    dataItems: [
+      "a megtekintett oldal címe (útvonala) és a megtekintés időpontja",
+      "a hivatkozó oldal domainje, valamint a hivatkozásban szereplő kampányparaméterek (UTM), ha vannak",
+      "az IP-cím alapján meghatározott hozzávetőleges földrajzi hely (pl. ország)",
+      "böngésző- és eszközinformációk (eszköztípus, operációs rendszer, böngésző)",
+      "a látogatások megkülönböztetéséhez a Vercel által képzett technikai azonosító",
+      "a weboldal „Kapcsolatfelvétel” és „Számlanyitás” gombjaira történő kattintás ténye (a gomb felirata, illetve hogy a cél a weboldalon belüli vagy külső oldal)",
+    ],
+    purposeText:
+      "A mérés célja a weboldal látogatottságának és használatának összesített nyomon követése, valamint a weboldal fejlesztése. A JG Investment Plus Kft. a statisztikákat összesített formában tekinti meg, és azokból nem azonosít látogatókat.",
+    noticeText:
+      "A Vercel saját adatkezelésére vonatkozó tájékoztatás a 6. pontban hivatkozott Vercel Privacy Notice oldalán érhető el.",
+    publishedDate: "Weboldal-specifikus technikai kiegészítés (látogatottsági statisztika) közzététele: 2026. november 20.",
   },
 
   effectiveDate: "hatályos: 2026. március 1-től",
