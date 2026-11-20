@@ -292,7 +292,9 @@ Rövid, egy-egy kockányi ugrások; kitalált átmenetet nem alkalmaztunk.
 - Desktopon (≥ 1024 px) a gomb a szakasz alján, a közlés mellett áll
   (`.tp-foot` / `.tp-cta`); a sticky jelenet magassága nem változik.
 - < 1024 px-en a gombot az alsó kapcsolat-sáv (`MobileContactBar`) adja,
-  amíg a szakasz látszik; a szakaszgomb ilyenkor rejtve van.
+  amíg a sáv felső éle a (sötét) szakasz fölött van; amint a szakasz alja a
+  sáv teteje fölé ér (a következő, világos szakasz eléri a sávot), a sáv
+  visszavált „Kapcsolatfelvétel”-re. A szakaszgomb ilyenkor rejtve van.
 
 ### Elsődleges hangsúly (`emphasis="primary"`)
 
