@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ContactCta from "./ContactCta";
 import { CTA_HREF, CTA_LABEL } from "./Header";
 import { tradingPlatforms } from "@/content/trading-platforms";
@@ -27,9 +27,11 @@ import { tradingPlatforms } from "@/content/trading-platforms";
  * rAF-fojtott scroll/resize mérés dönt a tényleges geometriából — csak
  * olvasás, nincs írás és nincs elrendezés-kikényszerítés görgetés közben.
  *
- * FELIRAT: amíg a 04. Kereskedési felületek szakasz látszik a viewportban, a
- * gomb felirata „Számlanyitás" (a cél ugyanaz: a Kapcsolat szakasz); egyébként
- * a header felirata.
+ * FELIRAT: amíg a sáv felső éle a 04. Kereskedési felületek szakasz fölött van
+ * (a sötét szakasz a sáv mögött fut), a gomb „Számlanyitás" (cél: K&H
+ * számlanyitás); amint a szakasz alja a sáv teteje fölé ér — a következő,
+ * világos szakasz eléri a sávot —, visszavált a header feliratára és céljára.
+ * Ugyanez a határ érvényes belépéskor is (szimmetrikus).
  *
  * FÓKUSZ (WCAG 2.4.11): amíg a sáv látszik, a <html> `data-jg-bar="on"`
  * attribútumot kap, és a globals.css ehhez illeszkedő `scroll-padding-bottom`-ot
@@ -53,6 +55,7 @@ export default function MobileContactBar() {
   const [visible, setVisible] = useState(false);
   const [inTrading, setInTrading] = useState(false);
   const [desktop, setDesktop] = useState(false);
+  const barRef = useRef<HTMLDivElement>(null);
 
   // < 1024 px-en létezik; fölötte nem renderelünk.
   useEffect(() => {
@@ -102,10 +105,13 @@ export default function MobileContactBar() {
       const tooShort = (vv?.height ?? vh) < MIN_VIEWPORT_HEIGHT;
 
       setVisible(past && !atTarget && !menuOpen && !tooShort);
-      // 5) A kereskedési felületek szakasz látszik-e (a sáv felirata ehhez igazodik).
+      // 5) A sáv felső éle a kereskedési felületek szakasz fölött van-e (a
+      // felirat ehhez igazodik). Az offsetHeight a transzformációtól független,
+      // így rejtett sávnál is a nyugalmi helyzetet adja.
       if (trading) {
         const r = trading.getBoundingClientRect();
-        setInTrading(r.bottom > 0 && r.top < vh);
+        const barTop = vh - (barRef.current?.offsetHeight ?? 0);
+        setInTrading(r.top < barTop && r.bottom > barTop);
       }
     };
     const schedule = () => {
@@ -153,6 +159,7 @@ export default function MobileContactBar() {
 
   return (
     <div
+      ref={barRef}
       data-visible={visible ? "true" : "false"}
       inert={!visible}
       className="jg-contact-bar jg-safe-x on-dark"
