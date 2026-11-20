@@ -2394,3 +2394,81 @@ details[open] > .jg-faq-answer {
     display: none;
   }
 }
+
+/* ==========================================================================
+   KERESKEDÉSI FELÜLETEK — DESKTOP KOMPOZÍCIÓ (>= 1024 × 640)
+   Egyetlen közös rács: a laptop talpa a tartalom bal szélén, a telefon a
+   jobb szélén áll — egy vonalban a címsor bal és a Számlanyitás gomb jobb
+   szélével. A két eszköz teteje és alja azonos magasságban van:
+     laptop teljes magassága = W × (0,056 fedélkeret + 0,03 talp
+                                 + 0,96 × 627/1280 kijelző) = 0,55625 W
+     telefon külső magassága = 1,05 × --tp-ph
+     ⇒ W (fedélszélesség) = 1,05 / 0,55625 × --tp-ph = 1,8876 × --tp-ph.
+   Sorszélesség: talp (1,14 W = 2,152) + telefon (0,501) = 2,653 × --tp-ph
+   + rés. Ha a magasság a szűk keresztmetszet (pl. 1280 × 720), a rés
+   legfeljebb 320 px, a csoport középre kerül — nem esik szét.
+   A feliratok abszolút pozícióval ülnek az eszközök alatt (a helyük
+   lefoglalva), így nem szélesítik az oszlopokat: a telefon jobb széle
+   pontosan a tartalom jobb szélén marad.
+   ========================================================================== */
+@media (min-width: 1024px) and (min-height: 640px) {
+  .tp-stage {
+    /* min(magasság, szélesség): a szélességi korlát 56 px minimális réssel
+       és a 2 × 32 px-es margóval (+ ~15 px görgetősáv) számol. */
+    --tp-ph: clamp(240px, min(calc(100svh - 430px), calc((min(100vw, 1280px) - 135px) * 0.3769)), 500px);
+  }
+
+  .tp-devices {
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 56px;
+    padding-inline: max(0px, calc((100% - var(--tp-ph) * 2.653 - 320px) / 2));
+    /* A két (abszolút) felirat helye: 1rem térköz + két sor. */
+    padding-bottom: 3.75rem;
+  }
+
+  .tp-laptop-fig,
+  .tp-phone-fig {
+    position: relative;
+  }
+
+  .tp-devices .tp-caption {
+    position: absolute;
+    top: 100%;
+    width: max-content;
+    max-width: 22rem;
+  }
+
+  .tp-laptop-fig {
+    /* A fedél szélessége; a talp 7–7%-kal túlnyúlik, ezért a figura két
+       oldalán ugyanennyi margó: a talp pontosan a sáv szélén ül. */
+    width: calc(var(--tp-ph) * 1.8876);
+    margin-inline: calc(var(--tp-ph) * 1.8876 * 0.07);
+  }
+
+  /* Feliratok: a laptopé balra (a talp bal széléhez), a telefoné jobbra
+     (a telefon jobb széléhez) zárva — a rács két külső éléhez. */
+  .tp-laptop-fig .tp-caption {
+    left: -7%;
+    /* A laptop alatt bőven van hely: egy sorban marad. */
+    max-width: none;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .tp-phone-fig {
+    align-items: flex-end;
+  }
+
+  .tp-phone-fig .tp-caption {
+    right: 0;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  /* Alsó sáv: hajszálvonal választja el a közlést és a gombot az eszközöktől. */
+  .tp-foot {
+    padding-top: 1.25rem;
+    border-top: 1px solid rgb(244 243 241 / 10%);
+  }
+}

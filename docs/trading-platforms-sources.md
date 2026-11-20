@@ -279,9 +279,16 @@ Rövid, egy-egy kockányi ugrások; kitalált átmenetet nem alkalmaztunk.
 
 - Felirat és cél egyetlen helyen: `src/content/trading-platforms.ts`
   (`tradingPlatforms.cta`, a fájl elején az `ACCOUNT_OPENING_HREF` konstans).
-- Amíg a hivatalos számlanyitási link nincs meg, a cél a Kapcsolat szakasz
-  (`/#kapcsolat`). A link megérkezésekor az `ACCOUNT_OPENING_HREF` értékét kell
-  megadni; mindkét gomb ezt követi.
+- Cél: a K&H Értékpapír hivatalos számlanyitási oldala JG-ajánlói kóddal,
+  `https://szamlanyitas.khertekpapir.hu/?refcode=jgi` (Jánosi Renáta, K&H
+  Értékpapír, 2026-11-20: „Kérlek ezt a számlanyitási linket használjátok, így
+  fogjuk látni, hogy kik érkeztek tőletek.”). A `refcode=jgi` paraméter a
+  K&H oldali követéshez kell — ne töröld és ne módosítsd.
+- Külső oldal, ezért új lapon nyílik (`target="_blank"`, `rel="noopener
+  noreferrer"`, akadálymentes „új lapon nyílik meg” jelzéssel; a
+  `ContactCta` a http/https célt automatikusan így kezeli).
+- Ha az `ACCOUNT_OPENING_HREF` értéke `null`, a tartalék cél a Kapcsolat
+  szakasz (`/#kapcsolat`); mindkét gomb ezt követi.
 - Desktopon (≥ 1024 px) a gomb a szakasz alján, a közlés mellett áll
   (`.tp-foot` / `.tp-cta`); a sticky jelenet magassága nem változik.
 - < 1024 px-en a gombot az alsó kapcsolat-sáv (`MobileContactBar`) adja,
