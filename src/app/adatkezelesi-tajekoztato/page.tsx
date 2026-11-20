@@ -294,6 +294,38 @@ export default function AdatkezelesiTajekoztatoPage() {
             {privacyPolicy.hosting.publishedDate}
           </p>
 
+          {/*
+            7. Látogatottsági statisztika — v1.1 kiegészítés (2026-11-20).
+            A 6. ponthoz hasonlóan NEM DOCX-forrás: a Vercel Web Analytics
+            bekapcsolását írja le, additív, önálló szakaszként, a meglévő
+            szakaszok tartalmának módosítása nélkül.
+          */}
+          <h2
+            id={slugify(privacyPolicy.analytics.heading)}
+            className="font-display mt-14 scroll-mt-24 border-t border-border-strong pt-8 text-2xl leading-snug text-text-primary sm:text-[1.75rem]"
+          >
+            7. {privacyPolicy.analytics.heading}
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.analytics.intro}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.analytics.cookieText}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.analytics.dataIntro}
+          </p>
+          <BulletList items={privacyPolicy.analytics.dataItems} />
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.analytics.purposeText}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.analytics.noticeText}
+          </p>
+          <p className="mt-4 text-sm text-text-secondary">
+            {privacyPolicy.analytics.publishedDate}
+          </p>
+
           <p className="mt-14 border-t border-border-strong pt-8 text-sm text-text-secondary">
             {privacyPolicy.effectiveDate}
           </p>

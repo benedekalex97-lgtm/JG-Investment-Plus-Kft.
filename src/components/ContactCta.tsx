@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
+import { track } from "@vercel/analytics";
 
 gsap.registerPlugin(useGSAP);
 
@@ -36,6 +37,10 @@ gsap.registerPlugin(useGSAP);
  * Külső cél (http/https, pl. a K&H számlanyitási oldala) a projekt
  * linkpolitikája szerint új lapon nyílik (target="_blank", rel="noopener
  * noreferrer"), akadálymentes „új lapon nyílik meg" jelzéssel.
+ *
+ * Mérés: kattintáskor névtelen „cta_click" egyedi eseményt küld a Vercel Web
+ * Analyticsnek (a gomb felirata, és hogy belső vagy külső a cél); személyes
+ * adatot nem tartalmaz. Ld. az adatkezelési tájékoztató 7. pontját.
  */
 
 const reducedMotion = () =>
@@ -110,7 +115,10 @@ export default function ContactCta({
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
-      onClick={onClick}
+      onClick={() => {
+        track("cta_click", { label, target: external ? "external" : "internal" });
+        onClick?.();
+      }}
       data-tone={tone}
       onPointerEnter={(e) => motion(e.currentTarget, true)}
       onPointerLeave={(e) => {
