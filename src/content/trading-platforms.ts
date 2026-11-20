@@ -7,19 +7,23 @@
  * anyag Tesla Inc adatlapját mutatja —, ezért az eszközfeliratok nevesítik a
  * bemutatott papírt; nem állítunk egyezést, ami a forrásokban nincs.
  *
- * Felhasználási engedély és K&H Compliance/Kommunikáció-jóváhagyás: NINCS
- * igazolva. Publikálás előtti feltétel.
+ * Felhasználás: a K&H Értékpapír részéről Jánosi Renáta 2026-11-19-i
+ * e-mailjei (a megrendelő által bemutatott képernyőképek) szerint a négy
+ * webtrader-oktatóvideóból kivágott képek felhasználhatók, a forrás
+ * megjelölésével; a javítások után az élesítés is jóváhagyott. Részletek:
+ * docs/trading-platforms-sources.md.
  */
 export const tradingPlatforms = {
   sectionNumber: "04",
   heading: "Kereskedési felületek",
   lead: "A K&H Értékpapír digitális felületei számítógépen és mobilon.",
   /**
-   * A szakasz alatti közlés — Reni (2026-11-19) által megadott szöveg,
-   * karakterre változatlanul. Ez nem jelent K&H Compliance-jóváhagyást.
+   * A szakasz alatti közlés — Jánosi Renáta (K&H Értékpapír, 2026-11-19)
+   * szövege. Az utolsó mondat az ő kérésére „A képek és videók forrása",
+   * mert a webtrader-képek a hivatalos oktatóvideókból kivágott kockák.
    */
   notice:
-    "A képernyőképek kizárólag a kereskedési felület működésének szemléltetését szolgálják. Az ábrázolt adatok, árfolyamok és hozamok nem feltétlenül aktuálisak, nem minősülnek befektetési ajánlásnak, befektetési tanácsadásnak vagy hozamígéretnek. A képek forrása: K&H Értékpapír.",
+    "A képernyőképek kizárólag a kereskedési felület működésének szemléltetését szolgálják. Az ábrázolt adatok, árfolyamok és hozamok nem feltétlenül aktuálisak, nem minősülnek befektetési ajánlásnak, befektetési tanácsadásnak vagy hozamígéretnek. A képek és videók forrása: K&H Értékpapír.",
   webtrader: {
     name: "K&H webtrader",
     detail: "Portfólió, majd az OTP Bank adatlapja",

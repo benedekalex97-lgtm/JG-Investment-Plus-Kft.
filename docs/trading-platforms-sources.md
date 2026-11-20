@@ -10,10 +10,23 @@ részei a repositorynak; a feldolgozást a
 
 ## Felhasználási jog
 
-A források nyilvánosan elérhetők, de **felhasználási engedély nincs
-igazolva**, és **K&H Compliance/Kommunikáció-jóváhagyás nincs**. Mindkettő
-publikálás előtti feltétel. Ez a dokumentum nem állítja, hogy a K&H
-engedélyezte a felhasználást.
+**2026-11-19 — K&H Értékpapír jóváhagyás** (Jánosi Renáta, K&H
+Értékpapír; a megrendelő által 2026-11-20-án bemutatott
+e-mail-képernyőképek alapján, a levelezést a fejlesztő közvetlenül nem
+látta):
+
+- A preview-ról: „Tök jó lett, pár komment” — három kérés (a közlés-szöveg,
+  a lead a címsor alá, a mobilos görgetés javítása), majd: „Persze, ha
+  ezeket javítottad, élesítheted is!”
+- A kérdésre, hogy a négy webtrader-oktatóvideóból kivágott képek
+  felhasználhatók-e a görgetéses mozgáshoz: „Ja, persze, annyi, hogy ha
+  videó részletet is felhasználsz, akkor azt jelöld ebben a mondatban: A
+  képek és videók forrása: K&H Értékpapír.” — a közlés utolsó mondata ennek
+  megfelelően módosítva.
+- Kérés: „Majd szólsz, ha éles?” — az élesítésről a megrendelő értesíti.
+
+A jóváhagyás a megtekintett szakaszra (mobiltrader-képsor, webtrader-képek)
+és a négy webtrader-videó kivágott képeire vonatkozik.
 
 ## 1. K&H mobiltrader — „értékpapírok” animáció
 
