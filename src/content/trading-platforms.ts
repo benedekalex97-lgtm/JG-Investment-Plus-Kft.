@@ -15,18 +15,20 @@
  * docs/trading-platforms-sources.md.
  */
 /**
- * A „Számlanyitás" gomb célja — EGYETLEN hely (a desktop szakaszgomb és a mobil
- * alsó sáv is ezt használja). Amíg a hivatalos számlanyitási link nincs meg
- * (megrendelői ígéret), null: a gomb a Kapcsolat szakaszra visz. A link
- * megérkezésekor ide kell beírni (egyetlen sor), pl. "https://…".
+ * A „Számlanyitás" gomb célja — EGYETLEN hely (a desktop szakaszgomb és a
+ * tablet/mobil alsó sáv is ezt használja). A K&H Értékpapír hivatalos
+ * számlanyitási linkje JG-ajánlói kóddal (Jánosi Renáta, K&H Értékpapír,
+ * 2026-11-20): a `refcode=jgi` alapján látja a K&H, hogy a látogató tőlünk
+ * érkezett — a paramétert ne töröld és ne módosítsd. Ha null, a gomb a
+ * Kapcsolat szakaszra visz.
  */
-const ACCOUNT_OPENING_HREF: string | null = null;
+const ACCOUNT_OPENING_HREF: string | null = "https://szamlanyitas.khertekpapir.hu/?refcode=jgi";
 
 export const tradingPlatforms = {
   sectionNumber: "04",
   heading: "Kereskedési felületek",
   lead: "A K&H Értékpapír digitális felületei számítógépen és mobilon.",
-  /** Számlanyitás CTA: felirat és cél (a link nélküli ideiglenes cél: Kapcsolat). */
+  /** Számlanyitás CTA: felirat és cél (link nélkül a tartalék cél: Kapcsolat). */
   cta: {
     label: "Számlanyitás",
     href: ACCOUNT_OPENING_HREF ?? "/#kapcsolat",

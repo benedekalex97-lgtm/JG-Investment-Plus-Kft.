@@ -32,6 +32,10 @@ gsap.registerPlugin(useGSAP);
  *
  * Szándékosan sima <a>, nem next/link: ugyanarra a hash-re (#kapcsolat)
  * ismételt kattintásra is görget.
+ *
+ * Külső cél (http/https, pl. a K&H számlanyitási oldala) a projekt
+ * linkpolitikája szerint új lapon nyílik (target="_blank", rel="noopener
+ * noreferrer"), akadálymentes „új lapon nyílik meg" jelzéssel.
  */
 
 const reducedMotion = () =>
@@ -98,11 +102,14 @@ export default function ContactCta({
 
   // Csupa nagybetűs (tartalmi modellből érkező) feliratnál nagyobb betűköz.
   const caps = label === label.toLocaleUpperCase("hu");
+  const external = /^https?:\/\//.test(href);
 
   return (
     <a
       ref={ref}
       href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
       onClick={onClick}
       data-tone={tone}
       onPointerEnter={(e) => motion(e.currentTarget, true)}
@@ -120,7 +127,10 @@ export default function ContactCta({
       <span aria-hidden="true" className="jg-cta-edge" />
       <span aria-hidden="true" className="jg-cta-plate" />
       <span aria-hidden="true" className="jg-cta-tint" />
-      <span>{label}</span>
+      <span>
+        {label}
+        {external ? <span className="sr-only"> (új lapon nyílik meg)</span> : null}
+      </span>
       <CtaArrow />
     </a>
   );
