@@ -468,6 +468,123 @@ body {
   stroke-linecap: square;
 }
 
+/*
+  ELSŐDLEGES CTA — data-emphasis="primary" (jelenleg KIZÁRÓLAG a „Számlanyitás").
+  Az oldal legerősebb gombja: inverz Porcelain lemez Aubergine felirattal a
+  sötét szakaszon, Signal Berry Light hajszálél. Ugyanaz az alak, méret és
+  nyíl, mint a többi CTA-nál — csak a tónus fordul meg, így nincs layout shift.
+
+  Rétegek (a meglévők FÖLÖTT, a tint ALATT): .jg-cta-prime él + lemez, opacity
+  0 → 1 (data-emphasis="default" esetén rejtve, így a mobil sáv simán vált).
+  A hover-tint itt Signal Berry Soft; a fénycsík (.jg-cta-sheen) a lemezen
+  egyszer áthaladó Signal Berry Soft sáv — a hívó indítja (TradingPlatforms).
+
+  KONTRASZT (WCAG, számítva — mérve, nem becsülve)
+   Aubergine felirat  Porcelain lemezen ........... 10.15:1  AAA
+   Aubergine felirat  hover-tónuson (#efe3e8) ...... 9.02:1  AAA
+   Aubergine felirat  fénycsík csúcsán (#ecdae3) ... 8.42:1  AAA
+   Aubergine felirat  teljes Signal Berry Softon ... 8.16:1  AAA (legrosszabb eset)
+   Porcelain lemez    surface-deep-hez ............ 16.07:1  ≥ 3:1 (1.4.11)
+   Porcelain lemez    surface-raise / -sink-hez ... 15.05 / 16.85:1
+   hover-tónus        surface-deep-hez ............ 14.28:1
+   fénycsík csúcsa    surface-deep-hez ............ 13.33:1
+   Signal Berry Light él  surface-deep-hez ........  5.82:1  (dekoratív hajszálél)
+   fókuszgyűrű (Porcelain, 3 px offset) deep-en ... 16.07:1  — a gyűrű és a
+                                                     lemez között 3 px sötét
+                                                     rés marad, nem olvad össze
+*/
+.jg-cta[data-emphasis="primary"] {
+  color: var(--color-aubergine);
+}
+
+.jg-cta-prime {
+  opacity: 0;
+  transition: opacity 280ms var(--jg-ease);
+}
+
+.jg-cta[data-emphasis="primary"] .jg-cta-prime {
+  opacity: 1;
+}
+
+.jg-cta-edge.jg-cta-prime {
+  background-color: var(--color-signal-berry-light);
+}
+
+.jg-cta-plate.jg-cta-prime {
+  background-color: var(--color-porcelain);
+}
+
+.jg-cta[data-emphasis="primary"] .jg-cta-tint {
+  background-color: var(--color-signal-berry-soft);
+}
+
+/* Fénycsík: a lemez alakjára vágott tartó, benne egy ferde sáv; alapból
+   láthatatlan. Csak transform + opacity animálódik (GSAP, egyszer). */
+.jg-cta-sheen {
+  --cut-inner: calc(var(--cut) - 0.76px);
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut-inner)) 0,
+    100% calc(var(--cut-inner) / 2),
+    100% 100%,
+    0 100%
+  );
+}
+
+.jg-cta-sheen-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    var(--color-signal-berry-soft) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translateX(-110%);
+}
+
+.jg-cta[data-emphasis="default"] .jg-cta-sheen {
+  display: none;
+}
+
+/* Mobil alsó sáv: a felirat (és a nyíl) váltáskor rövid beúszással érkezik
+   (280 ms, transform + opacity). Máshol a .jg-cta-swap nem animál. */
+@keyframes jg-cta-swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(45%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.jg-contact-bar .jg-cta-swap {
+  animation: jg-cta-swap-in 280ms var(--jg-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jg-cta-prime {
+    transition: none;
+  }
+  .jg-contact-bar .jg-cta-swap {
+    animation: none;
+  }
+  .jg-cta-sheen {
+    display: none;
+  }
+}
+
 /* ==========================================================================
    HERO — v1.1: középre rendezett copy + absztrakt japángyertya-háttéranimáció
    A Hero öt rétegre tagolódik (alulról):

@@ -41,6 +41,16 @@ gsap.registerPlugin(useGSAP);
  * Mérés: kattintáskor névtelen „cta_click" egyedi eseményt küld a Vercel Web
  * Analyticsnek (a gomb felirata, és hogy belső vagy külső a cél); személyes
  * adatot nem tartalmaz. Ld. az adatkezelési tájékoztató 7. pontját.
+ *
+ * emphasis (opcionális; ha nincs megadva, a gomb pontosan a korábbi):
+ *   "primary" — az oldal elsődleges CTA-ja (jelenleg kizárólag a
+ *               „Számlanyitás"): inverz Porcelain lemez Aubergine felirattal,
+ *               Signal Berry Light hajszálél, Signal Berry Soft hover-tónus és
+ *               egy (a hívó által egyszer indított) fénycsík-réteg. Színek és
+ *               mért kontrasztok: globals.css, .jg-cta[data-emphasis].
+ *   "default" — a megszokott megjelenés, de a hangsúlyrétegek jelen vannak
+ *               (rejtve), így a gomb SIMÁN válthat "primary"-ra és vissza
+ *               (mobil alsó sáv: „Kapcsolatfelvétel" ↔ „Számlanyitás").
  */
 
 const reducedMotion = () =>
@@ -71,6 +81,8 @@ type ContactCtaProps = {
   display?: "flex" | "inline-flex";
   className?: string;
   onClick?: () => void;
+  /** Elsődleges hangsúly (ld. fent). Megadva a hangsúlyrétegek is renderelődnek. */
+  emphasis?: "primary" | "default";
 };
 
 export default function ContactCta({
@@ -80,6 +92,7 @@ export default function ContactCta({
   display = "flex",
   className = "",
   onClick,
+  emphasis,
 }: ContactCtaProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   // Saját, scope-olt GSAP-context: unmountkor minden tween visszaáll.
@@ -120,6 +133,7 @@ export default function ContactCta({
         onClick?.();
       }}
       data-tone={tone}
+      data-emphasis={emphasis}
       onPointerEnter={(e) => motion(e.currentTarget, true)}
       onPointerLeave={(e) => {
         if (!e.currentTarget.matches(":focus-visible")) motion(e.currentTarget, false);
@@ -134,12 +148,26 @@ export default function ContactCta({
     >
       <span aria-hidden="true" className="jg-cta-edge" />
       <span aria-hidden="true" className="jg-cta-plate" />
+      {emphasis ? (
+        <>
+          {/* Hangsúlyrétegek: opacityvel váltanak (nincs színátmenet, nincs méretváltozás). */}
+          <span aria-hidden="true" className="jg-cta-edge jg-cta-prime" />
+          <span aria-hidden="true" className="jg-cta-plate jg-cta-prime" />
+        </>
+      ) : null}
       <span aria-hidden="true" className="jg-cta-tint" />
-      <span>
+      {emphasis ? (
+        <span aria-hidden="true" className="jg-cta-sheen">
+          <span className="jg-cta-sheen-band" />
+        </span>
+      ) : null}
+      {/* A felirat és a nyíl a felirat szerint kulcsolt: váltáskor újra beúsznak
+          (csak a mobil alsó sávban animált, ld. globals.css .jg-cta-swap). */}
+      <span key={label} className={emphasis ? "jg-cta-swap" : undefined}>
         {label}
         {external ? <span className="sr-only"> (új lapon nyílik meg)</span> : null}
       </span>
-      <CtaArrow />
+      <CtaArrow key={`arrow-${label}`} className={emphasis ? "jg-cta-swap" : ""} />
     </a>
   );
 }

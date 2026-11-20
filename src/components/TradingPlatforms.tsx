@@ -46,6 +46,8 @@ const WT_STILL = WEBTRADER_FRAMES.findIndex((f) => f[0] === "v_AP_bpaKkI" && f[1
 const PHONE_QUERY = "(max-width: 767px), (max-height: 499px) and (max-width: 1023px)";
 /** A kijelző (CSS px × DPR, legfeljebb 2) e fölött a 1280-as, alatta a 760-as kockákat tölti. */
 const WT_BIG_ABOVE = 800;
+/** A Számlanyitás gomb egyszeri kiemelése ennél a közös előrehaladásnál indul. */
+const CUE_AT = 0.9;
 
 /**
  * TradingPlatforms — 04. szakasz, „Kereskedési felületek".
@@ -77,10 +79,11 @@ export default function TradingPlatforms() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useGSAP(
-    () => {
+    (_context, contextSafe) => {
       const section = sectionRef.current;
-      if (!section) return;
+      if (!section || !contextSafe) return;
       const q = gsap.utils.selector(section);
+      const ctaWrap = q(".tp-cta")[0] as HTMLElement | undefined;
       const track = q(".tp-track")[0] as HTMLElement | undefined;
       const stage = q(".tp-stage")[0] as HTMLElement | undefined;
       const phoneTrack = q(".tp-phone-track")[0] as HTMLElement | undefined;
@@ -201,6 +204,39 @@ export default function TradingPlatforms() {
         el.dataset.scrollLen = String(Math.round(self.end - self.start));
       };
 
+      /* ---- Számlanyitás CTA: egyszeri, rövid kiemelés (desktop). ----
+         Amikor a bemutató a végére ér (közös előrehaladás ≥ CUE_AT), a gombon
+         egy fénycsík halad át, és a nyíl hegye apró előre-lökést tesz
+         (összesen ~660 ms, csak transform + opacity). Oldalbetöltésenként
+         legfeljebb EGYSZER (a jelző a matchMedia újrafutásait is túléli);
+         reduced motion alatt soha (a lenti ág nem fut). < 1024 px-en a gomb
+         rejtve van — ott nincs mit kiemelni, és a jelző sem fogy el. */
+      let cuePlayed = false;
+      const cue = contextSafe(() => {
+        if (cuePlayed) return;
+        const cta = section.querySelector<HTMLElement>(".tp-cta .jg-cta");
+        if (!cta || cta.getClientRects().length === 0) return;
+        // Csak ténylegesen látható gombon (pl. a szakasz utáni újratöltéskor a
+        // scrub p = 1-gyel indul, de a gomb nincs a képernyőn: nem fogy el).
+        const r = cta.getBoundingClientRect();
+        if (r.top < 0 || r.bottom > window.innerHeight) return;
+        cuePlayed = true;
+        cta.dataset.cue = "played";
+        const band = cta.querySelector(".jg-cta-sheen-band");
+        const head = cta.querySelector(".jg-arrow-head");
+        gsap
+          .timeline()
+          .fromTo(
+            band,
+            { xPercent: -110, opacity: 1 },
+            { xPercent: 235, duration: 0.6, ease: "power2.inOut" },
+            0,
+          )
+          .set(band, { opacity: 0 })
+          .to(head, { x: 4, duration: 0.16, ease: "power2.out" }, 0.28)
+          .to(head, { x: 0, duration: 0.22, ease: "power2.inOut" }, 0.44);
+      });
+
       const mm = gsap.matchMedia();
       mm.add(
         {
@@ -231,6 +267,7 @@ export default function TradingPlatforms() {
               onUpdate: () => {
                 renderLaptop(proxy.p);
                 renderPhone(proxy.p);
+                if (proxy.p >= CUE_AT) cue();
               },
               scrollTrigger: {
                 trigger: track,
@@ -285,6 +322,17 @@ export default function TradingPlatforms() {
               scrollTrigger: config(phoneTrack, phoneFig),
             });
             renderPhone(0);
+            // Alacsony desktop (>= 1024 px, < 640 px magas): nincs közös sticky
+            // jelenet, a gomb a szakasz alján görget be — ott kap kiemelést,
+            // amikor teljesen láthatóvá vált. (< 1024 px-en a gomb rejtve: a
+            // cue() ilyenkor nem csinál semmit.)
+            if (ctaWrap) {
+              ScrollTrigger.create({
+                trigger: ctaWrap,
+                start: "bottom bottom-=16",
+                onEnter: cue,
+              });
+            }
           }
         },
       );
@@ -449,6 +497,7 @@ export default function TradingPlatforms() {
                 href={t.cta.href}
                 label={t.cta.label}
                 tone="dark"
+                emphasis="primary"
                 display="inline-flex"
                 className="min-h-12 gap-6 pr-5 pl-6 text-[0.9375rem]"
               />

@@ -161,6 +161,7 @@ export default function MobileContactBar() {
         href={inTrading ? TRADING_HREF : CTA_HREF}
         label={inTrading ? TRADING_LABEL : CTA_LABEL}
         tone="dark"
+        emphasis={inTrading ? "primary" : "default"}
         className="min-h-11 w-full gap-6 px-5 text-[0.9375rem]"
       />
     </div>
