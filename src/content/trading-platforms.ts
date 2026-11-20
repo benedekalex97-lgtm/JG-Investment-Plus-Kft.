@@ -14,10 +14,23 @@
  * megjelölésével; a javítások után az élesítés is jóváhagyott. Részletek:
  * docs/trading-platforms-sources.md.
  */
+/**
+ * A „Számlanyitás" gomb célja — EGYETLEN hely (a desktop szakaszgomb és a mobil
+ * alsó sáv is ezt használja). Amíg a hivatalos számlanyitási link nincs meg
+ * (megrendelői ígéret), null: a gomb a Kapcsolat szakaszra visz. A link
+ * megérkezésekor ide kell beírni (egyetlen sor), pl. "https://…".
+ */
+const ACCOUNT_OPENING_HREF: string | null = null;
+
 export const tradingPlatforms = {
   sectionNumber: "04",
   heading: "Kereskedési felületek",
   lead: "A K&H Értékpapír digitális felületei számítógépen és mobilon.",
+  /** Számlanyitás CTA: felirat és cél (a link nélküli ideiglenes cél: Kapcsolat). */
+  cta: {
+    label: "Számlanyitás",
+    href: ACCOUNT_OPENING_HREF ?? "/#kapcsolat",
+  },
   /**
    * A szakasz alatti közlés — Jánosi Renáta (K&H Értékpapír, 2026-11-19)
    * szövege. Az utolsó mondat az ő kérésére „A képek és videók forrása",
