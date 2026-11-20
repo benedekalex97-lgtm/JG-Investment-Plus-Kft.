@@ -293,3 +293,26 @@ Rövid, egy-egy kockányi ugrások; kitalált átmenetet nem alkalmaztunk.
   (`.tp-foot` / `.tp-cta`); a sticky jelenet magassága nem változik.
 - < 1024 px-en a gombot az alsó kapcsolat-sáv (`MobileContactBar`) adja,
   amíg a szakasz látszik; a szakaszgomb ilyenkor rejtve van.
+
+### Elsődleges hangsúly (`emphasis="primary"`)
+
+A „Számlanyitás” az oldal legerősebb CTA-ja; a hangsúly CSAK ezen a két
+helyen él (a `ContactCta` `emphasis` propja; ha nincs megadva, a gomb pixelre
+a korábbi — a hero, a header és a többi „Kapcsolatfelvétel” változatlan).
+
+- Lemez: inverz Porcelain, Aubergine felirat (10,15 : 1), Signal Berry Light
+  hajszálél; hover: Signal Berry Soft tónus (felirat 9,02 : 1). A lemez a
+  sötét szakaszhoz 16,07 : 1. Teljes táblázat: `globals.css`,
+  `.jg-cta[data-emphasis]` blokk.
+- Desktop-mozgás: amikor a bemutató a végére ér (közös előrehaladás ≥ 0,9,
+  `CUE_AT`), egy Signal Berry Soft fénycsík halad át a lemezen, a nyíl hegye
+  4 px-es előre-lökést tesz; ~600–660 ms, csak transform + opacity,
+  oldalbetöltésenként legfeljebb egyszer, és csak ha a gomb a képernyőn van.
+  Alacsony desktopon (< 640 px magas) akkor, amikor a gomb teljesen
+  beér a nézetbe.
+- Mobil sáv: „Kapcsolatfelvétel” ↔ „Számlanyitás” váltáskor a hangsúlyos lemez
+  280 ms alatt áttűnik, a felirat és a nyíl rövid beúszással érkezik.
+- `prefers-reduced-motion: reduce`: nincs fénycsík, nincs áttűnés és beúszás;
+  csak a kontrasztos statikus változat marad.
+- Nincs végtelen/ismétlődő animáció, nincs méretváltozás (a gomb és a sáv
+  magassága változatlan).
