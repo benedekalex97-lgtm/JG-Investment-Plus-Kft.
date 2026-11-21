@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { guides } from "@/content/guides";
 import { SITE_URL } from "@/lib/site";
 
 /*
@@ -11,11 +12,15 @@ import { SITE_URL } from "@/lib/site";
  * `lastModified` szándékosan nincs: nincs igazolható tartalmi módosítási
  * dátum-forrás, a build ideje pedig nem tartalmi módosítás. Új oldal
  * létrehozásakor ezt a listát is bővíteni kell.
+ *
+ * Kivétel: az útmutatók (src/content/guides.ts) saját, kézzel vezetett
+ * frissítési dátummal rendelkeznek — ez tartalmi dátum, ezért náluk szerepel.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${SITE_URL}/` },
     { url: `${SITE_URL}/jogi-tajekoztato` },
     { url: `${SITE_URL}/adatkezelesi-tajekoztato` },
+    ...guides.map((g) => ({ url: `${SITE_URL}/${g.slug}`, lastModified: g.updated.iso })),
   ];
 }

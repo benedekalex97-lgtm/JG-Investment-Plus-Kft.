@@ -17,6 +17,8 @@ export type FaqSource = { readonly label: string; readonly href: string };
 
 export type FaqItem = {
   readonly question: string;
+  /** Opcionális belső hivatkozás a részletes útmutató-aloldalra (src/content/guides.ts). */
+  readonly guide?: { readonly label: string; readonly href: string };
   /** Az elsődlegesen megjelenő szöveg; minden elem külön bekezdés. */
   readonly answer: readonly string[];
   readonly sources: readonly FaqSource[];
@@ -63,6 +65,7 @@ export const faq: {
     },
     {
       question: "Hogyan nyithatok értékpapírszámlát a K&H Értékpapírnál?",
+      guide: { label: "Részletes útmutató: számlanyitás lépésről lépésre", href: "/szamlanyitas" },
       answer: [
         "Magánszemélyként, a szolgáltató feltételeinek teljesülése esetén online is kezdeményezheti az értékpapírszámla megnyitását. A folyamat része az azonosítás, a szükséges adatok és nyilatkozatok megadása, valamint a szerződések aláírása. Személyes ügyintézésre is van lehetőség előzetes egyeztetéssel. A JG a folyamat megismerésében segít; a számlanyitás a K&H Értékpapírnál történik.",
       ],
@@ -102,6 +105,7 @@ export const faq: {
     },
     {
       question: "Mi az a TBSZ, és hogyan lehet megnyitni?",
+      guide: { label: "Részletes útmutató: TBSZ nyitása a K&H Értékpapírnál", href: "/tbsz" },
       answer: [
         "A Tartós Befektetési Számla, röviden TBSZ, olyan számlatípus, amely meghatározott feltételek teljesítésével adókedvezményt biztosíthat a befektetések hozamára. A számlanyitás évét gyűjtőévnek nevezik; ezt követi az ötéves lekötési időszak. A számlán belül ezalatt is lehet értékpapírokat vásárolni és eladni, a pénzkivonás azonban befolyásolhatja az adózást.",
         "A K&H Értékpapírnál meglévő normál értékpapírszámla mellett, elektronikusan kezdeményezhető TBSZ nyitása. Az adózási következmények a szerződés időpontjától és az egyéni körülményektől is függhetnek; a lejárat előtti megszüntetés adófizetési kötelezettséggel járhat.",

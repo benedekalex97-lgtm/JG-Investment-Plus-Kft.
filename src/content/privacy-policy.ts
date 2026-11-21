@@ -244,12 +244,14 @@ export const privacyPolicy = {
       "böngésző- és eszközinformációk (eszköztípus, operációs rendszer, böngésző)",
       "a látogatások megkülönböztetéséhez a Vercel által képzett technikai azonosító",
       "a weboldal „Kapcsolatfelvétel” és „Számlanyitás” gombjaira történő kattintás ténye (a gomb felirata, illetve hogy a cél a weboldalon belüli vagy külső oldal)",
+      "a weboldalon közölt telefonszámokra és e-mail-címre történő kattintás ténye (hogy telefonszámra vagy e-mail-címre történt, és melyik oldalon); a hívás vagy a levél tartalma, illetve a látogató telefonszáma vagy e-mail-címe nem kerül rögzítésre",
     ],
     purposeText:
       "A mérés célja a weboldal látogatottságának és használatának összesített nyomon követése, valamint a weboldal fejlesztése. A JG Investment Plus Kft. a statisztikákat összesített formában tekinti meg, és azokból nem azonosít látogatókat.",
     noticeText:
       "A Vercel saját adatkezelésére vonatkozó tájékoztatás a 6. pontban hivatkozott Vercel Privacy Notice oldalán érhető el.",
-    publishedDate: "Weboldal-specifikus technikai kiegészítés (látogatottsági statisztika) közzététele: 2026. november 20.",
+    publishedDate:
+      "Weboldal-specifikus technikai kiegészítés (látogatottsági statisztika) közzététele: 2026. november 20.; kiegészítve (telefonszámra és e-mail-címre kattintás mérése): 2026. november 21.",
   },
 
   effectiveDate: "hatályos: 2026. március 1-től",

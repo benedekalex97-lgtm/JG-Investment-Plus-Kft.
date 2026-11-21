@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Section from "./Section";
 import { faq } from "@/content/faq";
 
@@ -64,6 +65,17 @@ export default function Faq() {
                   <p key={paragraph.slice(0, 40)}>{paragraph}</p>
                 ))}
               </div>
+
+              {item.guide ? (
+                <p className="mt-5 max-w-[68ch]">
+                  <Link
+                    href={item.guide.href}
+                    className="inline-flex min-h-11 items-center text-base font-semibold text-accent underline underline-offset-4 transition-colors hover:text-signal-berry"
+                  >
+                    {item.guide.label} →
+                  </Link>
+                </p>
+              ) : null}
 
               {item.sources.length > 0 ? (
                 <div className="mt-6 max-w-[68ch] border-t border-border pt-4">

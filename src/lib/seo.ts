@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { contact, meta } from "@/content/homepage";
 import { faq } from "@/content/faq";
+import type { Guide } from "@/content/guides";
 import { legalNotice } from "@/content/legal-notice";
 import { SITE_URL } from "@/lib/site";
 
@@ -21,6 +22,16 @@ export const SITE_DESCRIPTION =
   "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a pontos szolgáltatási kört a K&H Értékpapír honlapján közzétett hatályos hirdetmény tartalmazza.";
 
 /**
+ * A FŐOLDAL keresőknek szóló címe és leírása — TERVEZET, K&H-jóváhagyásra
+ * vár (2026-11-21). A szervezet sémában továbbra is a jóváhagyott
+ * SITE_DESCRIPTION szerepel; ez csak a találati lista szövege.
+ */
+export const HOME_TITLE = "Értékpapírszámla a K&H Értékpapírnál · JG Investment Plus";
+
+export const HOME_DESCRIPTION =
+  "A JG Investment Plus a K&H Értékpapír függő ügynöke. Segítünk megismerni a számlanyitás folyamatát és a TBSZ-t, személyes kapcsolattartással, országosan.";
+
+/**
  * Az oldalak közös Open Graph alapja. A Next.js az oldalszintű `openGraph`
  * mezővel a gyökérét EGÉSZÉBEN lecseréli (nem mélyen olvasztja össze), ezért
  * minden oldal ezt terjeszti ki a saját címével és URL-jével:
@@ -28,6 +39,20 @@ export const SITE_DESCRIPTION =
  */
 export const baseOpenGraph = {
   title: SITE_TITLE,
+  /*
+   * Megosztási kép (public/og-image.png, 1200 × 630) — TERVEZET,
+   * K&H-jóváhagyásra vár. Kifejezetten itt, és nem fájlkonvencióval
+   * (app/opengraph-image.png), mert az oldalszintű openGraph felülírása a
+   * fájlalapú képet nem örökölné minden oldalon.
+   */
+  images: [
+    {
+      url: "/og-image.png",
+      width: 1200,
+      height: 630,
+      alt: "JG Investment Plus – Értékpapírszámla a K&H Értékpapírnál, személyes kapcsolattartással. A K&H Értékpapír függő ügynöke.",
+    },
+  ],
   description: SITE_DESCRIPTION,
   siteName: meta.wordmark,
   type: "website",
@@ -127,4 +152,38 @@ export const homeJsonLd = {
 /** <script type="application/ld+json"> tartalma; a `<` escape-elve, hogy a szöveg ne zárhassa le a scriptet. */
 export function serializeJsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+/**
+ * Útmutató-aloldalak sémája: Article (szerző és kiadó a JG szervezet) +
+ * BreadcrumbList. A szervezetet @id-vel hivatkozzuk, a teljes leírása a
+ * főoldalon él.
+ */
+export function guideJsonLd(guide: Guide) {
+  const url = `${SITE_URL}/${guide.slug}`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": `${url}#article`,
+        headline: guide.heading,
+        description: guide.metaDescription,
+        inLanguage: "hu-HU",
+        url,
+        mainEntityOfPage: url,
+        dateModified: guide.updated.iso,
+        author: { "@id": ORG_ID },
+        publisher: { "@id": ORG_ID },
+        isPartOf: { "@id": WEBSITE_ID },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Főoldal", item: `${SITE_URL}/` },
+          { "@type": "ListItem", position: 2, name: guide.shortName, item: url },
+        ],
+      },
+    ],
+  };
 }

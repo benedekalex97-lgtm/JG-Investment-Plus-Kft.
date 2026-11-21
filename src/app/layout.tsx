@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import ContactClickTracker from "@/components/ContactClickTracker";
 import { SITE_URL } from "@/lib/site";
 import { SITE_DESCRIPTION, SITE_TITLE, baseOpenGraph } from "@/lib/seo";
 import "./globals.css";
@@ -75,13 +76,17 @@ export const metadata: Metadata = {
     ? { index: true, follow: true }
     : { index: false, follow: false },
   /*
-   * Open Graph — a jóváhagyott title/description értékekből (src/lib/seo.ts),
-   * OG image nélkül (az új megosztási kép K&H-jóváhagyásra vár). Az og:url-t
-   * és a saját og:title-t minden oldal maga adja meg (baseOpenGraph
+   * Open Graph — a jóváhagyott title/description értékekből (src/lib/seo.ts).
+   * Az og:url-t és a saját og:title-t minden oldal maga adja meg (baseOpenGraph
    * kiterjesztésével), mert az oldalszintű openGraph a gyökérét egészében
    * lecseréli; itt ezért nincs url, így egyetlen oldal sem örököl hibásat.
    */
   openGraph: baseOpenGraph,
+  /*
+   * A megosztási kép (public/og-image.png, ld. src/lib/seo.ts baseOpenGraph)
+   * a nagy képes kártyával az X/Twitter előnézetben is megjelenik.
+   */
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
@@ -127,6 +132,8 @@ export default function RootLayout({
           van kapcsolva.
         */}
         <Analytics />
+        {/* Telefonszámra / e-mail-címre kattintás névtelen mérése (contact_click). */}
+        <ContactClickTracker />
       </body>
     </html>
   );
