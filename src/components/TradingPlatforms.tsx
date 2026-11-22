@@ -80,9 +80,9 @@ export default function TradingPlatforms() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useGSAP(
-    (_context, contextSafe) => {
+    () => {
       const section = sectionRef.current;
-      if (!section || !contextSafe) return;
+      if (!section) return;
       const q = gsap.utils.selector(section);
       const ctaWrap = q(".tp-cta")[0] as HTMLElement | undefined;
       const track = q(".tp-track")[0] as HTMLElement | undefined;
@@ -212,8 +212,16 @@ export default function TradingPlatforms() {
          legfeljebb EGYSZER (a jelző a matchMedia újrafutásait is túléli);
          reduced motion alatt soha (a lenti ág nem fut). < 1024 px-en a gomb
          rejtve van — ott nincs mit kiemelni, és a jelző sem fogy el. */
+      /* SZÁNDÉKOSAN NEM contextSafe: a cue() a matchMedia-kontextuson belül
+         (ScrollTrigger-visszahívásból) is lefut, és a contextSafe ilyenkor a
+         külső useGSAP-kontextust a matchMedia-kontextusba is beírná — a két
+         kontextus kölcsönösen tartalmazná egymást, és unmountkor (pl. a
+         főoldalról kliensoldali navigációval elnavigálva) a getTweens()
+         végtelen rekurzióba futna. Az idővonalat ezért magunk tartjuk számon,
+         és a takarításkor leállítjuk. */
       let cuePlayed = false;
-      const cue = contextSafe(() => {
+      let cueTl: gsap.core.Timeline | null = null;
+      const cue = () => {
         if (cuePlayed) return;
         const cta = section.querySelector<HTMLElement>(".tp-cta .jg-cta");
         if (!cta || cta.getClientRects().length === 0) return;
@@ -225,7 +233,7 @@ export default function TradingPlatforms() {
         cta.dataset.cue = "played";
         const band = cta.querySelector(".jg-cta-sheen-band");
         const head = cta.querySelector(".jg-arrow-head");
-        gsap
+        cueTl = gsap
           .timeline()
           .fromTo(
             band,
@@ -236,7 +244,7 @@ export default function TradingPlatforms() {
           .set(band, { opacity: 0 })
           .to(head, { x: 4, duration: 0.16, ease: "power2.out" }, 0.28)
           .to(head, { x: 0, duration: 0.22, ease: "power2.inOut" }, 0.44);
-      });
+      };
 
       const mm = gsap.matchMedia();
       mm.add(
@@ -340,6 +348,7 @@ export default function TradingPlatforms() {
 
       return () => {
         disposed = true;
+        cueTl?.kill();
         io.disconnect();
         wtPlayer?.dispose();
         mm.revert();
