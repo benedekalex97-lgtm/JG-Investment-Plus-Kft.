@@ -4,6 +4,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import Link from "next/link";
 import ContactCta from "./ContactCta";
 import Reveal from "./Reveal";
 import { MaskWords, rv } from "./RevealParts";
@@ -492,15 +493,28 @@ export default function TradingPlatforms() {
             <p className="tp-note">{t.notice}</p>
             {/* Desktop: Számlanyitás CTA. < 1024 px-en az alsó kapcsolat-sáv veszi át
                 (MobileContactBar), ezért itt a CSS elrejti. */}
-            <div className="tp-cta">
-              <ContactCta
-                href={t.cta.href}
-                label={t.cta.label}
-                tone="dark"
-                emphasis="primary"
-                display="inline-flex"
-                className="min-h-12 gap-6 pr-5 pl-6 text-[0.9375rem]"
-              />
+            <div className="tp-actions">
+              {/* Útmutató-link: minden szélességen látható (mobilon a közlés alatt). */}
+              <p className="tp-guide">
+                {/* A bevezető kérdés keskeny desktopon (1024–1279 px) rejtett, hogy
+                    a közlés ne nyúljon túl a sticky színpadon; a link neve ekkor is
+                    teljes marad (sr-only előtag). */}
+                <span className="tp-guide-lead">{t.guideLink.lead} </span>
+                <Link href={t.guideLink.href} className="tp-guide-link">
+                  <span className="sr-only">Számlanyitás </span>
+                  {t.guideLink.label} →
+                </Link>
+              </p>
+              <div className="tp-cta">
+                <ContactCta
+                  href={t.cta.href}
+                  label={t.cta.label}
+                  tone="dark"
+                  emphasis="primary"
+                  display="inline-flex"
+                  className="min-h-12 gap-6 pr-5 pl-6 text-[0.9375rem]"
+                />
+              </div>
             </div>
           </div>
         </div>

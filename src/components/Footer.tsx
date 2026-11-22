@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { guides } from "@/content/guides";
 import { footer } from "@/content/homepage";
 import khLogo from "../../public/brand/kh-logo-dark.png";
 import Logo from "./Logo";
@@ -100,7 +101,26 @@ export default function Footer({
           </div>
         </div>
 
-        <nav aria-label="Lábléc" className="mt-14 border-t border-white/12 pt-8">
+        {/* Útmutatók — minden oldal aljáról elérhetők (src/content/guides.ts). */}
+        <nav aria-labelledby="lablec-utmutatok" className="mt-14 border-t border-white/12 pt-8">
+          <p id="lablec-utmutatok" className="text-xs font-semibold tracking-[0.14em] text-cool-silver uppercase">
+            Útmutatók
+          </p>
+          <ul className="mt-1 flex flex-wrap items-center gap-x-9 gap-y-1">
+            {guides.map((guide) => (
+              <li key={guide.slug}>
+                <Link
+                  href={`/${guide.slug}`}
+                  className="inline-flex min-h-11 items-center text-[0.9375rem] font-medium text-porcelain underline decoration-white/30 underline-offset-4 transition-colors hover:text-signal-berry-light hover:decoration-signal-berry-light"
+                >
+                  {guide.navLabel}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <nav aria-label="Lábléc" className="mt-8 border-t border-white/12 pt-8">
           <ul className="flex flex-wrap items-center gap-x-9 gap-y-1">
             {footer.links.map((link) => (
               <li key={link.label}>

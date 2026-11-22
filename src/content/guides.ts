@@ -48,6 +48,8 @@ export type Guide = {
   readonly metaDescription: string;
   /** Rövid név a morzsamenühöz és a belső linkekhez. */
   readonly shortName: string;
+  /** A lábléc „Útmutatók" sorának felirata. */
+  readonly navLabel: string;
   readonly heading: string;
   readonly lead: string;
   /** ISO dátum (strukturált adat) és megjelenített forma. */
@@ -122,6 +124,7 @@ export const accountOpeningGuide: Guide = {
   metaDescription:
     "Hogyan nyithat értékpapírszámlát a K&H Értékpapírnál? Feltételek, szükséges okmányok, az online és a személyes számlanyitás lépései egy helyen.",
   shortName: "Számlanyitás lépésről lépésre",
+  navLabel: "Értékpapírszámla nyitása a K&H Értékpapírnál",
   heading: "Értékpapírszámla nyitása a K&H Értékpapírnál, lépésről lépésre",
   lead: "Ez az útmutató a K&H Értékpapír hivatalos tájékoztatói alapján mutatja be, hogyan nyithat magánszemélyként értékpapírszámlát online vagy személyesen, mit érdemes előkészítenie, és mi a teendő a számlanyitás után.",
   updated: UPDATED,
@@ -277,6 +280,7 @@ export const tbszGuide: Guide = {
   metaDescription:
     "Mi a TBSZ, hogyan működik a gyűjtőév és a lekötési idő, mikor adómentes a hozam, és hogyan nyitható TBSZ a K&H Értékpapírnál? Lépésről lépésre.",
   shortName: "TBSZ nyitása",
+  navLabel: "TBSZ nyitása a K&H Értékpapírnál",
   heading: "TBSZ nyitása a K&H Értékpapírnál",
   lead: "A Tartós Befektetési Számla (TBSZ) olyan számlatípus, amely a feltételek teljesítése esetén adókedvezményt biztosíthat a befektetések hozamára. Az útmutató a K&H Értékpapír tájékoztatói alapján mutatja be a működését és a nyitás lépéseit.",
   updated: UPDATED,
