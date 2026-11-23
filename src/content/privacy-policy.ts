@@ -40,8 +40,9 @@
  * bekapcsolása után is igaz maradjon.
  *
  * v1.2 KIEGÉSZÍTÉS (2026-11-23) — GOOGLE ANALYTICS, HOZZÁJÁRULÁS ALAPJÁN
- * (`googleAnalytics` mező, lent; a weboldalon 8. pont). NEM DOCX-forrás,
- * TERVEZET: K&H-jóváhagyás és jogi átnézés után élesíthető. Additív
+ * (`googleAnalytics` mező, lent; a weboldalon 8. pont). NEM DOCX-forrás.
+ * A megrendelő döntésére élesítve (2026-11-23); K&H-/jogi átnézése utólag
+ * javasolt. Additív
  * módosítás: meglévő szöveg nem törlődött; a `hosting.notUsedItems`
  * „sütit (cookie-t) használó analitikai szolgáltatást" tétele kiegészült
  * („… a látogató hozzájárulása nélkül (ld. 8. pont)"), hogy a GA4 bekötése
@@ -266,15 +267,18 @@ export const privacyPolicy = {
   },
 
   /**
-   * GOOGLE ANALYTICS — v1.2 kiegészítés (2026-11-23), NEM DOCX-forrás,
-   * TERVEZET. Ld. a fájl fejlécének megjegyzését.
+   * GOOGLE ANALYTICS — v1.2 kiegészítés (2026-11-23), NEM DOCX-forrás.
+   * Ld. a fájl fejlécének megjegyzését. Tartalmi módosításkor a
+   * src/lib/consent.ts CONSENT_VERSION értékét is emelni kell.
    */
   googleAnalytics: {
     heading: "Google Analytics (hozzájárulás alapján)",
     intro:
       "A weboldal – kizárólag a látogató kifejezett hozzájárulása esetén – a Google Analytics 4 szolgáltatást is használja a weboldal használatának részletesebb, összesített mérésére. A szolgáltatást a Google Ireland Limited (Gordon House, Barrow Street, Dublin 4, Írország) nyújtja.",
+    controllerText:
+      "E mérés tekintetében – a fenti, a K&H Értékpapír nevében végzett adatfeldolgozástól eltérően – az adatkezelő a JG Investment Plus Kft. (2336 Dunavarsány, Nagyvarsányi utca 133.; e-mail: info@jginvst.hu). A Google Ireland Limited a Google Analytics adatfeldolgozási feltételei alapján adatfeldolgozóként jár el.",
     consentText:
-      "A hozzájárulást a weboldal első megnyitásakor megjelenő sávban lehet megadni vagy elutasítani. Hozzájárulás nélkül a Google Analytics nem töltődik be, és sütit sem helyez el. A döntés a lábléc „Süti-beállítások” gombjával bármikor módosítható; a visszavonás nem érinti a visszavonás előtti adatkezelés jogszerűségét. A döntést a böngésző helyi tárolója („jg-consent-v1” bejegyzés) jegyzi meg; ez az adat nem kerül továbbításra.",
+      "A hozzájárulást a weboldal első megnyitásakor megjelenő sávban lehet megadni vagy elutasítani; a két lehetőség egyenrangú, és az elutasításnak nincs hátrányos következménye. Hozzájárulás nélkül a Google Analytics nem töltődik be, és sütit sem helyez el. A döntés a lábléc „Süti-beállítások” gombjával bármikor módosítható; a visszavonás nem érinti a visszavonás előtti adatkezelés jogszerűségét, visszavonáskor a Google Analytics sütijei törlődnek. A döntést, annak időpontját és a tájékoztatás verzióját a böngésző helyi tárolója („jg-consent-v1” bejegyzés) jegyzi meg; ez az adat nem kerül továbbításra. A weboldal 12 hónap elteltével, illetve e pont tartalmi módosításakor ismét kéri a döntést.",
     cookiesIntro: "Hozzájárulás esetén a Google Analytics a következő sütiket helyezi el:",
     cookieItems: [
       "„_ga” – a látogató megkülönböztetésére szolgáló véletlenszerű azonosító, legfeljebb 2 évig",
@@ -292,6 +296,8 @@ export const privacyPolicy = {
       "A mérés célja a weboldal használatának összesített elemzése és a weboldal fejlesztése. A jogalap az érintett hozzájárulása (GDPR 6. cikk (1) bekezdés a) pont; az elektronikus hírközlésről szóló 2003. évi C. törvény 155. § (4) bekezdés). Az adatok megőrzési ideje 14 hónap. A Google-jelek és a hirdetési célú személyre szabás ki van kapcsolva; az adatokat hirdetésre nem használjuk.",
     transferText:
       "A Google az adatokat az Amerikai Egyesült Államokban is kezelheti; az adattovábbítás az EU–USA adatvédelmi keretrendszerről szóló megfelelőségi határozat alapján történik.",
+    rightsText:
+      "A mérés véletlenszerű, álnevesített azonosítóval történik; a JG Investment Plus Kft. a statisztikákat összesített formában tekinti meg, és azokból nem azonosít látogatókat. Az érintett a hozzájárulását bármikor visszavonhatja, a böngészőjében a sütiket törölheti, és az „Érintettek jogai” pontban felsorolt jogait az info@jginvst.hu címen gyakorolhatja; ha a kérelem teljesítéséhez a JG nem tudja azonosítani az érintettet, erről tájékoztatja (GDPR 11. cikk). Panasszal a „Jogorvoslat” pontban megjelölt felügyeleti hatósághoz (NAIH) lehet fordulni.",
     noticeText:
       "A Google adatkezelésére vonatkozó tájékoztatás a Google adatvédelmi irányelvei oldalán érhető el.",
     noticeLinkLabel: "Google adatvédelmi irányelvei",

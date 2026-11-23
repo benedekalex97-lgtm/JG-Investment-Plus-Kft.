@@ -35,8 +35,8 @@ export const tradingPlatforms = {
   },
   /**
    * Link a számlanyitási útmutatóra (/szamlanyitas) a Számlanyitás gomb
-   * mellett — annak, aki még a döntés előtt áll (TERVEZET, K&H-jóváhagyásra
-   * vár az útmutatóval együtt).
+   * mellett — annak, aki még a döntés előtt áll (az útmutatóval együtt
+   * élesítve 2026-11-23).
    */
   guideLink: { lead: "Hogyan zajlik a számlanyitás?", label: "Lépésről lépésre", href: "/szamlanyitas" },
   /**

@@ -22,8 +22,8 @@ export const SITE_DESCRIPTION =
   "A JG Investment Plus Kft. a K&H Értékpapír (Patria Finance Magyarországi Fióktelepe) függő ügynöke. A tényleges befektetési szolgáltató a Fióktelep; a pontos szolgáltatási kört a K&H Értékpapír honlapján közzétett hatályos hirdetmény tartalmazza.";
 
 /**
- * A FŐOLDAL keresőknek szóló címe és leírása — TERVEZET, K&H-jóváhagyásra
- * vár (2026-11-21). A szervezet sémában továbbra is a jóváhagyott
+ * A FŐOLDAL keresőknek szóló címe és leírása (2026-11-21; a megrendelő
+ * döntésére élesítve 2026-11-23, K&H-visszajelzés még nem érkezett). A szervezet sémában továbbra is a jóváhagyott
  * SITE_DESCRIPTION szerepel; ez csak a találati lista szövege.
  */
 export const HOME_TITLE = "Értékpapírszámla a K&H Értékpapírnál · JG Investment Plus";
@@ -40,8 +40,8 @@ export const HOME_DESCRIPTION =
 export const baseOpenGraph = {
   title: SITE_TITLE,
   /*
-   * Megosztási kép (public/og-image.png, 1200 × 630) — TERVEZET,
-   * K&H-jóváhagyásra vár. Kifejezetten itt, és nem fájlkonvencióval
+   * Megosztási kép (public/og-image.png, 1200 × 630); a megrendelő
+   * döntésére élesítve (2026-11-23). Kifejezetten itt, és nem fájlkonvencióval
    * (app/opengraph-image.png), mert az oldalszintű openGraph felülírása a
    * fájlalapú képet nem örökölné minden oldalon.
    */

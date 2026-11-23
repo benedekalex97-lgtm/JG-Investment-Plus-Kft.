@@ -1,10 +1,11 @@
 /**
  * Útmutatók — önálló aloldalak (/szamlanyitas, /tbsz) tartalma.
  *
- * STÁTUSZ: TERVEZET — K&H JÓVÁHAGYÁSRA VÁR (2026-11-21). A JG ügynöki
- * keretei szerint (legal-notice.ts, Tevékenységi korlátok) a JG csak a K&H
- * Értékpapír által rendelkezésre bocsátott anyagokat továbbíthatja, ezért
- * ezek az oldalak csak a K&H Értékpapír jóváhagyása után kerülhetnek élesbe.
+ * STÁTUSZ: a megrendelő döntésére élesítve (2026-11-23), a K&H Értékpapír
+ * jóváhagyása még nem érkezett meg. A JG ügynöki keretei szerint
+ * (legal-notice.ts, Tevékenységi korlátok) a JG csak a K&H Értékpapír által
+ * rendelkezésre bocsátott anyagokat továbbíthatja — a K&H visszajelzését
+ * ebben a fájlban kell átvezetni.
  *
  * FORRÁSOK: minden ténybeli állítás a K&H Értékpapír nyilvános, hivatalos
  * oldalairól származik (2026-11-21-i állapot), a JG magázó hangnemére

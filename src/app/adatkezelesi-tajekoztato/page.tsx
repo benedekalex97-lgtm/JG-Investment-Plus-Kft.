@@ -344,6 +344,9 @@ export default function AdatkezelesiTajekoztatoPage() {
             {privacyPolicy.googleAnalytics.intro}
           </p>
           <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.controllerText}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
             {privacyPolicy.googleAnalytics.consentText}
           </p>
           <p className="mt-4 text-base leading-relaxed text-text-primary">
@@ -359,6 +362,9 @@ export default function AdatkezelesiTajekoztatoPage() {
           </p>
           <p className="mt-4 text-base leading-relaxed text-text-primary">
             {privacyPolicy.googleAnalytics.transferText}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.rightsText}
           </p>
           <p className="mt-4 text-base leading-relaxed text-text-primary">
             {(() => {
