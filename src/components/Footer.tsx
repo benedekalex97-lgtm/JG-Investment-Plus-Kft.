@@ -3,6 +3,7 @@ import Link from "next/link";
 import { guides } from "@/content/guides";
 import { footer } from "@/content/homepage";
 import khLogo from "../../public/brand/kh-logo-dark.png";
+import ConsentSettingsButton from "./ConsentSettingsButton";
 import Logo from "./Logo";
 import SectionTransition, { type TransitionFrom } from "./SectionTransition";
 
@@ -149,6 +150,9 @@ export default function Footer({
                 )}
               </li>
             ))}
+            <li>
+              <ConsentSettingsButton className="inline-flex min-h-11 cursor-pointer items-center text-[0.9375rem] font-medium text-porcelain underline decoration-white/30 underline-offset-4 transition-colors hover:text-signal-berry-light hover:decoration-signal-berry-light" />
+            </li>
           </ul>
         </nav>
 

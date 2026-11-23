@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { track } from "@vercel/analytics";
+import { trackEvent } from "@/lib/analytics";
 
 /**
  * ContactClickTracker — a tel: és mailto: linkekre történő kattintás névtelen
- * mérése (Vercel Web Analytics „contact_click" esemény), EGY helyen, a gyökér
+ * mérése („contact_click" esemény: Vercel Web Analytics, hozzájárulás esetén
+ * Google Analytics is), EGY helyen, a gyökér
  * layoutban, eseménydelegálással: így a Kapcsolat szakasz, az útmutatók és a
  * lábléc linkjeit sem kell egyenként módosítani.
  *
@@ -20,7 +21,7 @@ export default function ContactClickTracker() {
       const link = target?.closest?.('a[href^="tel:"], a[href^="mailto:"]');
       if (!link) return;
       const channel = link.getAttribute("href")!.startsWith("tel:") ? "phone" : "email";
-      track("contact_click", { channel, page: window.location.pathname });
+      trackEvent("contact_click", { channel, page: window.location.pathname });
     };
     document.addEventListener("click", onClick, { capture: true });
     return () => document.removeEventListener("click", onClick, { capture: true });

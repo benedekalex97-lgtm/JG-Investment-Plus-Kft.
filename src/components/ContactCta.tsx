@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { track } from "@vercel/analytics";
+import { trackEvent } from "@/lib/analytics";
 
 gsap.registerPlugin(useGSAP);
 
@@ -39,8 +39,9 @@ gsap.registerPlugin(useGSAP);
  * noreferrer"), akadálymentes „új lapon nyílik meg" jelzéssel.
  *
  * Mérés: kattintáskor névtelen „cta_click" egyedi eseményt küld a Vercel Web
- * Analyticsnek (a gomb felirata, és hogy belső vagy külső a cél); személyes
- * adatot nem tartalmaz. Ld. az adatkezelési tájékoztató 7. pontját.
+ * Analyticsnek, és hozzájárulás esetén a Google Analyticsnek is (a gomb
+ * felirata, és hogy belső vagy külső a cél); személyes adatot nem tartalmaz.
+ * Ld. az adatkezelési tájékoztató 7. és 8. pontját, valamint src/lib/analytics.ts.
  *
  * emphasis (opcionális; ha nincs megadva, a gomb pontosan a korábbi):
  *   "primary" — az oldal elsődleges CTA-ja (jelenleg kizárólag a
@@ -129,7 +130,7 @@ export default function ContactCta({
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
       onClick={() => {
-        track("cta_click", { label, target: external ? "external" : "internal" });
+        trackEvent("cta_click", { label, target: external ? "external" : "internal" });
         onClick?.();
       }}
       data-tone={tone}

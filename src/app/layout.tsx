@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import ConsentAndAnalytics from "@/components/ConsentAndAnalytics";
 import ContactClickTracker from "@/components/ContactClickTracker";
 import { SITE_URL } from "@/lib/site";
 import { SITE_DESCRIPTION, SITE_TITLE, baseOpenGraph } from "@/lib/seo";
@@ -134,6 +135,8 @@ export default function RootLayout({
         <Analytics />
         {/* Telefonszámra / e-mail-címre kattintás névtelen mérése (contact_click). */}
         <ContactClickTracker />
+        {/* Sütihozzájárulás-sáv; a Google Analytics CSAK elfogadás után tölt be (8. pont). */}
+        <ConsentAndAnalytics />
       </body>
     </html>
   );
