@@ -330,6 +330,69 @@ export default function AdatkezelesiTajekoztatoPage() {
             {privacyPolicy.analytics.publishedDate}
           </p>
 
+          {/*
+            8. Google Analytics — v1.2 kiegészítés (2026-11-23), additív, NEM
+            DOCX-forrás. A sütisáv „Részletek" linkje ide mutat (#google-analytics).
+          */}
+          <h2
+            id="google-analytics"
+            className="font-display mt-14 scroll-mt-24 border-t border-border-strong pt-8 text-2xl leading-snug text-text-primary sm:text-[1.75rem]"
+          >
+            8. {privacyPolicy.googleAnalytics.heading}
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.intro}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.controllerText}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.consentText}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.cookiesIntro}
+          </p>
+          <BulletList items={privacyPolicy.googleAnalytics.cookieItems} />
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.dataIntro}
+          </p>
+          <BulletList items={privacyPolicy.googleAnalytics.dataItems} />
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.purposeText}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.transferText}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {privacyPolicy.googleAnalytics.rightsText}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-text-primary">
+            {(() => {
+              const [before, label, after] = splitAroundLabel(
+                privacyPolicy.googleAnalytics.noticeText,
+                privacyPolicy.googleAnalytics.noticeLinkLabel,
+              );
+              return (
+                <>
+                  {before}
+                  <a
+                    href={privacyPolicy.googleAnalytics.noticeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-accent underline underline-offset-4"
+                  >
+                    {label}
+                    <span className="sr-only"> (új lapon nyílik meg)</span>
+                  </a>
+                  {after}
+                </>
+              );
+            })()}
+          </p>
+          <p className="mt-4 text-sm text-text-secondary">
+            {privacyPolicy.googleAnalytics.publishedDate}
+          </p>
+
           <p className="mt-14 border-t border-border-strong pt-8 text-sm text-text-secondary">
             {privacyPolicy.effectiveDate}
           </p>

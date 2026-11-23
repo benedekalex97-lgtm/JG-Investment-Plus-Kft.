@@ -11,7 +11,7 @@ import Services from "@/components/Services";
 import TradingPlatforms from "@/components/TradingPlatforms";
 import WhyJG from "@/components/WhyJG";
 import { nav } from "@/content/homepage";
-import { baseOpenGraph, homeJsonLd, serializeJsonLd } from "@/lib/seo";
+import { HOME_DESCRIPTION, HOME_TITLE, baseOpenGraph, homeJsonLd, serializeJsonLd } from "@/lib/seo";
 
 /*
  * v1.0 — a főoldal SAJÁT canonicalja, itt és nem a gyökér layoutban.
@@ -26,8 +26,10 @@ import { baseOpenGraph, homeJsonLd, serializeJsonLd } from "@/lib/seo";
  * canonicalt.
  */
 export const metadata: Metadata = {
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
   alternates: { canonical: "/" },
-  openGraph: { ...baseOpenGraph, url: "/" },
+  openGraph: { ...baseOpenGraph, title: HOME_TITLE, description: HOME_DESCRIPTION, url: "/" },
 };
 
 /**

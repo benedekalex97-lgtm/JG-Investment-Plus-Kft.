@@ -34,6 +34,12 @@ export const tradingPlatforms = {
     href: ACCOUNT_OPENING_HREF ?? "/#kapcsolat",
   },
   /**
+   * Link a számlanyitási útmutatóra (/szamlanyitas) a Számlanyitás gomb
+   * mellett — annak, aki még a döntés előtt áll (az útmutatóval együtt
+   * élesítve 2026-11-23).
+   */
+  guideLink: { lead: "Hogyan zajlik a számlanyitás?", label: "Lépésről lépésre", href: "/szamlanyitas" },
+  /**
    * A szakasz alatti közlés — Jánosi Renáta (K&H Értékpapír, 2026-11-19)
    * szövege. Az utolsó mondat az ő kérésére „A képek és videók forrása",
    * mert a webtrader-képek a hivatalos oktatóvideókból kivágott kockák.
