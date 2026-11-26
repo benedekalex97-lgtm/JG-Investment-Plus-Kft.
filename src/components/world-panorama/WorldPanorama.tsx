@@ -12,6 +12,7 @@ import {
 import { gsap } from "gsap";
 import type { Rig } from "./camera-path";
 import type { Panorama, Projection } from "./engine";
+import MarketReel from "./MarketReel";
 import { PANEL_NOTE, PANEL_SUBTITLE, REGIONS, type RegionId } from "./markets";
 import { INTRO_BEATS, INTRO_DURATION } from "./trading-day";
 
@@ -765,20 +766,8 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
                   </svg>
                 </button>
               </div>
-              <ul className="wp-list">
-                {region.listings.map((listing) => (
-                  <li key={listing.ticker} className="wp-row">
-                    <span className="wp-name">
-                      {listing.name}
-                      {listing.shareClass ? <span className="sr-only">, {listing.shareClass}</span> : null}
-                    </span>
-                    <span className="wp-ticker">
-                      {listing.ticker}
-                      <span className="sr-only"> ({listing.exchange})</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              {/* 30 tétel, lassan pörgő lista; megáll, amikor a látogató rámegy egy sorra. */}
+              <MarketReel key={region.id} listings={region.listings} running={motionAllowed} />
               <p className="wp-panel-note">{PANEL_NOTE}</p>
             </>
           ) : null}
@@ -808,7 +797,7 @@ export default function WorldPanorama({ children }: { children: ReactNode }) {
                 </p>
                 <ul className="wp-list">
                   {r.listings.map((listing) => (
-                    <li key={listing.ticker} className="wp-row">
+                    <li key={`${listing.mic}:${listing.ticker}`} className="wp-row">
                       <span className="wp-name">{listing.name}</span>
                       <span className="wp-ticker">{listing.ticker}</span>
                     </li>
