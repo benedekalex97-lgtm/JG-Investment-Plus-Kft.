@@ -118,6 +118,29 @@ meg, amikor a kamera. p = 0-ban minden effekt nyugalomban van: az első élő ko
 reduced motion statikus térképe) pixelre azonos a korábbival, a posztereket nem kellett
 újraexportálni.
 
+## Regionális listák — 30 tétel, pörgő lista (v1.3)
+
+- **Tartalom:** régiónként 30 cég (Amerika 1–30, Európa 1–30, Ázsia: a megrendelő
+  rangsorának első 30 tétele) teljes cégnévvel, tickerrel és egymondatos
+  leírással (`markets.ts`). A leírások a megrendelő listájából származnak; a
+  nyilvánvaló elírásokat és néhány ténybeli pontatlanságot javítottuk — a
+  javítások a tételek melletti megjegyzésekben szerepelnek.
+- **Megjelenés:** `MarketReel.tsx`. A lista rögzített magasságú ablakban
+  (desktop 232 px, mobil 200 px) lassan, 22 px/s sebességgel görget felfelé,
+  és varrat nélkül kezdődik újra. Panelnyitás után 1,2 s-ig áll, hogy az első
+  sorok olvashatók legyenek.
+- **Megállás:** egérrel a lista fölött, billentyűzetfókusszal egy soron vagy
+  koppintásra a lista megáll, és a kiválasztott sor alatt lenyílik a leírás
+  (egyszerre egy). Megállítva egérgörgővel vagy ujjal húzva kézzel is
+  görgethető; a fókuszált sor mindig az ablakba gördül.
+- **Nem pörög:** csökkentett mozgás beállításnál, és ha a látogató a
+  „Mozgás leállítása" gombbal megállította a mozgást (statikus, kézzel
+  görgethető lista). JavaScript nélkül a három natív lenyitó mind a 30 tételt
+  mutatja.
+- **Akadálymentesség:** az első példány sorai gombok (`aria-expanded`,
+  `aria-controls` a leírásra); a varratmentes ismétléshez használt második
+  példány `aria-hidden`, és nem fókuszálható.
+
 ## Részvényadatok — ellenőrzési állapot
 
 Minden tétel `verification.status = "unverified"`. A nevek és tickerek a brief
